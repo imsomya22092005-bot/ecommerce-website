@@ -3,56 +3,68 @@ import { useLanguage } from "../LanguageContext";
 import ProductCard from "../components/ProductCard";
 
 function Products() {
-
   const { language } = useLanguage();
+
   const products = [
     {
       id: 1,
-      name: "Classic Beige Jacket",
+      name:
+        language === "Hindi"
+          ? "क्लासिक बेज जैकेट"
+          : "Classic Beige Jacket",
       price: 2499,
       category: "Fashion",
       image:
-        "https://images.unsplash.com/photo-1551028719-00167b16eac5?auto=format&fit=crop&w=700&q=80",
+        "https://images.unsplash.com/photo-1551028719-00167b16eac5?auto=format&fit=crop&w=800&q=80",
     },
     {
       id: 2,
-      name: "Minimal Leather Bag",
+      name:
+        language === "Hindi"
+          ? "मिनिमल लेदर बैग"
+          : "Minimal Leather Bag",
       price: 1999,
       category: "Accessories",
       image:
-        "https://images.unsplash.com/photo-1548036328-c9fa89d128fa?auto=format&fit=crop&w=700&q=80",
+        "https://images.unsplash.com/photo-1548036328-c9fa89d128fa?auto=format&fit=crop&w=800&q=80",
     },
     {
       id: 3,
-      name: "Classic White Sneakers",
+      name:
+        language === "Hindi"
+          ? "क्लासिक व्हाइट स्नीकर्स"
+          : "Classic White Sneakers",
       price: 2999,
       category: "Footwear",
       image:
-        "https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&w=700&q=80",
+        "https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&w=800&q=80",
     },
     {
       id: 4,
-      name: "Everyday Wrist Watch",
+      name:
+        language === "Hindi"
+          ? "एवरीडे कलाई घड़ी"
+          : "Everyday Wrist Watch",
       price: 3499,
       category: "Accessories",
       image:
-        "https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=700&q=80",
+        "https://images.unsplash.com/photo-1524805444758-089113d48a6d?auto=format&fit=crop&w=800&q=80",
     },
   ];
+  console.log(language, products);
 
   const [search, setSearch] = useState("");
   const [category, setCategory] = useState("All");
   const [sort, setSort] = useState("default");
 
   useEffect(() => {
-  const params = new URLSearchParams(window.location.search);
+    const params = new URLSearchParams(window.location.search);
+    const searchQuery = params.get("search");
 
-  const searchQuery = params.get("search");
-
-  if (searchQuery) {
-    setSearch(searchQuery);
-  }
-}, []);
+    if (searchQuery) {
+      setSearch(searchQuery);
+    }
+  }, []);
 
   const filteredProducts = products
     .filter((product) => {
@@ -84,86 +96,97 @@ function Products() {
 
   return (
     <main className="products-page">
-     <section className="products-header" id="new-arrivals">
+      <section className="products-header" id="new-arrivals">
         <p className="section-label">
-  {language === "Hindi"
-    ? "SHOPSPHERE कलेक्शन"
-    : "SHOPSPHERE COLLECTION"}
-</p>
+          {language === "Hindi"
+            ? "SHOPSPHERE कलेक्शन"
+            : "SHOPSPHERE COLLECTION"}
+        </p>
 
-<h1>
-  {language === "Hindi"
-    ? "अपनी स्टाइल खोजें"
-    : "Discover Your Style"}
-</h1>
+        <h1>
+          {language === "Hindi"
+            ? "अपनी स्टाइल खोजें"
+            : "Discover Your Style"}
+        </h1>
 
-<p>
-  {language === "Hindi"
-    ? "हमारे खास चुने गए प्रोडक्ट्स का कलेक्शन देखें, जो रोज़मर्रा की खूबसूरती के लिए डिज़ाइन किए गए हैं।"
-    : "Explore our carefully selected collection of products designed for everyday elegance."}
-</p>
+        <p>
+          {language === "Hindi"
+            ? "हमारे खास चुने गए प्रोडक्ट्स का कलेक्शन देखें, जो रोज़मर्रा की खूबसूरती के लिए डिज़ाइन किए गए हैं।"
+            : "Explore our carefully selected collection of products designed for everyday elegance."}
+        </p>
       </section>
 
       {/* SEARCH + FILTERS */}
 
       <section className="product-controls">
         <input
-  type="text"
-  placeholder={
-    language === "Hindi"
-      ? "प्रोडक्ट खोजें..."
-      : "Search products..."
-  }
-  value={search}
-  onChange={(e) => setSearch(e.target.value)}
-/>
+          type="text"
+          placeholder={
+            language === "Hindi"
+              ? "प्रोडक्ट खोजें..."
+              : "Search products..."
+          }
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+        />
 
         <select
-  value={category}
-  onChange={(e) => setCategory(e.target.value)}
->
-  <option value="All">
-    {language === "Hindi" ? "सभी कैटेगरी" : "All Categories"}
-  </option>
+          value={category}
+          onChange={(e) => setCategory(e.target.value)}
+        >
+          <option value="All">
+            {language === "Hindi"
+              ? "सभी कैटेगरी"
+              : "All Categories"}
+          </option>
 
-  <option value="Fashion">
-    {language === "Hindi" ? "फैशन" : "Fashion"}
-  </option>
+          <option value="Fashion">
+            {language === "Hindi"
+              ? "फैशन"
+              : "Fashion"}
+          </option>
 
-  <option value="Accessories">
-    {language === "Hindi" ? "एक्सेसरीज़" : "Accessories"}
-  </option>
+          <option value="Accessories">
+            {language === "Hindi"
+              ? "एक्सेसरीज़"
+              : "Accessories"}
+          </option>
 
-  <option value="Footwear">
-    {language === "Hindi" ? "फुटवियर" : "Footwear"}
-  </option>
-</select>
+          <option value="Footwear">
+            {language === "Hindi"
+              ? "फुटवियर"
+              : "Footwear"}
+          </option>
+        </select>
+
         <select
-  value={sort}
-  onChange={(e) => setSort(e.target.value)}
->
-  <option value="default">
-    {language === "Hindi" ? "क्रम से देखें" : "Sort By"}
-  </option>
+          value={sort}
+          onChange={(e) => setSort(e.target.value)}
+        >
+          <option value="default">
+            {language === "Hindi"
+              ? "क्रम से देखें"
+              : "Sort By"}
+          </option>
 
-  <option value="low">
-    {language === "Hindi"
-      ? "कीमत: कम से अधिक"
-      : "Price: Low to High"}
-  </option>
+          <option value="low">
+            {language === "Hindi"
+              ? "कीमत: कम से अधिक"
+              : "Price: Low to High"}
+          </option>
 
-  <option value="high">
-    {language === "Hindi"
-      ? "कीमत: अधिक से कम"
-      : "Price: High to Low"}
-  </option>
+          <option value="high">
+            {language === "Hindi"
+              ? "कीमत: अधिक से कम"
+              : "Price: High to Low"}
+          </option>
 
-  <option value="name">
-    {language === "Hindi"
-      ? "नाम: A से Z"
-      : "Name: A to Z"}
-  </option>
-</select>
+          <option value="name">
+            {language === "Hindi"
+              ? "नाम: A से Z"
+              : "Name: A to Z"}
+          </option>
+        </select>
       </section>
 
       {/* PRODUCTS */}
@@ -179,18 +202,18 @@ function Products() {
         </section>
       ) : (
         <div className="no-products">
-  <h2>
-    {language === "Hindi"
-      ? "कोई प्रोडक्ट नहीं मिला"
-      : "No products found"}
-  </h2>
+          <h2>
+            {language === "Hindi"
+              ? "कोई प्रोडक्ट नहीं मिला"
+              : "No products found"}
+          </h2>
 
-  <p>
-    {language === "Hindi"
-      ? "कोई दूसरा सर्च या कैटेगरी ट्राय करें।"
-      : "Try another search or category."}
-  </p>
-</div>
+          <p>
+            {language === "Hindi"
+              ? "कोई दूसरा सर्च या कैटेगरी ट्राय करें।"
+              : "Try another search or category."}
+          </p>
+        </div>
       )}
     </main>
   );
