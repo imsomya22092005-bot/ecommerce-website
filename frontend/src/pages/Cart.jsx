@@ -1,7 +1,9 @@
 import { Link } from "react-router-dom";
 import { useEffect, useState } from "react";
+import { useLanguage } from "../LanguageContext";
 
 function Cart() {
+  const { language } = useLanguage();
   const [cart, setCart] = useState([]);
 
   useEffect(() => {
@@ -34,30 +36,51 @@ function Cart() {
     0
   );
 
-  if (cart.length === 0) {
-    return (
-      <main className="empty-cart">
-        <p className="section-label">SHOPSPHERE CART</p>
+ if (cart.length === 0) {
+  return (
+    <main className="empty-cart">
+      <p className="section-label">
+        {language === "Hindi"
+          ? "SHOPSPHERE कार्ट"
+          : "SHOPSPHERE CART"}
+      </p>
 
-        <h1>Your Cart is Empty</h1>
+      <h1>
+        {language === "Hindi"
+          ? "आपका कार्ट खाली है"
+          : "Your Cart is Empty"}
+      </h1>
 
-        <p>
-          Looks like you haven't added anything to your cart yet.
-        </p>
+      <p>
+        {language === "Hindi"
+          ? "ऐसा लगता है कि आपने अभी तक अपने कार्ट में कुछ नहीं जोड़ा है।"
+          : "Looks like you haven't added anything to your cart yet."}
+      </p>
 
-        <Link to="/products" className="continue-shopping">
-          CONTINUE SHOPPING
-        </Link>
-      </main>
-    );
-  }
+      <Link to="/products" className="continue-shopping">
+        {language === "Hindi"
+          ? "शॉपिंग जारी रखें"
+          : "CONTINUE SHOPPING"}
+      </Link>
+    </main>
+  );
+}
 
   return (
     <main className="cart-page">
       <div className="cart-header">
-        <p className="section-label">SHOPSPHERE CART</p>
-        <h1>Your Shopping Bag</h1>
-      </div>
+  <p className="section-label">
+    {language === "Hindi"
+      ? "SHOPSPHERE कार्ट"
+      : "SHOPSPHERE CART"}
+  </p>
+
+  <h1>
+    {language === "Hindi"
+      ? "आपका शॉपिंग बैग"
+      : "Your Shopping Bag"}
+  </h1>
+</div>
 
       <div className="cart-layout">
         <section className="cart-items">
@@ -95,43 +118,72 @@ function Cart() {
                   </button>
                 </div>
 
-                <button
-                  className="remove-item"
-                  onClick={() => removeItem(item.id)}
-                >
-                  REMOVE
-                </button>
+               <button
+  className="remove-item"
+  onClick={() => removeItem(item.id)}
+>
+  {language === "Hindi" ? "हटाएं" : "REMOVE"}
+</button>
               </div>
             </article>
           ))}
         </section>
 
-        <aside className="cart-summary">
-          <h2>Order Summary</h2>
+        
 
-          <div className="summary-row">
-            <span>Subtotal</span>
-            <span>₹{total}</span>
-          </div>
+         <aside className="cart-summary">
+  <h2>
+    {language === "Hindi"
+      ? "ऑर्डर का सारांश"
+      : "Order Summary"}
+  </h2>
 
-          <div className="summary-row">
-            <span>Shipping</span>
-            <span>{total >= 999 ? "FREE" : "₹99"}</span>
-          </div>
+  <div className="summary-row">
+    <span>
+      {language === "Hindi"
+        ? "सबटोटल"
+        : "Subtotal"}
+    </span>
 
-          <div className="summary-line"></div>
+    <span>₹{total}</span>
+  </div>
 
-          <div className="summary-total">
-            <span>Total</span>
-            <strong>
-              ₹{total >= 999 ? total : total + 99}
-            </strong>
-          </div>
+  <div className="summary-row">
+    <span>
+      {language === "Hindi"
+        ? "शिपिंग"
+        : "Shipping"}
+    </span>
 
-         <Link to="/checkout" className="checkout-btn">
-  PROCEED TO CHECKOUT
-</Link>
-        </aside>
+    <span>
+      {total >= 999
+        ? language === "Hindi"
+          ? "फ्री"
+          : "FREE"
+        : "₹99"}
+    </span>
+  </div>
+
+  <div className="summary-line"></div>
+
+  <div className="summary-total">
+    <span>
+      {language === "Hindi"
+        ? "कुल"
+        : "Total"}
+    </span>
+
+    <strong>
+      ₹{total >= 999 ? total : total + 99}
+    </strong>
+  </div>
+
+  <Link to="/checkout" className="checkout-btn">
+    {language === "Hindi"
+      ? "चेकआउट के लिए आगे बढ़ें"
+      : "PROCEED TO CHECKOUT"}
+  </Link>
+</aside>
       </div>
     </main>
   );

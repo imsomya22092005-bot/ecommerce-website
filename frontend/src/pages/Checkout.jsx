@@ -1,7 +1,9 @@
 import { Link, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
+import { useLanguage } from "../LanguageContext";
 
 function Checkout() {
+  const { language } = useLanguage();
   const navigate = useNavigate();
   const [cart, setCart] = useState([]);
 
@@ -60,135 +62,216 @@ function Checkout() {
   if (cart.length === 0) {
     return (
       <main className="empty-cart">
-        <p className="section-label">CHECKOUT</p>
+        <p className="section-label">
+  {language === "Hindi" ? "चेकआउट" : "CHECKOUT"}
+</p>
 
-        <h1>Your Cart is Empty</h1>
+<h1>
+  {language === "Hindi"
+    ? "आपका कार्ट खाली है"
+    : "Your Cart is Empty"}
+</h1>
 
-        <p>Add some products before checking out.</p>
+<p>
+  {language === "Hindi"
+    ? "चेकआउट करने से पहले कुछ प्रोडक्ट्स जोड़ें।"
+    : "Add some products before checking out."}
+</p>
 
-        <Link to="/products" className="continue-shopping">
-          CONTINUE SHOPPING
-        </Link>
+<Link to="/products" className="continue-shopping">
+  {language === "Hindi"
+    ? "शॉपिंग जारी रखें"
+    : "CONTINUE SHOPPING"}
+</Link>
       </main>
     );
   }
 
   return (
     <main className="checkout-page">
-      <div className="checkout-header">
-        <p className="section-label">SHOPSPHERE CHECKOUT</p>
+     <div className="checkout-header">
+  <p className="section-label">
+    {language === "Hindi"
+      ? "SHOPSPHERE चेकआउट"
+      : "SHOPSPHERE CHECKOUT"}
+  </p>
 
-        <h1>Complete Your Order</h1>
-      </div>
+  <h1>
+    {language === "Hindi"
+      ? "अपना ऑर्डर पूरा करें"
+      : "Complete Your Order"}
+  </h1>
+</div>
 
       <div className="checkout-layout">
         <form
           className="checkout-form"
           onSubmit={handleSubmit}
         >
-          <h2>Shipping Information</h2>
+          <h2>
+  {language === "Hindi"
+    ? "शिपिंग की जानकारी"
+    : "Shipping Information"}
+</h2>
 
           <div className="checkout-fields">
             <div className="form-group">
-              <label>FULL NAME</label>
+              <label>
+  {language === "Hindi" ? "पूरा नाम" : "FULL NAME"}
+</label>
 
               <input
                 name="name"
                 value={form.name}
                 onChange={handleChange}
-                placeholder="Enter your full name"
+               placeholder={
+  language === "Hindi"
+    ? "अपना पूरा नाम दर्ज करें"
+    : "Enter your full name"
+}
                 required
               />
             </div>
 
             <div className="form-group">
-              <label>EMAIL ADDRESS</label>
+              <label>
+  {language === "Hindi"
+    ? "ईमेल पता"
+    : "EMAIL ADDRESS"}
+</label>
 
               <input
                 type="email"
                 name="email"
                 value={form.email}
                 onChange={handleChange}
-                placeholder="Enter your email"
+                placeholder={
+  language === "Hindi"
+    ? "अपना ईमेल दर्ज करें"
+    : "Enter your email"
+}
                 required
               />
             </div>
 
             <div className="form-group">
-              <label>PHONE NUMBER</label>
+             <label>
+  {language === "Hindi"
+    ? "फोन नंबर"
+    : "PHONE NUMBER"}
+</label>
 
               <input
                 type="tel"
                 name="phone"
                 value={form.phone}
                 onChange={handleChange}
-                placeholder="Enter your phone number"
+               placeholder={
+  language === "Hindi"
+    ? "अपना फोन नंबर दर्ज करें"
+    : "Enter your phone number"
+}
                 required
               />
             </div>
 
             <div className="form-group">
-              <label>PINCODE</label>
+              <label>
+  {language === "Hindi" ? "पिनकोड" : "PINCODE"}
+</label>
 
               <input
                 name="pincode"
                 value={form.pincode}
                 onChange={handleChange}
-                placeholder="Enter pincode"
+               placeholder={
+  language === "Hindi"
+    ? "पिनकोड दर्ज करें"
+    : "Enter pincode"
+}
                 required
               />
             </div>
 
             <div className="form-group full-width">
-              <label>ADDRESS</label>
+              <label>
+  {language === "Hindi" ? "पता" : "ADDRESS"}
+</label>
 
               <textarea
                 name="address"
                 value={form.address}
                 onChange={handleChange}
-                placeholder="House no., street, locality"
+               placeholder={
+  language === "Hindi"
+    ? "मकान नंबर, गली, क्षेत्र"
+    : "House no., street, locality"
+}
                 rows="4"
                 required
               />
             </div>
 
             <div className="form-group">
-              <label>CITY</label>
+              <label>
+  {language === "Hindi" ? "शहर" : "CITY"}
+</label>
 
               <input
                 name="city"
                 value={form.city}
                 onChange={handleChange}
-                placeholder="Enter city"
+                placeholder={
+  language === "Hindi"
+    ? "शहर दर्ज करें"
+    : "Enter city"
+}
                 required
               />
             </div>
           </div>
 
           <h2 className="payment-title">
-            Payment Method
-          </h2>
+  {language === "Hindi"
+    ? "भुगतान का तरीका"
+    : "Payment Method"}
+</h2>
 
-          <div className="payment-option">
-            <input
-              type="radio"
-              checked
-              readOnly
-            />
+<div className="payment-option">
+  <input
+    type="radio"
+    checked
+    readOnly
+  />
 
-            <div>
-              <strong>Cash on Delivery</strong>
-              <span>Pay when your order arrives</span>
-            </div>
-          </div>
+  <div>
+    <strong>
+      {language === "Hindi"
+        ? "कैश ऑन डिलीवरी"
+        : "Cash on Delivery"}
+    </strong>
 
-          <button className="place-order-btn" type="submit">
-            PLACE ORDER
-          </button>
+    <span>
+      {language === "Hindi"
+        ? "ऑर्डर आने पर भुगतान करें"
+        : "Pay when your order arrives"}
+    </span>
+  </div>
+</div>
+
+<button className="place-order-btn" type="submit">
+  {language === "Hindi"
+    ? "ऑर्डर करें"
+    : "PLACE ORDER"}
+</button>
         </form>
 
         <aside className="checkout-summary">
-          <h2>Order Summary</h2>
+  <h2>
+    {language === "Hindi"
+      ? "ऑर्डर का सारांश"
+      : "Order Summary"}
+  </h2>
 
           {cart.map((item) => (
             <div className="checkout-product" key={item.id}>
@@ -213,17 +296,41 @@ function Checkout() {
             <span>₹{subtotal}</span>
           </div>
 
-          <div className="summary-row">
-            <span>Shipping</span>
-            <span>
-              {shipping === 0 ? "FREE" : `₹${shipping}`}
-            </span>
-          </div>
+         <div className="summary-row">
+  <span>
+    {language === "Hindi"
+      ? "सबटोटल"
+      : "Subtotal"}
+  </span>
 
-          <div className="summary-total">
-            <span>Total</span>
-            <strong>₹{total}</strong>
-          </div>
+  <span>₹{subtotal}</span>
+</div>
+
+<div className="summary-row">
+  <span>
+    {language === "Hindi"
+      ? "शिपिंग"
+      : "Shipping"}
+  </span>
+
+  <span>
+    {shipping === 0
+      ? language === "Hindi"
+        ? "फ्री"
+        : "FREE"
+      : `₹${shipping}`}
+  </span>
+</div>
+
+<div className="summary-total">
+  <span>
+    {language === "Hindi"
+      ? "कुल"
+      : "Total"}
+  </span>
+
+  <strong>₹{total}</strong>
+</div>
         </aside>
       </div>
     </main>

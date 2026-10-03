@@ -13,6 +13,8 @@ import Login from "./pages/Login";
 import Wishlist from "./pages/Wishlist";
 import Checkout from "./pages/Checkout";
 import OrderSuccess from "./pages/OrderSuccess";
+import About from "./pages/About";
+import Footer from "./components/Footer";
 
 function App() {
   return (
@@ -27,11 +29,12 @@ function App() {
         <Route path="/wishlist" element={<Wishlist />} />
         <Route path="/login" element={<Login />} />
         <Route path="/checkout" element={<Checkout />} />
-<Route
-  path="/order-success"
-  element={<OrderSuccess />}
-/>
+ <Route path="/order-success" element={<OrderSuccess />} />
+<Route path="/about" element={<About />} />
       </Routes>
+
+
+  <Footer />
     </BrowserRouter>
   );
 }

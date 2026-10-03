@@ -1,8 +1,10 @@
 import { Link, useParams } from "react-router-dom";
 import { useState } from "react";
+import { useLanguage } from "../LanguageContext";
 
 function ProductDetails() {
   const { id } = useParams();
+  const { language } = useLanguage();
   const [added, setAdded] = useState(false);
 
   const products = [
@@ -53,16 +55,22 @@ function ProductDetails() {
   );
 
   if (!product) {
-    return (
-      <main className="product-not-found">
-        <h1>Product Not Found</h1>
+  return (
+    <main className="product-not-found">
+      <h1>
+        {language === "Hindi"
+          ? "प्रोडक्ट नहीं मिला"
+          : "Product Not Found"}
+      </h1>
 
-        <Link to="/products">
-          Back to Products
-        </Link>
-      </main>
-    );
-  }
+      <Link to="/products">
+        {language === "Hindi"
+          ? "प्रोडक्ट्स पर वापस जाएं"
+          : "Back to Products"}
+      </Link>
+    </main>
+  );
+}
 
   return (
     <main className="product-details">
@@ -75,9 +83,17 @@ function ProductDetails() {
       </div>
 
       <div className="details-content">
-        <p className="details-category">
-          {product.category}
-        </p>
+       <p className="details-category">
+  {language === "Hindi"
+    ? product.category === "Fashion"
+      ? "फैशन"
+      : product.category === "Accessories"
+      ? "एक्सेसरीज़"
+      : product.category === "Footwear"
+      ? "फुटवियर"
+      : product.category
+    : product.category}
+</p>
 
         <h1>{product.name}</h1>
 
@@ -137,8 +153,12 @@ function ProductDetails() {
             }}
           >
             {added
-              ? "ADDED TO CART ✓"
-              : "ADD TO CART"}
+  ? language === "Hindi"
+    ? "कार्ट में जोड़ा गया ✓"
+    : "ADDED TO CART ✓"
+  : language === "Hindi"
+  ? "कार्ट में जोड़ें"
+  : "ADD TO CART"}
           </button>
 
           {/* WISHLIST */}
@@ -187,18 +207,39 @@ function ProductDetails() {
         {/* PRODUCT INFO */}
         <div className="product-info-box">
           <div>
-            <strong>FREE SHIPPING</strong>
-            <span>On orders over ₹999</span>
+           <strong>
+  {language === "Hindi" ? "फ्री शिपिंग" : "FREE SHIPPING"}
+</strong>
+
+<span>
+  {language === "Hindi"
+    ? "₹999 से अधिक के ऑर्डर पर"
+    : "On orders over ₹999"}
+</span>
           </div>
 
           <div>
-            <strong>EASY RETURNS</strong>
-            <span>30-day return policy</span>
+           <strong>
+  {language === "Hindi" ? "आसान रिटर्न" : "EASY RETURNS"}
+</strong>
+
+<span>
+  {language === "Hindi"
+    ? "30 दिन की रिटर्न पॉलिसी"
+    : "30-day return policy"}
+</span>
           </div>
 
           <div>
-            <strong>SECURE PAYMENT</strong>
-            <span>100% secure checkout</span>
+            <strong>
+  {language === "Hindi" ? "सुरक्षित भुगतान" : "SECURE PAYMENT"}
+</strong>
+
+<span>
+  {language === "Hindi"
+    ? "100% सुरक्षित चेकआउट"
+    : "100% secure checkout"}
+</span>
           </div>
         </div>
       </div>

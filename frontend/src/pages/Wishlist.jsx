@@ -1,8 +1,10 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import { useLanguage } from "../LanguageContext";
 
 function Wishlist() {
   const [wishlist, setWishlist] = useState([]);
+  const { language } = useLanguage();
 
   const loadWishlist = () => {
     const savedWishlist =
@@ -40,13 +42,20 @@ function Wishlist() {
   return (
     <main className="wishlist-page">
       <div className="wishlist-header">
-        <p className="section-label">SHOPSPHERE</p>
+        <p className="section-label">
+          SHOPSPHERE
+        </p>
 
-        <h1>Your Wishlist</h1>
+        <h1>
+          {language === "Hindi"
+            ? "आपकी विशलिस्ट"
+            : "Your Wishlist"}
+        </h1>
 
         <p>
-          Save the pieces you love and come back to them
-          whenever you want.
+          {language === "Hindi"
+            ? "अपने पसंदीदा प्रोडक्ट्स को सेव करें और जब चाहें वापस देखें।"
+            : "Save the pieces you love and come back to them whenever you want."}
         </p>
       </div>
 
@@ -54,14 +63,25 @@ function Wishlist() {
         <div className="empty-wishlist">
           <div className="empty-heart">♡</div>
 
-          <h2>Your wishlist is empty</h2>
+          <h2>
+            {language === "Hindi"
+              ? "आपकी विशलिस्ट खाली है"
+              : "Your wishlist is empty"}
+          </h2>
 
           <p>
-            Start exploring and save your favorite products.
+            {language === "Hindi"
+              ? "एक्सप्लोर करना शुरू करें और अपने पसंदीदा प्रोडक्ट्स सेव करें।"
+              : "Start exploring and save your favorite products."}
           </p>
 
-          <Link to="/products" className="continue-shopping">
-            EXPLORE PRODUCTS
+          <Link
+            to="/products"
+            className="continue-shopping"
+          >
+            {language === "Hindi"
+              ? "प्रोडक्ट्स एक्सप्लोर करें"
+              : "EXPLORE PRODUCTS"}
           </Link>
         </div>
       ) : (
@@ -80,7 +100,15 @@ function Wishlist() {
 
               <div className="wishlist-info">
                 <p className="product-category">
-                  {product.category}
+                  {language === "Hindi"
+                    ? product.category === "Fashion"
+                      ? "फैशन"
+                      : product.category === "Accessories"
+                      ? "एक्सेसरीज़"
+                      : product.category === "Footwear"
+                      ? "फुटवियर"
+                      : product.category
+                    : product.category}
                 </p>
 
                 <h2>{product.name}</h2>
@@ -92,7 +120,9 @@ function Wishlist() {
                     removeFromWishlist(product.id)
                   }
                 >
-                  REMOVE
+                  {language === "Hindi"
+                    ? "हटाएं"
+                    : "REMOVE"}
                 </button>
               </div>
             </article>

@@ -1,35 +1,98 @@
 import { Link } from "react-router-dom";
+import { useLanguage } from "../LanguageContext";
 import heroImage from "../assets/hero.png";
 
+
 function Home() {
+  const { language } = useLanguage();
+
+  const content = {
+  English: {
+    newCollection: "NEW COLLECTION",
+    heroTitle1: "Elevate Your",
+    heroTitle2: "Everyday Style.",
+    heroDescription:
+      "Discover thoughtfully selected products made for your style, comfort and everyday life.",
+    shopNow: "SHOP NOW",
+    viewCollection: "VIEW COLLECTION",
+    exploreCollections: "EXPLORE COLLECTIONS",
+    shopByCategory: "Shop by Category",
+    viewAll: "VIEW ALL →",
+    fashion: "FASHION",
+    fashionText: "Elevated everyday essentials",
+    accessories: "ACCESSORIES",
+    accessoriesText: "Details that complete your look",
+    footwear: "FOOTWEAR",
+    footwearText: "Comfort meets modern style",
+    justDropped: "JUST DROPPED",
+    newArrivals: "New Arrivals",
+    shopAll: "SHOP ALL →",
+    shopSphereEdit: "SHOPSPHERE EDIT",
+    timeless: "Timeless pieces.",
+    everyday: "Everyday essentials.",
+    exploreCollection: "EXPLORE THE COLLECTION →",
+  },
+
+  Hindi: {
+    newCollection: "नई कलेक्शन",
+    heroTitle1: "अपने रोज़ाना",
+    heroTitle2: "स्टाइल को बेहतर बनाएं।",
+    heroDescription:
+      "अपनी स्टाइल, आराम और रोज़मर्रा की ज़िंदगी के लिए चुने गए बेहतरीन प्रोडक्ट्स खोजें।",
+    shopNow: "अभी खरीदें",
+    viewCollection: "कलेक्शन देखें",
+    exploreCollections: "कलेक्शन एक्सप्लोर करें",
+    shopByCategory: "कैटेगरी के अनुसार खरीदें",
+    viewAll: "सभी देखें →",
+    fashion: "फैशन",
+    fashionText: "रोज़मर्रा के स्टाइलिश प्रोडक्ट्स",
+    accessories: "एक्सेसरीज़",
+    accessoriesText: "आपके लुक को पूरा करने वाले खास प्रोडक्ट्स",
+    footwear: "फुटवियर",
+    footwearText: "आराम और आधुनिक स्टाइल का मेल",
+    justDropped: "अभी-अभी आया",
+    newArrivals: "नए प्रोडक्ट्स",
+    shopAll: "सभी खरीदें →",
+    shopSphereEdit: "SHOPSPHERE कलेक्शन",
+    timeless: "हमेशा पसंद आने वाले प्रोडक्ट्स।",
+    everyday: "रोज़मर्रा की ज़रूरतें।",
+    exploreCollection: "कलेक्शन एक्सप्लोर करें →",
+  },
+};
+
+const t = content[language];
+
   return (
     <main className="home">
 
-      <section className="hero">
+      {/* ================= HERO ================= */}
 
+      <section className="hero">
         <div className="hero-content">
-          <p className="hero-label">NEW COLLECTION</p>
+          <p className="hero-label">{t.newCollection}</p>
 
           <h1>
-            Elevate Your
-            <br />
-            Everyday Style.
-          </h1>
+  {t.heroTitle1}
+  <br />
+  {t.heroTitle2}
+</h1>
 
           <p className="hero-description">
-            Discover thoughtfully selected products made
-            for your style, comfort and everyday life.
-          </p>
+  {t.heroDescription}
+</p>
 
           <div className="hero-buttons">
-            <Link to="/products" className="hero-btn primary-btn">
-              SHOP NOW
-            </Link>
+  <Link to="/products" className="hero-btn primary-btn">
+    {t.shopNow}
+  </Link>
 
-            <Link to="/products" className="hero-btn secondary-btn">
-              VIEW COLLECTION
-            </Link>
-          </div>
+  <Link
+    to="/products?category=Fashion"
+    className="hero-btn secondary-btn"
+  >
+    {t.viewCollection}
+  </Link>
+</div>
         </div>
 
         <div className="hero-image-wrapper">
@@ -39,44 +102,273 @@ function Home() {
             className="hero-image"
           />
         </div>
-
       </section>
+
+
+      {/* ================= FEATURES ================= */}
 
       <section className="hero-features">
 
         <div className="feature">
           <span>✦</span>
+
           <div>
-            <strong>FREE SHIPPING</strong>
-            <p>On orders over ₹999</p>
+            <strong>
+  {language === "Hindi" ? "फ्री शिपिंग" : "FREE SHIPPING"}
+</strong>
+<p>
+  {language === "Hindi"
+    ? "₹999 से अधिक के ऑर्डर पर"
+    : "On orders over ₹999"}
+</p>
           </div>
         </div>
 
         <div className="feature">
           <span>↻</span>
+
           <div>
-            <strong>EASY RETURNS</strong>
-            <p>30-day return policy</p>
+            <strong>
+  {language === "Hindi" ? "आसान रिटर्न" : "EASY RETURNS"}
+</strong>
+<p>
+  {language === "Hindi"
+    ? "30 दिन की रिटर्न पॉलिसी"
+    : "30-day return policy"}
+</p>
           </div>
         </div>
 
         <div className="feature">
           <span>◇</span>
+
           <div>
-            <strong>SECURE PAYMENT</strong>
-            <p>100% secure checkout</p>
+            <strong>
+  {language === "Hindi" ? "सुरक्षित भुगतान" : "SECURE PAYMENT"}
+</strong>
+<p>
+  {language === "Hindi"
+    ? "100% सुरक्षित चेकआउट"
+    : "100% secure checkout"}
+</p>
           </div>
         </div>
 
         <div className="feature">
           <span>♡</span>
+
           <div>
-            <strong>24/7 SUPPORT</strong>
-            <p>We're here to help</p>
+            <strong>
+  {language === "Hindi" ? "24/7 सहायता" : "24/7 SUPPORT"}
+</strong>
+<p>
+  {language === "Hindi"
+    ? "हम आपकी सहायता के लिए हैं"
+    : "We're here to help"}
+</p>
           </div>
         </div>
 
       </section>
+
+
+      {/* ================= CATEGORIES ================= */}
+
+      <section className="categories-section">
+
+        <div className="section-heading">
+
+          <div>
+            <p className="section-label">{t.exploreCollections}</p>
+<h2>{t.shopByCategory}</h2>
+
+            <h2>
+              Shop by Category
+            </h2>
+          </div>
+
+         <Link to="/products" className="text-link">
+  {t.viewAll}
+</Link>
+
+        </div>
+
+
+        <div className="categories-grid">
+
+          <Link
+            to="/products"
+            className="category-card"
+          >
+            <div className="category-number">
+              01
+            </div>
+
+            <div>
+              <h3>{t.fashion}</h3>
+<p>{t.fashionText}</p>
+            </div>
+
+            <span>↗</span>
+          </Link>
+
+
+          <Link
+            to="/products"
+            className="category-card"
+          >
+            <div className="category-number">
+              02
+            </div>
+
+            <div>
+              <h3>{t.accessories}</h3>
+<p>{t.accessoriesText}</p>
+            </div>
+
+            <span>↗</span>
+          </Link>
+
+
+          <Link
+            to="/products"
+            className="category-card"
+          >
+            <div className="category-number">
+              03
+            </div>
+
+            <div>
+             <h3>{t.footwear}</h3>
+<p>{t.footwearText}</p>
+            </div>
+
+            <span>↗</span>
+          </Link>
+
+        </div>
+
+      </section>
+
+{/* ================= NEW ARRIVALS ================= */}
+
+<section className="new-arrivals-section" id="new-arrivals">
+
+  <div className="section-heading">
+
+    <div>
+      <p className="section-label">{t.justDropped}</p>
+<h2>{t.newArrivals}</h2>
+    </div>
+
+    <Link to="/products" className="text-link">
+  {t.shopAll}
+</Link>
+
+  </div>
+
+
+  <div className="new-arrivals-grid">
+
+    <Link to="/product/1" className="arrival-card">
+      <div className="arrival-image">
+        <img
+          src="https://images.unsplash.com/photo-1551028719-00167b16eac5?auto=format&fit=crop&w=800&q=80"
+          alt="Classic Beige Jacket"
+        />
+
+        <span className="arrival-tag">
+          NEW
+        </span>
+      </div>
+
+      <div className="arrival-info">
+        <div>
+          <p>FASHION</p>
+          <h3>Classic Beige Jacket</h3>
+        </div>
+
+        <strong>₹2,499</strong>
+      </div>
+    </Link>
+
+
+    <Link to="/product/2" className="arrival-card">
+      <div className="arrival-image">
+        <img
+          src="https://images.unsplash.com/photo-1548036328-c9fa89d128fa?auto=format&fit=crop&w=800&q=80"
+          alt="Minimal Leather Bag"
+        />
+
+        <span className="arrival-tag">
+          NEW
+        </span>
+      </div>
+
+      <div className="arrival-info">
+        <div>
+          <p>ACCESSORIES</p>
+          <h3>Minimal Leather Bag</h3>
+        </div>
+
+        <strong>₹1,999</strong>
+      </div>
+    </Link>
+
+
+    <Link to="/product/3" className="arrival-card">
+      <div className="arrival-image">
+        <img
+          src="https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&w=800&q=80"
+          alt="Classic White Sneakers"
+        />
+
+        <span className="arrival-tag">
+          NEW
+        </span>
+      </div>
+
+      <div className="arrival-info">
+        <div>
+          <p>FOOTWEAR</p>
+          <h3>Classic White Sneakers</h3>
+        </div>
+
+        <strong>₹2,999</strong>
+      </div>
+    </Link>
+
+  </div>
+
+</section>
+
+{/* ================= PROMOTIONAL BANNER ================= */}
+
+<section className="promo-section">
+  <div className="promo-content">
+   <p className="section-label">{t.shopSphereEdit}</p>
+
+<h2>
+  {t.timeless}
+  <br />
+  {t.everyday}
+</h2>
+
+<p className="promo-description">
+  {language === "Hindi"
+    ? "ऐसे प्रोडक्ट्स खोजें जो आपकी रोज़मर्रा की ज़िंदगी में आसानी से फिट हों।"
+    : "Discover pieces designed to fit effortlessly into your everyday life."}
+</p>
+
+<Link to="/products" className="promo-btn">
+  {t.exploreCollection}
+</Link>
+  </div>
+
+  <div className="promo-number">
+    2026
+  </div>
+</section>
 
     </main>
   );

@@ -1,6 +1,8 @@
 import { Link } from "react-router-dom";
+import { useLanguage } from "../LanguageContext";
 
 function ProductCard({ product }) {
+  const { language } = useLanguage();
   return (
     <article className="product-card">
       <Link to={`/product/${product.id}`} className="product-image-wrapper">
@@ -12,7 +14,17 @@ function ProductCard({ product }) {
       </Link>
 
       <div className="product-info">
-        <p className="product-category">{product.category}</p>
+        <p className="product-category">
+  {language === "Hindi"
+    ? product.category === "Fashion"
+      ? "फैशन"
+      : product.category === "Accessories"
+      ? "एक्सेसरीज़"
+      : product.category === "Footwear"
+      ? "फुटवियर"
+      : product.category
+    : product.category}
+</p>
 
         <Link
           to={`/product/${product.id}`}
