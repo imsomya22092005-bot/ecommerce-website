@@ -6,9 +6,15 @@ function Wishlist() {
   const [wishlist, setWishlist] = useState([]);
   const { language } = useLanguage();
 
+  // =========================
+  // LOAD WISHLIST
+  // =========================
+
   const loadWishlist = () => {
     const savedWishlist =
-      JSON.parse(localStorage.getItem("wishlist")) || [];
+      JSON.parse(
+        localStorage.getItem("wishlist")
+      ) || [];
 
     setWishlist(savedWishlist);
   };
@@ -29,18 +35,29 @@ function Wishlist() {
     };
   }, []);
 
-  // Support both MongoDB _id and old id
+  // =========================
+  // PRODUCT ID
+  // =========================
+
   const getProductId = (item) =>
     item._id || item.id;
 
+  // =========================
+  // REMOVE FROM WISHLIST
+  // =========================
+
   const removeFromWishlist = (id) => {
-    const updatedWishlist = wishlist.filter(
-      (item) => getProductId(item) !== id
-    );
+    const updatedWishlist =
+      wishlist.filter(
+        (item) =>
+          getProductId(item) !== id
+      );
 
     localStorage.setItem(
       "wishlist",
-      JSON.stringify(updatedWishlist)
+      JSON.stringify(
+        updatedWishlist
+      )
     );
 
     setWishlist(updatedWishlist);
@@ -49,6 +66,72 @@ function Wishlist() {
       new Event("wishlistUpdated")
     );
   };
+
+  // =========================
+  // ADD TO CART
+  // =========================
+
+  const addToCart = (product) => {
+    const productId =
+      getProductId(product);
+
+    const existingCart =
+      JSON.parse(
+        localStorage.getItem("cart")
+      ) || [];
+
+    const existingItem =
+      existingCart.find(
+        (item) =>
+          getProductId(item) ===
+          productId
+      );
+
+    let updatedCart;
+
+    if (existingItem) {
+      updatedCart =
+        existingCart.map((item) =>
+          getProductId(item) ===
+          productId
+            ? {
+                ...item,
+                quantity:
+                  Number(
+                    item.quantity
+                  ) + 1,
+              }
+            : item
+        );
+    } else {
+      updatedCart = [
+        ...existingCart,
+        {
+          ...product,
+          quantity: 1,
+        },
+      ];
+    }
+
+    localStorage.setItem(
+      "cart",
+      JSON.stringify(updatedCart)
+    );
+
+    window.dispatchEvent(
+      new Event("cartUpdated")
+    );
+
+    alert(
+      language === "Hindi"
+        ? "प्रोडक्ट कार्ट में जोड़ दिया गया।"
+        : "Product added to cart."
+    );
+  };
+
+  // =========================
+  // EMPTY WISHLIST
+  // =========================
 
   return (
     <main className="wishlist-page">
@@ -77,7 +160,6 @@ function Wishlist() {
 
       </div>
 
-
       {/* ========================================
           EMPTY WISHLIST
       ======================================== */}
@@ -92,7 +174,6 @@ function Wishlist() {
               : "YOUR EDIT · CURATED BY YOU"}
           </div>
 
-
           {/* WISH SHELF */}
 
           <div className="wish-shelf-area">
@@ -101,6 +182,7 @@ function Wishlist() {
 
               <div className="wish-slot wish-slot-coral">
                 <span>♡</span>
+
                 <small>
                   {language === "Hindi"
                     ? "फैशन"
@@ -110,6 +192,7 @@ function Wishlist() {
 
               <div className="wish-slot wish-slot-gold">
                 <span>✦</span>
+
                 <small>
                   {language === "Hindi"
                     ? "स्टाइल"
@@ -119,6 +202,7 @@ function Wishlist() {
 
               <div className="wish-slot wish-slot-sage">
                 <span>◇</span>
+
                 <small>
                   {language === "Hindi"
                     ? "एक्सेसरीज़"
@@ -128,6 +212,7 @@ function Wishlist() {
 
               <div className="wish-slot wish-slot-blue">
                 <span>♡</span>
+
                 <small>
                   {language === "Hindi"
                     ? "कलेक्शन"
@@ -137,13 +222,11 @@ function Wishlist() {
 
             </div>
 
-
             <div className="wish-shelf-line"></div>
 
             <div className="wish-shelf-bottom"></div>
 
           </div>
-
 
           {/* CENTER CONTENT */}
 
@@ -175,7 +258,6 @@ function Wishlist() {
             </Link>
 
           </div>
-
 
           {/* BOTTOM LABEL */}
 
@@ -210,6 +292,8 @@ function Wishlist() {
                 key={productId}
               >
 
+                {/* PRODUCT IMAGE */}
+
                 <Link
                   to={`/product/${productId}`}
                 >
@@ -219,13 +303,15 @@ function Wishlist() {
                   />
                 </Link>
 
+                {/* PRODUCT INFO */}
 
                 <div className="wishlist-info">
 
                   <p className="product-category">
 
                     {language === "Hindi"
-                      ? product.category === "Fashion"
+                      ? product.category ===
+                        "Fashion"
                         ? "फैशन"
                         : product.category ===
                           "Accessories"
@@ -238,28 +324,57 @@ function Wishlist() {
 
                   </p>
 
-
                   <h2>
                     {product.name}
                   </h2>
-
 
                   <p>
                     ₹{product.price}
                   </p>
 
+                  {/* ACTIONS */}
 
-                  <button
-                    onClick={() =>
-                      removeFromWishlist(
-                        productId
-                      )
-                    }
+                  <div
+                    style={{
+                      display: "flex",
+                      gap: "10px",
+                      flexWrap: "wrap",
+                      marginTop: "12px",
+                    }}
                   >
-                    {language === "Hindi"
-                      ? "हटाएं"
-                      : "REMOVE"}
-                  </button>
+
+                    <button
+                      type="button"
+                      className="product-add-btn"
+                      onClick={() =>
+                        addToCart(product)
+                      }
+                    >
+                      {language === "Hindi"
+                        ? "कार्ट में जोड़ें"
+                        : "ADD TO CART"}
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() =>
+                        removeFromWishlist(
+                          productId
+                        )
+                      }
+                      style={{
+                        border: "none",
+                        background:
+                          "transparent",
+                        cursor: "pointer",
+                      }}
+                    >
+                      {language === "Hindi"
+                        ? "हटाएं"
+                        : "REMOVE"}
+                    </button>
+
+                  </div>
 
                 </div>
 

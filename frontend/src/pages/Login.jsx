@@ -2,6 +2,8 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useLanguage } from "../LanguageContext";
 
+import API_URL from "../api";
+
 function Login() {
   const [isRegister, setIsRegister] = useState(false);
   const [showWelcome, setShowWelcome] = useState(false);
@@ -9,11 +11,14 @@ function Login() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
-  // Default role
   const [role, setRole] = useState("user");
 
   const navigate = useNavigate();
   const { language } = useLanguage();
+
+  // =========================
+  // READ API RESPONSE
+  // =========================
 
   const getResponseData = async (response) => {
     const text = await response.text();
@@ -27,9 +32,39 @@ function Login() {
     }
   };
 
-  /* =========================
-     LOGIN / REGISTER
-  ========================= */
+  // =========================
+  // SAVE USER SESSION
+  // =========================
+
+  const saveUserSession = ({
+    token,
+    name,
+    userRole,
+    email,
+  }) => {
+    localStorage.setItem(
+      "authToken",
+      token
+    );
+
+    localStorage.setItem(
+      "userName",
+      name || email.split("@")[0]
+    );
+
+    localStorage.setItem(
+      "userRole",
+      userRole || "user"
+    );
+
+    window.dispatchEvent(
+      new Event("userUpdated")
+    );
+  };
+
+  // =========================
+  // LOGIN / REGISTER
+  // =========================
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -37,16 +72,19 @@ function Login() {
     setError("");
     setLoading(true);
 
-    const email = e.target.elements.email.value.trim();
-    const password = e.target.elements.password.value;
+    const email =
+      e.target.elements.email.value.trim();
+
+    const password =
+      e.target.elements.password.value;
 
     try {
       let response;
       let data;
 
-      /* =========================
-         REGISTER
-      ========================= */
+      // =========================
+      // REGISTER
+      // =========================
 
       if (isRegister) {
         const name =
@@ -55,23 +93,37 @@ function Login() {
         const confirmPassword =
           e.target.elements.confirmPassword.value;
 
+        if (!name) {
+          throw new Error(
+            language === "Hindi"
+              ? "कृपया अपना नाम दर्ज करें।"
+              : "Please enter your name."
+          );
+        }
+
+        if (password.length < 6) {
+          throw new Error(
+            language === "Hindi"
+              ? "पासवर्ड कम से कम 6 अक्षरों का होना चाहिए।"
+              : "Password must be at least 6 characters."
+          );
+        }
+
         if (password !== confirmPassword) {
-          setError(
+          throw new Error(
             language === "Hindi"
               ? "पासवर्ड मैच नहीं कर रहे हैं।"
               : "Passwords do not match."
           );
-
-          setLoading(false);
-          return;
         }
 
         response = await fetch(
-          "http://localhost:3000/api/auth/register",
+          `${API_URL}/api/auth/register`,
           {
             method: "POST",
             headers: {
-              "Content-Type": "application/json",
+              "Content-Type":
+                "application/json",
             },
             body: JSON.stringify({
               name,
@@ -82,7 +134,8 @@ function Login() {
           }
         );
 
-        data = await getResponseData(response);
+        data =
+          await getResponseData(response);
 
         if (!response.ok) {
           throw new Error(
@@ -92,17 +145,17 @@ function Login() {
           );
         }
 
-        /*
-          Registration successful.
-          Ab automatically login karenge.
-        */
+        // =========================
+        // AUTO LOGIN AFTER REGISTER
+        // =========================
 
         response = await fetch(
-          "http://localhost:3000/api/auth/login",
+          `${API_URL}/api/auth/login`,
           {
             method: "POST",
             headers: {
-              "Content-Type": "application/json",
+              "Content-Type":
+                "application/json",
             },
             body: JSON.stringify({
               email,
@@ -111,7 +164,8 @@ function Login() {
           }
         );
 
-        data = await getResponseData(response);
+        data =
+          await getResponseData(response);
 
         if (!response.ok) {
           throw new Error(
@@ -120,18 +174,20 @@ function Login() {
               "Login failed"
           );
         }
+      }
 
-      } else {
-        /* =========================
-           LOGIN
-        ========================= */
+      // =========================
+      // LOGIN
+      // =========================
 
+      else {
         response = await fetch(
-          "http://localhost:3000/api/auth/login",
+          `${API_URL}/api/auth/login`,
           {
             method: "POST",
             headers: {
-              "Content-Type": "application/json",
+              "Content-Type":
+                "application/json",
             },
             body: JSON.stringify({
               email,
@@ -140,7 +196,8 @@ function Login() {
           }
         );
 
-        data = await getResponseData(response);
+        data =
+          await getResponseData(response);
 
         if (!response.ok) {
           throw new Error(
@@ -151,9 +208,9 @@ function Login() {
         }
       }
 
-      /* =========================
-         GET TOKEN
-      ========================= */
+      // =========================
+      // GET JWT TOKEN
+      // =========================
 
       const token =
         data.token ||
@@ -165,19 +222,14 @@ function Login() {
       if (!token) {
         throw new Error(
           language === "Hindi"
-            ? "Login successful hua, lekin token nahi mila."
-            : "Login succeeded, but authentication token was not received."
+            ? "Login सफल हुआ लेकिन authentication token नहीं मिला।"
+            : "Login succeeded but no authentication token was received."
         );
       }
 
-      localStorage.setItem(
-        "authToken",
-        token
-      );
-
-      /* =========================
-         USER NAME
-      ========================= */
+      // =========================
+      // GET USER NAME
+      // =========================
 
       let loggedInName =
         data.user?.name ||
@@ -186,35 +238,40 @@ function Login() {
         data.fullName ||
         "";
 
-      /* =========================
-         USER ROLE
-      ========================= */
+      // =========================
+      // GET USER ROLE
+      // =========================
 
       let loggedInRole =
         data.user?.role ||
         data.role ||
         "";
 
-      /* =========================
-         PROFILE API
-      ========================= */
+      // =========================
+      // GET PROFILE
+      // =========================
 
       try {
-        const profileResponse = await fetch(
-          "http://localhost:3000/api/auth/profile",
-          {
-            method: "GET",
-            headers: {
-              Authorization: `Bearer ${token}`,
-              "Content-Type": "application/json",
-            },
-          }
-        );
+        const profileResponse =
+          await fetch(
+            `${API_URL}/api/auth/profile`,
+            {
+              method: "GET",
+              headers: {
+                Authorization:
+                  `Bearer ${token}`,
+                "Content-Type":
+                  "application/json",
+              },
+            }
+          );
+
+        const profileData =
+          await getResponseData(
+            profileResponse
+          );
 
         if (profileResponse.ok) {
-          const profileData =
-            await getResponseData(profileResponse);
-
           loggedInName =
             profileData.user?.name ||
             profileData.name ||
@@ -234,45 +291,41 @@ function Login() {
         );
       }
 
-      /* =========================
-         FALLBACK NAME
-      ========================= */
+      // =========================
+      // FALLBACKS
+      // =========================
 
       if (!loggedInName) {
-        loggedInName = email.split("@")[0];
+        loggedInName =
+          email.split("@")[0];
       }
 
-      /* =========================
-         FALLBACK ROLE
-      ========================= */
-
-      if (!loggedInRole && isRegister) {
-        loggedInRole = role;
+      if (!loggedInRole) {
+        loggedInRole =
+          isRegister
+            ? role
+            : "user";
       }
 
-      /* =========================
-         SAVE USER
-      ========================= */
+      // =========================
+      // SAVE SESSION
+      // =========================
 
-      localStorage.setItem(
-        "userName",
+      saveUserSession({
+        token,
+        name: loggedInName,
+        userRole: loggedInRole,
+        email,
+      });
+
+      // =========================
+      // WELCOME POPUP
+      // =========================
+
+      setWelcomeName(
         loggedInName
       );
 
-      localStorage.setItem(
-        "userRole",
-        loggedInRole
-      );
-
-      window.dispatchEvent(
-        new Event("userUpdated")
-      );
-
-      /* =========================
-         WELCOME POPUP
-      ========================= */
-
-      setWelcomeName(loggedInName);
       setShowWelcome(true);
 
     } catch (error) {
@@ -292,18 +345,18 @@ function Login() {
     }
   };
 
-  /* =========================
-     CONTINUE SHOPPING
-  ========================= */
+  // =========================
+  // CONTINUE SHOPPING
+  // =========================
 
   const continueShopping = () => {
     setShowWelcome(false);
     navigate("/");
   };
 
-  /* =========================
-     CLOSE LOGIN CARD
-  ========================= */
+  // =========================
+  // CLOSE AUTH
+  // =========================
 
   const closeAuth = () => {
     navigate("/");
@@ -346,14 +399,13 @@ function Login() {
 
         </div>
 
-
         {/* =========================
-            LOGIN / REGISTER CARD
+            AUTH CARD
         ========================= */}
 
         <div className="auth-card">
 
-          {/* CLOSE BUTTON */}
+          {/* CLOSE */}
 
           <button
             type="button"
@@ -364,14 +416,17 @@ function Login() {
             ×
           </button>
 
-
           {/* TABS */}
 
           <div className="auth-tabs">
 
             <button
               type="button"
-              className={!isRegister ? "active" : ""}
+              className={
+                !isRegister
+                  ? "active"
+                  : ""
+              }
               onClick={() => {
                 setIsRegister(false);
                 setError("");
@@ -384,7 +439,11 @@ function Login() {
 
             <button
               type="button"
-              className={isRegister ? "active" : ""}
+              className={
+                isRegister
+                  ? "active"
+                  : ""
+              }
               onClick={() => {
                 setIsRegister(true);
                 setError("");
@@ -398,14 +457,11 @@ function Login() {
 
           </div>
 
-
           {/* FORM */}
 
           <form onSubmit={handleSubmit}>
 
-            {/* =========================
-                FULL NAME
-            ========================= */}
+            {/* FULL NAME */}
 
             {isRegister && (
               <div className="form-group">
@@ -430,10 +486,7 @@ function Login() {
               </div>
             )}
 
-
-            {/* =========================
-                EMAIL
-            ========================= */}
+            {/* EMAIL */}
 
             <div className="form-group">
 
@@ -456,10 +509,7 @@ function Login() {
 
             </div>
 
-
-            {/* =========================
-                PASSWORD
-            ========================= */}
+            {/* PASSWORD */}
 
             <div className="form-group">
 
@@ -482,10 +532,7 @@ function Login() {
 
             </div>
 
-
-            {/* =========================
-                CONFIRM PASSWORD
-            ========================= */}
+            {/* CONFIRM PASSWORD */}
 
             {isRegister && (
               <div className="form-group">
@@ -510,10 +557,7 @@ function Login() {
               </div>
             )}
 
-
-            {/* =========================
-                ROLE - LAST FIELD
-            ========================= */}
+            {/* ROLE */}
 
             {isRegister && (
               <div className="form-group role-group">
@@ -528,11 +572,12 @@ function Login() {
                   name="role"
                   value={role}
                   onChange={(e) =>
-                    setRole(e.target.value)
+                    setRole(
+                      e.target.value
+                    )
                   }
                   required
                 >
-
                   <option value="user">
                     User
                   </option>
@@ -540,21 +585,26 @@ function Login() {
                   <option value="admin">
                     Admin
                   </option>
-
                 </select>
 
               </div>
             )}
 
-
-            {/* =========================
-                FORGOT PASSWORD
-            ========================= */}
+            {/* FORGOT PASSWORD */}
 
             {!isRegister && (
               <div className="forgot-password">
 
-                <button type="button">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setError(
+                      language === "Hindi"
+                        ? "पासवर्ड रीसेट सुविधा अभी उपलब्ध नहीं है।"
+                        : "Password reset is not available yet."
+                    );
+                  }}
+                >
                   {language === "Hindi"
                     ? "पासवर्ड भूल गए?"
                     : "Forgot password?"}
@@ -563,15 +613,13 @@ function Login() {
               </div>
             )}
 
-
-            {/* =========================
-                ERROR
-            ========================= */}
+            {/* ERROR */}
 
             {error && (
               <p
                 style={{
-                  margin: "0 0 15px",
+                  margin:
+                    "0 0 15px",
                   color: "#a64b3c",
                   fontSize: "12px",
                   lineHeight: "1.5",
@@ -582,10 +630,7 @@ function Login() {
               </p>
             )}
 
-
-            {/* =========================
-                SUBMIT
-            ========================= */}
+            {/* SUBMIT */}
 
             <button
               type="submit"
@@ -607,10 +652,7 @@ function Login() {
 
           </form>
 
-
-          {/* =========================
-              SWITCH LOGIN / REGISTER
-          ========================= */}
+          {/* SWITCH */}
 
           <p className="auth-switch">
 
@@ -625,7 +667,10 @@ function Login() {
             <button
               type="button"
               onClick={() => {
-                setIsRegister(!isRegister);
+                setIsRegister(
+                  !isRegister
+                );
+
                 setError("");
 
                 if (!isRegister) {
@@ -647,7 +692,6 @@ function Login() {
         </div>
 
       </div>
-
 
       {/* =========================
           WELCOME POPUP
@@ -675,7 +719,6 @@ function Login() {
             </h2>
 
             <p>
-
               {isRegister
                 ? language === "Hindi"
                   ? "आपका अकाउंट सफलतापूर्वक बन गया है।"
@@ -689,13 +732,14 @@ function Login() {
               {language === "Hindi"
                 ? "हमें खुशी है कि आप हमारे साथ हैं।"
                 : "We're happy to have you with us."}
-
             </p>
 
             <button
               type="button"
               className="welcome-button"
-              onClick={continueShopping}
+              onClick={
+                continueShopping
+              }
             >
               {language === "Hindi"
                 ? "शॉपिंग जारी रखें →"

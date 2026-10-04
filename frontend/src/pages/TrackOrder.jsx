@@ -1,106 +1,271 @@
-import { useState } from "react";
-import { useSearchParams } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { useSearchParams, Link } from "react-router-dom";
+
+const API_URL = "http://localhost:3000";
 
 function TrackOrder() {
   const [searchParams] = useSearchParams();
 
-  const orderFromUrl = searchParams.get("orderId") || "";
+  const orderFromUrl =
+    searchParams.get("orderId") || "";
 
-  const [orderId, setOrderId] = useState(orderFromUrl);
-  const [searched, setSearched] = useState(false);
-  const [foundOrder, setFoundOrder] = useState(null);
+  const [orderId, setOrderId] =
+    useState(orderFromUrl);
 
-  const handleTrack = (e) => {
+  const [searched, setSearched] =
+    useState(false);
+
+  const [foundOrder, setFoundOrder] =
+    useState(null);
+
+  const [loading, setLoading] =
+    useState(false);
+
+  const [error, setError] =
+    useState("");
+
+  // =========================
+  // KEEP URL ORDER ID IN SYNC
+  // =========================
+
+  useEffect(() => {
+    if (orderFromUrl) {
+      setOrderId(orderFromUrl);
+    }
+  }, [orderFromUrl]);
+
+  // =========================
+  // GET TOKEN
+  // =========================
+
+  const getToken = () =>
+    localStorage.getItem("authToken");
+
+  // =========================
+  // FIND ORDER
+  // =========================
+
+  const handleTrack = async (e) => {
     e.preventDefault();
 
-    const value = orderId.trim();
+    const value =
+      orderId.trim();
 
     if (!value) return;
 
-    const orders =
-      JSON.parse(localStorage.getItem("orders")) || [];
+    setSearched(false);
+    setFoundOrder(null);
+    setError("");
 
-    const order = orders.find(
-      (item) =>
-        item.orderId?.toLowerCase() === value.toLowerCase()
-    );
+    const token = getToken();
 
-    setFoundOrder(order || null);
-    setSearched(true);
-  };
+    // =========================
+    // NOT LOGGED IN
+    // =========================
 
-  /* =========================
-     CURRENT STATUS
-  ========================= */
+    if (!token) {
+      const orders =
+        JSON.parse(
+          localStorage.getItem("orders")
+        ) || [];
 
-  const getStatusStep = (status) => {
-    const value = (status || "Confirmed")
-      .toLowerCase()
-      .trim();
+      const order = orders.find(
+        (item) =>
+          String(
+            item._id ||
+              item.orderId ||
+              ""
+          ).toLowerCase() ===
+          value.toLowerCase()
+      );
 
-    if (value.includes("delivered")) return 5;
+      setFoundOrder(
+        order || null
+      );
 
-    if (value.includes("out for delivery")) return 4;
+      setSearched(true);
 
-    if (
-      value.includes("in transit") ||
-      value.includes("transit")
-    ) {
-      return 3;
+      return;
     }
 
-    if (
-      value.includes("shipped") ||
-      value.includes("dispatch")
-    ) {
+    // =========================
+    // BACKEND ORDER
+    // =========================
+
+    try {
+      setLoading(true);
+
+      const response = await fetch(
+        `${API_URL}/api/orders/${encodeURIComponent(
+          value
+        )}`,
+        {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      const data =
+        await response.json();
+
+      if (!response.ok) {
+        throw new Error(
+          data.message ||
+            "Order not found"
+        );
+      }
+
+      setFoundOrder(data);
+      setSearched(true);
+
+      // Keep latest order data locally
+      const savedOrders =
+        JSON.parse(
+          localStorage.getItem("orders")
+        ) || [];
+
+      const existingIndex =
+        savedOrders.findIndex(
+          (order) =>
+            String(
+              order._id ||
+                order.orderId ||
+                ""
+            ) === String(data._id)
+        );
+
+      if (existingIndex >= 0) {
+        savedOrders[
+          existingIndex
+        ] = data;
+      } else {
+        savedOrders.unshift(data);
+      }
+
+      localStorage.setItem(
+        "orders",
+        JSON.stringify(savedOrders)
+      );
+    } catch (err) {
+      console.error(
+        "Track order error:",
+        err
+      );
+
+      setError(
+        err.message ||
+          "Could not find order."
+      );
+
+      setSearched(true);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // =========================
+  // STATUS STEP
+  // =========================
+
+  const getStatusStep = (status) => {
+    const value =
+      String(status || "")
+        .toLowerCase()
+        .trim();
+
+    if (value === "cancelled") {
+      return -1;
+    }
+
+    if (value === "delivered") {
+      return 5;
+    }
+
+    if (value === "shipped") {
       return 2;
     }
 
     if (
-      value.includes("packed") ||
-      value.includes("preparing")
+      value === "processing"
     ) {
       return 1;
     }
 
+    // confirmed
     return 0;
   };
+
+  // =========================
+  // STATUS TEXT
+  // =========================
+
+  const getStatusText = (status) => {
+    const value =
+      String(status || "")
+        .toLowerCase()
+        .trim();
+
+    const statusMap = {
+      confirmed: "Order Confirmed",
+      processing: "Processing",
+      shipped: "Shipped",
+      delivered: "Delivered",
+      cancelled: "Cancelled",
+    };
+
+    return (
+      statusMap[value] ||
+      status ||
+      "Order Confirmed"
+    );
+  };
+
+  // =========================
+  // TIMELINE
+  // =========================
 
   const trackingSteps = [
     {
       title: "Order Confirmed",
-      location: "Delhi Order Center",
+      location: "ShopSphere Order Center",
       message:
         "Your order has been confirmed and is being processed.",
       time: "Order placed",
+      backendStatus: "confirmed",
     },
     {
-      title: "Packed",
-      location: "Delhi Warehouse",
+      title: "Processing",
+      location: "ShopSphere Warehouse",
       message:
-        "Your package has been packed and is ready for dispatch.",
-      time: "Package packed",
+        "Your order is being prepared for dispatch.",
+      time: "Order processing",
+      backendStatus: "processing",
     },
     {
       title: "Shipped",
-      location: "Delhi Dispatch Hub",
+      location: "Dispatch Hub",
       message:
-        "Your shipment has left the Delhi warehouse.",
+        "Your shipment has been dispatched.",
       time: "Shipment dispatched",
+      backendStatus: "shipped",
     },
     {
       title: "In Transit",
-      location: "Noida Sorting Hub",
+      location: "Delivery Network",
       message:
-        "Your shipment has reached the Noida sorting hub and is moving ahead.",
-      time: "Shipment in transit",
+        "Your shipment is moving through the delivery network.",
+      time: "In transit",
+      backendStatus: null,
     },
     {
       title: "Out for Delivery",
       location: "Local Delivery Center",
       message:
-        "Your package is with the delivery partner and is out for delivery.",
+        "Your package will be delivered to your address.",
       time: "On the way to you",
+      backendStatus: null,
     },
     {
       title: "Delivered",
@@ -108,8 +273,45 @@ function TrackOrder() {
       message:
         "Your package has been delivered successfully.",
       time: "Package delivered",
+      backendStatus: "delivered",
     },
   ];
+
+  // =========================
+  // FORMAT DATE
+  // =========================
+
+  const formatDate = (order) => {
+    if (order?.createdAt) {
+      return new Date(
+        order.createdAt
+      ).toLocaleDateString();
+    }
+
+    if (order?.date) {
+      return order.date;
+    }
+
+    return "—";
+  };
+
+  // =========================
+  // ORDER DISPLAY ID
+  // =========================
+
+  const displayOrderId =
+    foundOrder?._id ||
+    foundOrder?.orderId ||
+    orderId;
+
+  // =========================
+  // CURRENT STEP
+  // =========================
+
+  const currentStep =
+    getStatusStep(
+      foundOrder?.status
+    );
 
   return (
     <main
@@ -171,6 +373,7 @@ function TrackOrder() {
           font-size: 10px;
           font-weight: 600;
           letter-spacing: 0.5px;
+          word-break: break-all;
         }
 
         .shipment-timeline {
@@ -279,59 +482,65 @@ function TrackOrder() {
           white-space: nowrap;
         }
 
+        /* COMPLETED */
 
-        /* =========================
-           COMPLETED
-        ========================= */
-
-        .shipment-item.completed .shipment-marker {
+        .shipment-item.completed
+          .shipment-marker {
           border-color: #7d9473;
           background: #7d9473;
           color: #ffffff;
 
-          box-shadow: 0 0 0 4px rgba(125, 148, 115, 0.10);
+          box-shadow:
+            0 0 0 4px
+            rgba(125, 148, 115, 0.10);
         }
 
-        .shipment-item.completed .shipment-line {
+        .shipment-item.completed
+          .shipment-line {
           background: #7d9473;
         }
 
-        .shipment-item.completed .shipment-info h5 {
+        .shipment-item.completed
+          .shipment-info h5 {
           color: #211e1b;
         }
 
-        .shipment-item.completed .shipment-location {
+        .shipment-item.completed
+          .shipment-location {
           color: #8a6245;
         }
 
-        .shipment-item.completed .shipment-info p {
+        .shipment-item.completed
+          .shipment-info p {
           color: #6f665e;
         }
 
+        /* CURRENT */
 
-        /* =========================
-           CURRENT
-        ========================= */
-
-        .shipment-item.current .shipment-marker {
+        .shipment-item.current
+          .shipment-marker {
           border-color: #c96f5b;
           background: #c96f5b;
           color: #ffffff;
 
           box-shadow:
-            0 0 0 5px rgba(201, 111, 91, 0.12);
+            0 0 0 5px
+            rgba(201, 111, 91, 0.12);
         }
 
-        .shipment-item.current .shipment-info h5 {
+        .shipment-item.current
+          .shipment-info h5 {
           color: #c96f5b;
           font-size: 16px;
         }
 
-        .shipment-item.current .shipment-location {
+        .shipment-item.current
+          .shipment-location {
           color: #8a6245;
         }
 
-        .shipment-item.current .shipment-info p {
+        .shipment-item.current
+          .shipment-info p {
           color: #6f665e;
         }
 
@@ -351,10 +560,45 @@ function TrackOrder() {
           letter-spacing: 1px;
         }
 
+        .track-order-meta {
+          display: grid;
+          grid-template-columns:
+            repeat(3, 1fr);
+          gap: 12px;
+          margin-top: 25px;
+        }
 
-        /* =========================
-           MOBILE
-        ========================= */
+        .track-order-meta-card {
+          padding: 15px;
+          border: 1px solid #e5d9ca;
+          background: #fffdf9;
+        }
+
+        .track-order-meta-card span {
+          display: block;
+          margin-bottom: 5px;
+          color: #95897e;
+          font-size: 9px;
+          letter-spacing: 1px;
+          font-weight: 700;
+        }
+
+        .track-order-meta-card strong {
+          color: #211e1b;
+          font-size: 13px;
+        }
+
+        .track-cancelled {
+          margin-top: 25px;
+          padding: 14px 16px;
+          border: 1px solid #e7c6bf;
+          background: #f8e9e5;
+          color: #a75645;
+          font-size: 12px;
+          line-height: 1.6;
+        }
+
+        /* MOBILE */
 
         @media (max-width: 600px) {
 
@@ -373,6 +617,7 @@ function TrackOrder() {
 
           .shipment-history-header span {
             font-size: 9px;
+            max-width: 150px;
           }
 
           .shipment-item {
@@ -418,9 +663,12 @@ function TrackOrder() {
           .shipment-time {
             font-size: 9px;
           }
+
+          .track-order-meta {
+            grid-template-columns: 1fr;
+          }
         }
       `}</style>
-
 
       {/* =========================
           HERO
@@ -439,7 +687,6 @@ function TrackOrder() {
         </span>
 
       </section>
-
 
       {/* =========================
           CONTENT
@@ -461,7 +708,6 @@ function TrackOrder() {
             Enter the order ID you received after placing your order.
           </p>
 
-
           {/* SEARCH */}
 
           <form onSubmit={handleTrack}>
@@ -472,27 +718,35 @@ function TrackOrder() {
 
             <input
               type="text"
-              placeholder="Example: SS1001"
+              placeholder="Example: 68f123abc..."
               value={orderId}
               onChange={(e) => {
-                setOrderId(e.target.value);
+                setOrderId(
+                  e.target.value
+                );
                 setSearched(false);
                 setFoundOrder(null);
+                setError("");
               }}
+              required
             />
 
-            <button type="submit">
-              Track Order →
+            <button
+              type="submit"
+              disabled={loading}
+            >
+              {loading
+                ? "Checking..."
+                : "Track Order →"}
             </button>
 
           </form>
 
-
           {/* =========================
-              NOT FOUND
+              ERROR
           ========================= */}
 
-          {searched && !foundOrder && (
+          {error && (
             <div className="tracking-result">
 
               <div className="tracking-result-icon">
@@ -504,166 +758,297 @@ function TrackOrder() {
               </h3>
 
               <p>
-                We couldn't find an order with ID{" "}
-                <strong>
-                  #{orderId}
-                </strong>.
+                {error}
               </p>
 
             </div>
           )}
-
 
           {/* =========================
               FOUND ORDER
           ========================= */}
 
-          {searched && foundOrder && (
-            <div className="tracking-result">
+          {searched &&
+            foundOrder &&
+            !error && (
+              <div className="tracking-result">
 
-              <div className="tracking-result-icon">
-                ✓
-              </div>
+                <div className="tracking-result-icon">
+                  ✓
+                </div>
 
-              <h3>
-                Order Found
-              </h3>
+                <h3>
+                  Order Found
+                </h3>
 
-              <p>
-                Order{" "}
-                <strong>
-                  #{foundOrder.orderId}
-                </strong>{" "}
-                is currently{" "}
-                <strong>
-                  {foundOrder.status || "Confirmed"}
-                </strong>.
-              </p>
+                <p>
+                  Order{" "}
+                  <strong>
+                    #{displayOrderId}
+                  </strong>{" "}
+                  is currently{" "}
+                  <strong>
+                    {getStatusText(
+                      foundOrder.status
+                    )}
+                  </strong>
+                  .
+                </p>
 
+                {/* =========================
+                    ORDER META
+                ========================= */}
 
-              {/* =========================
-                  SHIPMENT HISTORY
-              ========================= */}
+                <div className="track-order-meta">
 
-              <div className="shipment-history">
+                  <div className="track-order-meta-card">
 
-                <div className="shipment-history-header">
+                    <span>
+                      ORDER DATE
+                    </span>
 
-                  <h4>
-                    Shipment History
-                  </h4>
+                    <strong>
+                      {formatDate(
+                        foundOrder
+                      )}
+                    </strong>
 
-                  <span>
-                    #{foundOrder.orderId}
-                  </span>
+                  </div>
+
+                  <div className="track-order-meta-card">
+
+                    <span>
+                      ITEMS
+                    </span>
+
+                    <strong>
+                      {(foundOrder.items ||
+                        []).reduce(
+                          (
+                            sum,
+                            item
+                          ) =>
+                            sum +
+                            (Number(
+                              item.quantity
+                            ) || 0),
+                          0
+                        )}
+                    </strong>
+
+                  </div>
+
+                  <div className="track-order-meta-card">
+
+                    <span>
+                      TOTAL
+                    </span>
+
+                    <strong>
+                      ₹
+                      {Number(
+                        foundOrder.totalAmount ||
+                          foundOrder.total ||
+                          0
+                      )}
+                    </strong>
+
+                  </div>
 
                 </div>
 
+                {/* =========================
+                    CANCELLED
+                ========================= */}
 
-                {/* TIMELINE */}
+                {String(
+                  foundOrder.status
+                ).toLowerCase() ===
+                  "cancelled" && (
+                  <div className="track-cancelled">
 
-                <div className="shipment-timeline">
+                    This order has been
+                    cancelled.
 
-                  {trackingSteps.map((step, index) => {
+                  </div>
+                )}
 
-                    const currentStep =
-                      getStatusStep(
-                        foundOrder.status
-                      );
+                {/* =========================
+                    SHIPMENT HISTORY
+                ========================= */}
 
-                    const completed =
-                      index < currentStep;
+                <div className="shipment-history">
 
-                    const current =
-                      index === currentStep;
+                  <div className="shipment-history-header">
 
-                    return (
-                      <div
-                        key={step.title}
-                        className={`shipment-item ${
-                          completed
-                            ? "completed"
-                            : ""
-                        } ${
-                          current
-                            ? "current"
-                            : ""
-                        }`}
-                      >
+                    <h4>
+                      Shipment History
+                    </h4>
 
-                        {/* MARKER */}
+                    <span>
+                      #{displayOrderId}
+                    </span>
 
-                        <div className="shipment-marker-area">
+                  </div>
 
-                          <span className="shipment-marker">
+                  {/* TIMELINE */}
 
-                            {completed
-                              ? "✓"
-                              : current
-                              ? "●"
-                              : index + 1}
+                  <div className="shipment-timeline">
 
-                          </span>
+                    {trackingSteps.map(
+                      (
+                        step,
+                        index
+                      ) => {
 
-                          {index <
-                            trackingSteps.length - 1 && (
-                            <span className="shipment-line"></span>
-                          )}
+                        /*
+                          Backend currently
+                          gives:
+                          confirmed
+                          processing
+                          shipped
+                          delivered
+                          cancelled
 
-                        </div>
+                          "In Transit" and
+                          "Out for Delivery"
+                          remain future UI
+                          stages because the
+                          current backend does
+                          not provide those
+                          statuses.
+                        */
 
+                        const isFutureStage =
+                          step.backendStatus ===
+                            null;
 
-                        {/* DETAILS */}
+                        const completed =
+                          currentStep >=
+                            0 &&
+                          !isFutureStage &&
+                          index <
+                            currentStep;
 
-                        <div className="shipment-info">
+                        const current =
+                          currentStep >=
+                            0 &&
+                          !isFutureStage &&
+                          index ===
+                            currentStep;
 
-                          <div className="shipment-top">
+                        return (
+                          <div
+                            key={
+                              step.title
+                            }
+                            className={`shipment-item ${
+                              completed
+                                ? "completed"
+                                : ""
+                            } ${
+                              current
+                                ? "current"
+                                : ""
+                            }`}
+                          >
 
-                            <div>
+                            {/* MARKER */}
 
-                              <h5>
-                                {step.title}
-                              </h5>
+                            <div className="shipment-marker-area">
 
-                              <span className="shipment-location">
-                                📍 {step.location}
+                              <span className="shipment-marker">
+
+                                {completed
+                                  ? "✓"
+                                  : current
+                                  ? "●"
+                                  : index + 1}
+
                               </span>
+
+                              {index <
+                                trackingSteps.length -
+                                  1 && (
+                                <span className="shipment-line"></span>
+                              )}
 
                             </div>
 
-                            {(completed ||
-                              current) && (
-                              <span className="shipment-time">
-                                {step.time}
-                              </span>
-                            )}
+                            {/* DETAILS */}
+
+                            <div className="shipment-info">
+
+                              <div className="shipment-top">
+
+                                <div>
+
+                                  <h5>
+                                    {
+                                      step.title
+                                    }
+                                  </h5>
+
+                                  <span className="shipment-location">
+                                    📍{" "}
+                                    {
+                                      step.location
+                                    }
+                                  </span>
+
+                                </div>
+
+                                {(completed ||
+                                  current) && (
+                                  <span className="shipment-time">
+                                    {
+                                      step.time
+                                    }
+                                  </span>
+                                )}
+
+                              </div>
+
+                              <p>
+                                {
+                                  step.message
+                                }
+                              </p>
+
+                              {current && (
+                                <span className="shipment-current-label">
+                                  CURRENT STATUS
+                                </span>
+                              )}
+
+                            </div>
 
                           </div>
+                        );
+                      }
+                    )}
 
-
-                          <p>
-                            {step.message}
-                          </p>
-
-
-                          {current && (
-                            <span className="shipment-current-label">
-                              CURRENT STATUS
-                            </span>
-                          )}
-
-                        </div>
-
-                      </div>
-                    );
-                  })}
+                  </div>
 
                 </div>
 
-              </div>
+                {/* BACK TO ORDERS */}
 
-            </div>
-          )}
+                <Link
+                  to="/orders"
+                  className="orders-shop-btn"
+                  style={{
+                    display:
+                      "inline-block",
+                    marginTop:
+                      "25px",
+                  }}
+                >
+                  ← Back to Orders
+                </Link>
+
+              </div>
+            )}
 
         </div>
 

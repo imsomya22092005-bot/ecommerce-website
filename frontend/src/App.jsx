@@ -20,6 +20,8 @@ import Help from "./pages/Help";
 import Orders from "./pages/Orders";
 import TrackOrder from "./pages/TrackOrder";
 import NewArrivals from "./pages/NewArrivals";
+import AdminDashboard from "./pages/AdminDashboard";
+import Profile from "./pages/Profile";
 
 function App() {
   return (
@@ -41,6 +43,8 @@ function App() {
 <Route path="/orders" element={<Orders />} />
 <Route path="/track-order" element={<TrackOrder />} />
 <Route path="/new-arrivals" element={<NewArrivals />} />
+<Route path="/admin" element={<AdminDashboard />} />
+<Route path="/profile" element={<Profile />} />
       </Routes>
 
 

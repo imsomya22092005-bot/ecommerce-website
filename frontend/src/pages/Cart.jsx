@@ -2,10 +2,14 @@ import { Link } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { useLanguage } from "../LanguageContext";
 
+import API_URL from "../api";
+
 function Cart() {
   const { language } = useLanguage();
 
   const [cart, setCart] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [cartError, setCartError] = useState("");
 
   // =========================
   // COUPON STATES
@@ -42,40 +46,24 @@ function Cart() {
   };
 
   // =========================
-  // LOAD CART
+  // GET TOKEN
   // =========================
 
-  useEffect(() => {
-    const savedCart =
-      JSON.parse(localStorage.getItem("cart")) || [];
-
-    setCart(savedCart);
-  }, []);
+  const getToken = () =>
+    localStorage.getItem("authToken");
 
   // =========================
   // PRODUCT ID
   // =========================
 
   const getProductId = (item) =>
-    item._id || item.id;
+    item?._id || item?.id || item?.product?._id || item?.product?.id;
 
   // =========================
-  // UPDATE QUANTITY
+  // SAVE CART LOCALLY
   // =========================
 
-  const updateQuantity = (id, change) => {
-    const updatedCart = cart
-      .map((item) =>
-        getProductId(item) === id
-          ? {
-              ...item,
-              quantity:
-                Number(item.quantity) + change,
-            }
-          : item
-      )
-      .filter((item) => item.quantity > 0);
-
+  const saveLocalCart = (updatedCart) => {
     setCart(updatedCart);
 
     localStorage.setItem(
@@ -89,24 +77,443 @@ function Cart() {
   };
 
   // =========================
-  // REMOVE ITEM
+  // NORMALIZE BACKEND CART
   // =========================
 
-  const removeItem = (id) => {
-    const updatedCart = cart.filter(
-      (item) => getProductId(item) !== id
+  const normalizeBackendCart = (backendCart) => {
+    const items = backendCart?.items || [];
+
+    return items
+      .filter((item) => item?.product)
+      .map((item) => {
+        const product = item.product;
+
+        return {
+          _id: product._id,
+          id: product._id,
+          name: product.name || "",
+          price: Number(product.price) || 0,
+          image:
+            product.image ||
+            product.imageUrl ||
+            "",
+          category: product.category || "",
+          quantity: Number(item.quantity) || 1,
+        };
+      });
+  };
+
+  // =========================
+  // LOAD BACKEND CART
+  // =========================
+
+  const loadBackendCart = async () => {
+    const token = getToken();
+
+    if (!token) {
+      const savedCart =
+        JSON.parse(
+          localStorage.getItem("cart")
+        ) || [];
+
+      setCart(savedCart);
+      setLoading(false);
+      return;
+    }
+
+    try {
+      setLoading(true);
+      setCartError("");
+
+      const response = await fetch(
+        `${API_URL}/api/cart`,
+        {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error(
+          "Failed to load cart"
+        );
+      }
+
+      const backendCart =
+        await response.json();
+
+      const backendItems =
+        normalizeBackendCart(
+          backendCart
+        );
+
+      /*
+        If the user already had a local cart
+        before backend integration and backend
+        cart is empty, move those items to backend.
+      */
+
+      const savedCart =
+        JSON.parse(
+          localStorage.getItem("cart")
+        ) || [];
+
+      if (
+        backendItems.length === 0 &&
+        savedCart.length > 0
+      ) {
+        await syncLocalCartToBackend(
+          savedCart,
+          token
+        );
+        return;
+      }
+
+      setCart(backendItems);
+
+      localStorage.setItem(
+        "cart",
+        JSON.stringify(backendItems)
+      );
+
+      window.dispatchEvent(
+        new Event("cartUpdated")
+      );
+    } catch (error) {
+      console.error(
+        "Cart loading error:",
+        error
+      );
+
+      /*
+        Fallback to local cart if backend
+        is unavailable.
+      */
+
+      const savedCart =
+        JSON.parse(
+          localStorage.getItem("cart")
+        ) || [];
+
+      setCart(savedCart);
+
+      setCartError(
+        language === "Hindi"
+          ? "कार्ट सर्वर से लोड नहीं हो पाया।"
+          : "Could not load cart from server."
+      );
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // =========================
+  // SYNC LOCAL CART TO BACKEND
+  // =========================
+
+  const syncLocalCartToBackend = async (
+    localCart,
+    token
+  ) => {
+    try {
+      for (const item of localCart) {
+        const productId =
+          getProductId(item);
+
+        if (!productId) continue;
+
+        const quantity =
+          Number(item.quantity) || 1;
+
+        const response = await fetch(
+          `${API_URL}/api/cart/add`,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type":
+                "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+            body: JSON.stringify({
+              productId,
+              quantity,
+            }),
+          }
+        );
+
+        if (!response.ok) {
+          console.error(
+            `Could not sync product ${productId}`
+          );
+        }
+      }
+
+      // Reload final backend cart
+      await loadBackendCartAfterSync(token);
+    } catch (error) {
+      console.error(
+        "Cart sync error:",
+        error
+      );
+
+      setCart(localCart);
+      setLoading(false);
+    }
+  };
+
+  // =========================
+  // RELOAD AFTER SYNC
+  // =========================
+
+  const loadBackendCartAfterSync = async (
+    token
+  ) => {
+    const response = await fetch(
+      `${API_URL}/api/cart`,
+      {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
     );
 
-    setCart(updatedCart);
+    if (!response.ok) {
+      throw new Error(
+        "Failed to reload cart"
+      );
+    }
+
+    const backendCart =
+      await response.json();
+
+    const backendItems =
+      normalizeBackendCart(
+        backendCart
+      );
+
+    setCart(backendItems);
 
     localStorage.setItem(
       "cart",
-      JSON.stringify(updatedCart)
+      JSON.stringify(backendItems)
     );
 
     window.dispatchEvent(
       new Event("cartUpdated")
     );
+
+    setLoading(false);
+  };
+
+  // =========================
+  // LOAD CART ON PAGE OPEN
+  // =========================
+
+  useEffect(() => {
+    loadBackendCart();
+  }, []);
+
+  // =========================
+  // UPDATE BACKEND CART
+  // =========================
+
+  const updateBackendCart = async (
+    productId,
+    quantity
+  ) => {
+    const token = getToken();
+
+    if (!token) return false;
+
+    try {
+      const response = await fetch(
+        `${API_URL}/api/cart/update`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type":
+              "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            productId,
+            quantity,
+          }),
+        }
+      );
+
+      const data =
+        await response.json();
+
+      if (!response.ok) {
+        throw new Error(
+          data.message ||
+            "Could not update cart"
+        );
+      }
+
+      const updatedCart =
+        normalizeBackendCart(
+          data.cart
+        );
+
+      saveLocalCart(updatedCart);
+
+      return true;
+    } catch (error) {
+      console.error(
+        "Update cart error:",
+        error
+      );
+
+      setCartError(
+        error.message ||
+          (language === "Hindi"
+            ? "कार्ट अपडेट नहीं हो पाया।"
+            : "Could not update cart.")
+      );
+
+      return false;
+    }
+  };
+
+  // =========================
+  // UPDATE QUANTITY
+  // =========================
+
+  const updateQuantity = async (
+    id,
+    change
+  ) => {
+    const currentItem =
+      cart.find(
+        (item) =>
+          getProductId(item) === id
+      );
+
+    if (!currentItem) return;
+
+    const newQuantity =
+      Number(currentItem.quantity) +
+      change;
+
+    setCartError("");
+
+    // Remove when quantity becomes 0
+    if (newQuantity <= 0) {
+      await removeItem(id);
+      return;
+    }
+
+    // Logged-in user → backend
+    if (getToken()) {
+      const success =
+        await updateBackendCart(
+          id,
+          newQuantity
+        );
+
+      if (success) {
+        return;
+      }
+
+      return;
+    }
+
+    // Guest user → localStorage
+    const updatedCart = cart.map(
+      (item) =>
+        getProductId(item) === id
+          ? {
+              ...item,
+              quantity: newQuantity,
+            }
+          : item
+    );
+
+    saveLocalCart(updatedCart);
+  };
+
+  // =========================
+  // REMOVE FROM BACKEND
+  // =========================
+
+  const removeBackendItem = async (
+    productId
+  ) => {
+    const token = getToken();
+
+    if (!token) return false;
+
+    try {
+      const response = await fetch(
+        `${API_URL}/api/cart/remove/${productId}`,
+        {
+          method: "DELETE",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      const data =
+        await response.json();
+
+      if (!response.ok) {
+        throw new Error(
+          data.message ||
+            "Could not remove item"
+        );
+      }
+
+      const updatedCart =
+        normalizeBackendCart(
+          data.cart
+        );
+
+      saveLocalCart(updatedCart);
+
+      return true;
+    } catch (error) {
+      console.error(
+        "Remove cart item error:",
+        error
+      );
+
+      setCartError(
+        error.message ||
+          (language === "Hindi"
+            ? "आइटम हटाया नहीं जा सका।"
+            : "Could not remove item.")
+      );
+
+      return false;
+    }
+  };
+
+  // =========================
+  // REMOVE ITEM
+  // =========================
+
+  const removeItem = async (id) => {
+    setCartError("");
+
+    // Logged-in user → backend
+    if (getToken()) {
+      await removeBackendItem(id);
+      return;
+    }
+
+    // Guest user → localStorage
+    const updatedCart = cart.filter(
+      (item) =>
+        getProductId(item) !== id
+    );
+
+    saveLocalCart(updatedCart);
   };
 
   // =========================
@@ -138,6 +545,7 @@ function Cart() {
           ? "कृपया कूपन कोड दर्ज करें।"
           : "Please enter a coupon code."
       );
+
       return;
     }
 
@@ -180,7 +588,9 @@ function Cart() {
   const discount = appliedCoupon
     ? appliedCoupon.type === "percent"
       ? Math.round(
-          (total * appliedCoupon.value) / 100
+          (total *
+            appliedCoupon.value) /
+            100
         )
       : Math.min(
           appliedCoupon.value,
@@ -205,13 +615,34 @@ function Cart() {
   );
 
   // =========================
+  // LOADING
+  // =========================
+
+  if (loading) {
+    return (
+      <main className="empty-cart">
+        <p className="section-label">
+          {language === "Hindi"
+            ? "SHOPSPHERE कार्ट"
+            : "SHOPSPHERE CART"}
+        </p>
+
+        <h1>
+          {language === "Hindi"
+            ? "कार्ट लोड हो रहा है..."
+            : "Loading Cart..."}
+        </h1>
+      </main>
+    );
+  }
+
+  // =========================
   // EMPTY CART
   // =========================
 
   if (cart.length === 0) {
     return (
       <main className="empty-cart">
-
         <p className="section-label">
           {language === "Hindi"
             ? "SHOPSPHERE कार्ट"
@@ -238,7 +669,6 @@ function Cart() {
             ? "शॉपिंग जारी रखें"
             : "CONTINUE SHOPPING"}
         </Link>
-
       </main>
     );
   }
@@ -250,12 +680,9 @@ function Cart() {
   return (
     <main className="cart-page">
 
-      {/* =========================
-          CART HEADER
-      ========================= */}
+      {/* CART HEADER */}
 
       <div className="cart-header">
-
         <p className="section-label">
           {language === "Hindi"
             ? "SHOPSPHERE कार्ट"
@@ -268,22 +695,22 @@ function Cart() {
             : "Your Shopping Bag"}
         </h1>
 
+        {cartError && (
+          <p className="coupon-error">
+            {cartError}
+          </p>
+        )}
       </div>
 
-      {/* =========================
-          CART LAYOUT
-      ========================= */}
+      {/* CART LAYOUT */}
 
       <div className="cart-layout">
 
-        {/* =========================
-            CART ITEMS
-        ========================= */}
+        {/* CART ITEMS */}
 
         <section className="cart-items">
 
           {cart.map((item) => {
-
             const productId =
               getProductId(item);
 
@@ -292,7 +719,6 @@ function Cart() {
                 className="cart-item"
                 key={productId}
               >
-
                 <img
                   src={item.image}
                   alt={item.name}
@@ -317,6 +743,7 @@ function Cart() {
                   <div className="quantity-controls">
 
                     <button
+                      type="button"
                       onClick={() =>
                         updateQuantity(
                           productId,
@@ -332,6 +759,7 @@ function Cart() {
                     </span>
 
                     <button
+                      type="button"
                       onClick={() =>
                         updateQuantity(
                           productId,
@@ -347,6 +775,7 @@ function Cart() {
                   {/* REMOVE */}
 
                   <button
+                    type="button"
                     className="remove-item"
                     onClick={() =>
                       removeItem(productId)
@@ -358,16 +787,13 @@ function Cart() {
                   </button>
 
                 </div>
-
               </article>
             );
           })}
 
         </section>
 
-        {/* =========================
-            ORDER SUMMARY
-        ========================= */}
+        {/* ORDER SUMMARY */}
 
         <aside className="cart-summary">
 
@@ -377,9 +803,7 @@ function Cart() {
               : "Order Summary"}
           </h2>
 
-          {/* =========================
-              COUPON
-          ========================= */}
+          {/* COUPON */}
 
           <div className="coupon-box">
 
@@ -422,7 +846,6 @@ function Cart() {
                   ? "लागू करें"
                   : "APPLY"}
               </button>
-
             </div>
 
             {/* COUPON ERROR */}
@@ -474,9 +897,7 @@ function Cart() {
 
           </div>
 
-          {/* =========================
-              SUBTOTAL
-          ========================= */}
+          {/* SUBTOTAL */}
 
           <div className="summary-row">
 
@@ -492,9 +913,7 @@ function Cart() {
 
           </div>
 
-          {/* =========================
-              DISCOUNT
-          ========================= */}
+          {/* DISCOUNT */}
 
           {discount > 0 && (
             <div className="summary-row coupon-discount">
@@ -512,9 +931,7 @@ function Cart() {
             </div>
           )}
 
-          {/* =========================
-              SHIPPING
-          ========================= */}
+          {/* SHIPPING */}
 
           <div className="summary-row">
 
@@ -536,9 +953,7 @@ function Cart() {
 
           <div className="summary-line"></div>
 
-          {/* =========================
-              FINAL TOTAL
-          ========================= */}
+          {/* FINAL TOTAL */}
 
           <div className="summary-total">
 
@@ -554,9 +969,7 @@ function Cart() {
 
           </div>
 
-          {/* =========================
-              CHECKOUT
-          ========================= */}
+          {/* CHECKOUT */}
 
           <Link
             to="/checkout"
@@ -570,7 +983,6 @@ function Cart() {
         </aside>
 
       </div>
-
     </main>
   );
 }

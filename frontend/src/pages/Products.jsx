@@ -1,48 +1,88 @@
+import API_URL from "../api";
 import { useSearchParams } from "react-router-dom";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useLanguage } from "../LanguageContext";
 import ProductCard from "../components/ProductCard";
 
+const API_URL = "http://localhost:3000";
+const PRODUCTS_PER_PAGE = 8;
 
 function Products() {
   const { language } = useLanguage();
 
-  const [searchParams, setSearchParams] = useSearchParams();
+  const [searchParams, setSearchParams] =
+    useSearchParams();
 
-  const categoryFromURL = searchParams.get("category");
+  const categoryFromURL =
+    searchParams.get("category");
 
   const initialCategory =
-    categoryFromURL && categoryFromURL !== "all"
+    categoryFromURL &&
+    categoryFromURL !== "all"
       ? categoryFromURL
       : "All";
 
-  const initialSearch = searchParams.get("search") || "";
+  const initialSearch =
+    searchParams.get("search") || "";
 
   const [products, setProducts] = useState([]);
-  const [search, setSearch] = useState(initialSearch);
-  const [category, setCategory] = useState(initialCategory);
-  const [sort, setSort] = useState("default");
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
+  const [search, setSearch] =
+    useState(initialSearch);
+  const [category, setCategory] =
+    useState(initialCategory);
+  const [sort, setSort] =
+    useState("default");
+  const [currentPage, setCurrentPage] =
+    useState(1);
 
-  // Fetch products from backend
+  const [loading, setLoading] =
+    useState(true);
+
+  const [error, setError] =
+    useState("");
+
+  // =========================
+  // FETCH PRODUCTS
+  // =========================
+
   useEffect(() => {
     const fetchProducts = async () => {
       try {
         setLoading(true);
         setError("");
 
-        const response = await fetch("http://localhost:3000/api/products");
+        const response = await fetch(
+          `${API_URL}/api/products`
+        );
 
         if (!response.ok) {
-          throw new Error("Failed to fetch products");
+          throw new Error(
+            "Failed to fetch products"
+          );
         }
 
-        const data = await response.json();
+        const data =
+          await response.json();
 
-        setProducts(data);
+        /*
+          Backend currently returns the
+          products collection.
+          We keep filtering/sorting/pagination
+          on the frontend so the page remains
+          compatible with the current API.
+        */
+
+        const productList = Array.isArray(data)
+          ? data
+          : data.products || [];
+
+        setProducts(productList);
       } catch (error) {
-        console.error("Error fetching products:", error);
+        console.error(
+          "Error fetching products:",
+          error
+        );
+
         setError(
           language === "Hindi"
             ? "प्रोडक्ट्स लोड नहीं हो सके।"
@@ -56,38 +96,143 @@ function Products() {
     fetchProducts();
   }, [language]);
 
-  
+  // =========================
+  // FILTER + SORT
+  // =========================
 
-  const filteredProducts = products
-    .filter((product) => {
-      const matchesSearch = product.name
-        .toLowerCase()
-        .includes(search.toLowerCase());
+  const filteredProducts = useMemo(() => {
+    const result = products
+      .filter((product) => {
+        const productName =
+          String(
+            product.name || ""
+          ).toLowerCase();
 
-      const matchesCategory =
-        category === "All" || product.category === category;
+        const searchValue =
+          search.toLowerCase().trim();
 
-      return matchesSearch && matchesCategory;
-    })
-    .sort((a, b) => {
-      if (sort === "low") {
-        return a.price - b.price;
-      }
+        const matchesSearch =
+          productName.includes(
+            searchValue
+          );
 
-      if (sort === "high") {
-        return b.price - a.price;
-      }
+        const matchesCategory =
+          category === "All" ||
+          product.category === category;
 
-      if (sort === "name") {
-        return a.name.localeCompare(b.name);
-      }
+        return (
+          matchesSearch &&
+          matchesCategory
+        );
+      })
+      .sort((a, b) => {
+        if (sort === "low") {
+          return (
+            Number(a.price || 0) -
+            Number(b.price || 0)
+          );
+        }
 
-      return 0;
-    });
+        if (sort === "high") {
+          return (
+            Number(b.price || 0) -
+            Number(a.price || 0)
+          );
+        }
+
+        if (sort === "name") {
+          return String(
+            a.name || ""
+          ).localeCompare(
+            String(b.name || "")
+          );
+        }
+
+        return 0;
+      });
+
+    return result;
+  }, [
+    products,
+    search,
+    category,
+    sort,
+  ]);
+
+  // =========================
+  // PAGINATION
+  // =========================
+
+  const totalPages = Math.max(
+    1,
+    Math.ceil(
+      filteredProducts.length /
+        PRODUCTS_PER_PAGE
+    )
+  );
+
+  const safeCurrentPage = Math.min(
+    currentPage,
+    totalPages
+  );
+
+  const startIndex =
+    (safeCurrentPage - 1) *
+    PRODUCTS_PER_PAGE;
+
+  const endIndex =
+    startIndex + PRODUCTS_PER_PAGE;
+
+  const visibleProducts =
+    filteredProducts.slice(
+      startIndex,
+      endIndex
+    );
+
+  // =========================
+  // RESET PAGE WHEN FILTERS CHANGE
+  // =========================
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [
+    search,
+    category,
+    sort,
+  ]);
+
+  // =========================
+  // CLEAR FILTERS
+  // =========================
+
+  const clearFilters = () => {
+    setSearch("");
+    setCategory("All");
+    setSort("default");
+    setCurrentPage(1);
+    setSearchParams({});
+  };
+
+  // =========================
+  // ACTIVE FILTER COUNT
+  // =========================
+
+  const activeFilterCount =
+    (search.trim() ? 1 : 0) +
+    (category !== "All" ? 1 : 0) +
+    (sort !== "default" ? 1 : 0);
 
   return (
     <main className="products-page">
-      <section className="products-header" id="new-arrivals">
+
+      {/* =========================
+          HEADER
+      ========================= */}
+
+      <section
+        className="products-header"
+        id="new-arrivals"
+      >
         <p className="section-label">
           {language === "Hindi"
             ? "SHOPSPHERE कलेक्शन"
@@ -107,9 +252,14 @@ function Products() {
         </p>
       </section>
 
-      {/* SEARCH + FILTERS */}
+      {/* =========================
+          SEARCH + FILTERS
+      ========================= */}
 
       <section className="product-controls">
+
+        {/* SEARCH */}
+
         <input
           type="text"
           placeholder={
@@ -119,51 +269,81 @@ function Products() {
           }
           value={search}
           onChange={(e) => {
-  const value = e.target.value;
-  setSearch(value);
+            const value =
+              e.target.value;
 
-  setSearchParams({
-    search: value,
-    ...(category !== "All" && { category }),
-  });
-}}
+            setSearch(value);
+
+            setSearchParams({
+              ...(value && {
+                search: value,
+              }),
+              ...(category !== "All" && {
+                category,
+              }),
+            });
+          }}
         />
+
+        {/* CATEGORY */}
 
         <select
           value={category}
           onChange={(e) => {
-  const value = e.target.value;
-  setCategory(value);
+            const value =
+              e.target.value;
 
-  setSearchParams({
-    ...(search && { search }),
-    ...(value !== "All" && { category: value }),
-  });
-}}
+            setCategory(value);
+
+            setSearchParams({
+              ...(search && {
+                search,
+              }),
+              ...(value !== "All" && {
+                category: value,
+              }),
+            });
+          }}
         >
           <option value="All">
-            {language === "Hindi" ? "सभी कैटेगरी" : "All Categories"}
+            {language === "Hindi"
+              ? "सभी कैटेगरी"
+              : "All Categories"}
           </option>
 
           <option value="Fashion">
-            {language === "Hindi" ? "फैशन" : "Fashion"}
+            {language === "Hindi"
+              ? "फैशन"
+              : "Fashion"}
           </option>
 
           <option value="Accessories">
-            {language === "Hindi" ? "एक्सेसरीज़" : "Accessories"}
+            {language === "Hindi"
+              ? "एक्सेसरीज़"
+              : "Accessories"}
           </option>
 
           <option value="Footwear">
-            {language === "Hindi" ? "फुटवियर" : "Footwear"}
+            {language === "Hindi"
+              ? "फुटवियर"
+              : "Footwear"}
           </option>
         </select>
 
+        {/* SORT */}
+
         <select
           value={sort}
-          onChange={(e) => setSort(e.target.value)}
+          onChange={(e) => {
+            setSort(
+              e.target.value
+            );
+          }}
         >
           <option value="default">
-            {language === "Hindi" ? "क्रम से देखें" : "Sort By"}
+            {language === "Hindi"
+              ? "क्रम से देखें"
+              : "Sort By"}
           </option>
 
           <option value="low">
@@ -179,97 +359,346 @@ function Products() {
           </option>
 
           <option value="name">
-            {language === "Hindi" ? "नाम: A से Z" : "Name: A to Z"}
+            {language === "Hindi"
+              ? "नाम: A से Z"
+              : "Name: A to Z"}
           </option>
         </select>
 
+        {/* CLEAR */}
+
         <button
-  className="clear-filters-btn"
-  onClick={() => {
-    setSearch("");
-    setCategory("All");
-    setSort("default");
-    setSearchParams({});
-  }}
->
-  {language === "Hindi"
-    ? "फ़िल्टर साफ़ करें"
-    : "Clear Filters"}
-</button>
+          type="button"
+          className="clear-filters-btn"
+          onClick={clearFilters}
+        >
+          {language === "Hindi"
+            ? "फ़िल्टर साफ़ करें"
+            : "Clear Filters"}
+        </button>
 
       </section>
 
-      {/* LOADING */}
+      {/* =========================
+          RESULTS INFO
+      ========================= */}
+
+      {!loading && !error && (
+        <div
+          className="products-results-info"
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            gap: "15px",
+            flexWrap: "wrap",
+            margin: "0 0 22px",
+          }}
+        >
+          <p
+            style={{
+              margin: 0,
+              color: "#81776e",
+              fontSize: "11px",
+            }}
+          >
+            {language === "Hindi"
+              ? `${filteredProducts.length} प्रोडक्ट मिले`
+              : `${filteredProducts.length} products found`}
+          </p>
+
+          {activeFilterCount > 0 && (
+            <span
+              style={{
+                color: "#8a6245",
+                fontSize: "10px",
+                fontWeight: 700,
+                letterSpacing: "0.7px",
+              }}
+            >
+              {activeFilterCount}{" "}
+              {language === "Hindi"
+                ? "फ़िल्टर सक्रिय"
+                : "FILTERS ACTIVE"}
+            </span>
+          )}
+        </div>
+      )}
+
+      {/* =========================
+          LOADING
+      ========================= */}
 
       {loading && (
         <div className="no-products">
+
           <h2>
             {language === "Hindi"
               ? "प्रोडक्ट्स लोड हो रहे हैं..."
               : "Loading products..."}
           </h2>
+
         </div>
       )}
 
-      {/* ERROR */}
+      {/* =========================
+          ERROR
+      ========================= */}
 
       {!loading && error && (
         <div className="no-products">
-          <h2>{error}</h2>
+
+          <div className="no-products-icon">
+            !
+          </div>
+
+          <h2>
+            {error}
+          </h2>
 
           <p>
             {language === "Hindi"
               ? "कृपया बाद में दोबारा कोशिश करें।"
               : "Please try again later."}
           </p>
+
         </div>
       )}
 
-      {/* PRODUCTS */}
+      {/* =========================
+          PRODUCTS
+      ========================= */}
 
-      {!loading && !error && filteredProducts.length > 0 ? (
-        <section className="products-grid">
-          {filteredProducts.map((product) => (
-            <ProductCard
-              key={product._id || product.id}
-              product={product}
-            />
-          ))}
-        </section>
-      ) : (
-        !loading &&
-        !error && (
+      {!loading &&
+        !error &&
+        visibleProducts.length > 0 && (
+          <section className="products-grid">
+
+            {visibleProducts.map(
+              (product) => (
+                <ProductCard
+                  key={
+                    product._id ||
+                    product.id
+                  }
+                  product={product}
+                />
+              )
+            )}
+
+          </section>
+        )}
+
+      {/* =========================
+          NO PRODUCTS
+      ========================= */}
+
+      {!loading &&
+        !error &&
+        filteredProducts.length === 0 && (
           <div className="no-products">
-  <div className="no-products-icon">⌕</div>
 
-  <h2>
-    {language === "Hindi"
-      ? "कोई प्रोडक्ट नहीं मिला"
-      : "No products found"}
-  </h2>
+            <div className="no-products-icon">
+              ⌕
+            </div>
 
-  <p>
-    {language === "Hindi"
-      ? "कोई दूसरा सर्च या कैटेगरी ट्राय करें।"
-      : "Try another search or category."}
-  </p>
+            <h2>
+              {language === "Hindi"
+                ? "कोई प्रोडक्ट नहीं मिला"
+                : "No products found"}
+            </h2>
 
-  <button
-    className="clear-filters-btn"
-    onClick={() => {
-      setSearch("");
-      setCategory("All");
-      setSort("default");
-      setSearchParams({});
-    }}
-  >
-    {language === "Hindi"
-      ? "फ़िल्टर साफ़ करें"
-      : "Clear Filters"}
-  </button>
-</div>
-        )
-      )}
+            <p>
+              {language === "Hindi"
+                ? "कोई दूसरा सर्च या कैटेगरी ट्राय करें।"
+                : "Try another search or category."}
+            </p>
+
+            <button
+              type="button"
+              className="clear-filters-btn"
+              onClick={
+                clearFilters
+              }
+            >
+              {language === "Hindi"
+                ? "फ़िल्टर साफ़ करें"
+                : "Clear Filters"}
+            </button>
+
+          </div>
+        )}
+
+      {/* =========================
+          PAGINATION
+      ========================= */}
+
+      {!loading &&
+        !error &&
+        filteredProducts.length >
+          PRODUCTS_PER_PAGE && (
+          <div
+            className="products-pagination"
+            style={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              gap: "7px",
+              flexWrap: "wrap",
+              marginTop: "35px",
+            }}
+          >
+
+            {/* PREVIOUS */}
+
+            <button
+              type="button"
+              disabled={
+                safeCurrentPage === 1
+              }
+              onClick={() =>
+                setCurrentPage(
+                  (page) =>
+                    Math.max(
+                      1,
+                      page - 1
+                    )
+                )
+              }
+              style={{
+                minWidth: "38px",
+                height: "38px",
+                border:
+                  "1px solid #d8cbbb",
+                background:
+                  safeCurrentPage === 1
+                    ? "#eee8df"
+                    : "#fffdf9",
+                color:
+                  safeCurrentPage === 1
+                    ? "#aaa095"
+                    : "#211e1b",
+                cursor:
+                  safeCurrentPage === 1
+                    ? "not-allowed"
+                    : "pointer",
+              }}
+            >
+              ←
+            </button>
+
+            {/* PAGE NUMBERS */}
+
+            {Array.from(
+              {
+                length: totalPages,
+              },
+              (_, index) =>
+                index + 1
+            ).map((page) => (
+              <button
+                key={page}
+                type="button"
+                onClick={() =>
+                  setCurrentPage(
+                    page
+                  )
+                }
+                style={{
+                  minWidth: "38px",
+                  height: "38px",
+                  border:
+                    "1px solid #d8cbbb",
+                  background:
+                    page ===
+                    safeCurrentPage
+                      ? "#211e1b"
+                      : "#fffdf9",
+                  color:
+                    page ===
+                    safeCurrentPage
+                      ? "#fffdf9"
+                      : "#211e1b",
+                  cursor: "pointer",
+                  fontSize: "11px",
+                  fontWeight: 700,
+                }}
+              >
+                {page}
+              </button>
+            ))}
+
+            {/* NEXT */}
+
+            <button
+              type="button"
+              disabled={
+                safeCurrentPage ===
+                totalPages
+              }
+              onClick={() =>
+                setCurrentPage(
+                  (page) =>
+                    Math.min(
+                      totalPages,
+                      page + 1
+                    )
+                )
+              }
+              style={{
+                minWidth: "38px",
+                height: "38px",
+                border:
+                  "1px solid #d8cbbb",
+                background:
+                  safeCurrentPage ===
+                  totalPages
+                    ? "#eee8df"
+                    : "#fffdf9",
+                color:
+                  safeCurrentPage ===
+                  totalPages
+                    ? "#aaa095"
+                    : "#211e1b",
+                cursor:
+                  safeCurrentPage ===
+                  totalPages
+                    ? "not-allowed"
+                    : "pointer",
+              }}
+            >
+              →
+            </button>
+
+          </div>
+        )}
+
+      {/* =========================
+          PAGE INFO
+      ========================= */}
+
+      {!loading &&
+        !error &&
+        filteredProducts.length >
+          PRODUCTS_PER_PAGE && (
+          <p
+            style={{
+              margin:
+                "14px 0 0",
+              textAlign:
+                "center",
+              color:
+                "#95897e",
+              fontSize:
+                "10px",
+            }}
+          >
+            {language === "Hindi"
+              ? `पेज ${safeCurrentPage} / ${totalPages}`
+              : `Page ${safeCurrentPage} / ${totalPages}`}
+          </p>
+        )}
+
     </main>
   );
 }

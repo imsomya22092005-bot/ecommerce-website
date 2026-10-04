@@ -1,6 +1,9 @@
+
 import { Link, useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { useLanguage } from "../LanguageContext";
+
+import API_URL from "../api";
 
 function ProductDetails() {
   const { id } = useParams();
@@ -35,7 +38,7 @@ function ProductDetails() {
         setError("");
 
         const response = await fetch(
-          `http://localhost:3000/api/products/${id}`
+          `${API_URL}/api/products/${id}`
         );
 
         if (!response.ok) {
@@ -57,7 +60,9 @@ function ProductDetails() {
       }
     };
 
-    fetchProduct();
+    if (id) {
+      fetchProduct();
+    }
   }, [id]);
 
   /* =========================
@@ -99,17 +104,11 @@ function ProductDetails() {
     const text =
       reviewText.trim();
 
-    if (!name) {
-      return;
-    }
+    if (!name) return;
 
-    if (reviewRating === 0) {
-      return;
-    }
+    if (reviewRating === 0) return;
 
-    if (!text) {
-      return;
-    }
+    if (!text) return;
 
     const newReview = {
       id: Date.now(),
@@ -154,7 +153,7 @@ function ProductDetails() {
       ? (
           reviews.reduce(
             (total, item) =>
-              total + item.rating,
+              total + Number(item.rating),
             0
           ) / reviews.length
         ).toFixed(1)
@@ -167,13 +166,11 @@ function ProductDetails() {
   if (loading) {
     return (
       <main className="product-not-found">
-
         <h1>
           {language === "Hindi"
             ? "प्रोडक्ट लोड हो रहा है..."
             : "Loading product..."}
         </h1>
-
       </main>
     );
   }
@@ -185,7 +182,6 @@ function ProductDetails() {
   if (error || !product) {
     return (
       <main className="product-not-found">
-
         <h1>
           {language === "Hindi"
             ? "प्रोडक्ट नहीं मिला"
@@ -197,23 +193,141 @@ function ProductDetails() {
             ? "प्रोडक्ट्स पर वापस जाएं"
             : "Back to Products"}
         </Link>
-
       </main>
     );
   }
 
   /* =========================
+     PRODUCT ID
+  ========================= */
+
+  const productId =
+    product._id || product.id;
+
+  /* =========================
      ADD TO CART
   ========================= */
 
-  const handleAddToCart = () => {
+  const handleAddToCart = async () => {
+    const token =
+      localStorage.getItem("authToken");
+
+    /* =========================
+       LOGGED-IN USER
+    ========================= */
+
+    if (token) {
+      try {
+        const response = await fetch(
+          `${API_URL}/api/cart/add`,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type":
+                "application/json",
+              Authorization:
+                `Bearer ${token}`,
+            },
+            body: JSON.stringify({
+              productId,
+              quantity: 1,
+            }),
+          }
+        );
+
+        const data =
+          await response.json();
+
+        if (!response.ok) {
+          throw new Error(
+            data.message ||
+              "Could not add product to cart"
+          );
+        }
+
+        /* =========================
+           SAVE BACKEND CART LOCALLY
+        ========================= */
+
+        if (data.cart) {
+          const backendItems =
+            data.cart.items || [];
+
+          const normalizedCart =
+            backendItems
+              .filter(
+                (item) =>
+                  item?.product
+              )
+              .map((item) => ({
+                _id:
+                  item.product._id,
+                id:
+                  item.product._id,
+                name:
+                  item.product.name ||
+                  "",
+                price:
+                  Number(
+                    item.product.price
+                  ) || 0,
+                image:
+                  item.product.image ||
+                  item.product.imageUrl ||
+                  "",
+                category:
+                  item.product.category ||
+                  "",
+                quantity:
+                  Number(
+                    item.quantity
+                  ) || 1,
+              }));
+
+          localStorage.setItem(
+            "cart",
+            JSON.stringify(
+              normalizedCart
+            )
+          );
+        }
+
+        window.dispatchEvent(
+          new Event("cartUpdated")
+        );
+
+        setAdded(true);
+
+        setTimeout(() => {
+          setAdded(false);
+        }, 2500);
+
+      } catch (error) {
+        console.error(
+          "Add to cart error:",
+          error
+        );
+
+        alert(
+          language === "Hindi"
+            ? error.message ||
+                "प्रोडक्ट कार्ट में नहीं जोड़ा जा सका।"
+            : error.message ||
+                "Could not add product to cart."
+        );
+      }
+
+      return;
+    }
+
+    /* =========================
+       GUEST USER
+    ========================= */
+
     const existingCart =
       JSON.parse(
         localStorage.getItem("cart")
       ) || [];
-
-    const productId =
-      product._id || product.id;
 
     const existingProduct =
       existingCart.find(
@@ -225,17 +339,20 @@ function ProductDetails() {
     let updatedCart;
 
     if (existingProduct) {
-      updatedCart = existingCart.map(
-        (item) =>
-          (item._id || item.id) ===
-          productId
-            ? {
-                ...item,
-                quantity:
-                  item.quantity + 1,
-              }
-            : item
-      );
+      updatedCart =
+        existingCart.map(
+          (item) =>
+            (item._id || item.id) ===
+            productId
+              ? {
+                  ...item,
+                  quantity:
+                    Number(
+                      item.quantity
+                    ) + 1,
+                }
+              : item
+        );
     } else {
       updatedCart = [
         ...existingCart,
@@ -256,6 +373,10 @@ function ProductDetails() {
     );
 
     setAdded(true);
+
+    setTimeout(() => {
+      setAdded(false);
+    }, 2500);
   };
 
   /* =========================
@@ -267,9 +388,6 @@ function ProductDetails() {
       JSON.parse(
         localStorage.getItem("wishlist")
       ) || [];
-
-    const productId =
-      product._id || product.id;
 
     const alreadySaved =
       wishlist.some(
@@ -288,7 +406,9 @@ function ProductDetails() {
 
       localStorage.setItem(
         "wishlist",
-        JSON.stringify(updatedWishlist)
+        JSON.stringify(
+          updatedWishlist
+        )
       );
     } else {
       const updatedWishlist = [
@@ -298,7 +418,9 @@ function ProductDetails() {
 
       localStorage.setItem(
         "wishlist",
-        JSON.stringify(updatedWishlist)
+        JSON.stringify(
+          updatedWishlist
+        )
       );
     }
 
@@ -326,7 +448,6 @@ function ProductDetails() {
 
         </div>
 
-
         <div className="details-content">
 
           {/* CATEGORY */}
@@ -348,13 +469,11 @@ function ProductDetails() {
 
           </p>
 
-
           {/* PRODUCT NAME */}
 
           <h1>
             {product.name}
           </h1>
-
 
           {/* PRODUCT RATING SUMMARY */}
 
@@ -382,7 +501,6 @@ function ProductDetails() {
 
           </div>
 
-
           {/* PRICE */}
 
           <p className="details-price">
@@ -391,21 +509,22 @@ function ProductDetails() {
 
           <div className="details-line"></div>
 
-
           {/* DESCRIPTION */}
 
           <p className="details-description">
             {product.description}
           </p>
 
-
           {/* ACTIONS */}
 
           <div className="details-actions">
 
             <button
+              type="button"
               className="add-cart-btn"
-              onClick={handleAddToCart}
+              onClick={
+                handleAddToCart
+              }
             >
               {added
                 ? language === "Hindi"
@@ -416,17 +535,18 @@ function ProductDetails() {
                 : "ADD TO CART"}
             </button>
 
-
             <button
+              type="button"
               className="wishlist-btn"
-              onClick={handleWishlist}
+              onClick={
+                handleWishlist
+              }
               aria-label="Add to wishlist"
             >
               ♡
             </button>
 
           </div>
-
 
           {/* PRODUCT INFO */}
 
@@ -448,7 +568,6 @@ function ProductDetails() {
 
             </div>
 
-
             <div>
 
               <strong>
@@ -464,7 +583,6 @@ function ProductDetails() {
               </span>
 
             </div>
-
 
             <div>
 
@@ -488,7 +606,6 @@ function ProductDetails() {
 
       </section>
 
-
       {/* =========================
           REVIEWS SECTION
       ========================= */}
@@ -506,13 +623,10 @@ function ProductDetails() {
             </p>
 
             <h2>
-              {language === "Hindi"
-                ? "Reviews & Ratings"
-                : "Reviews & Ratings"}
+              Reviews & Ratings
             </h2>
 
           </div>
-
 
           <div className="product-review-overall">
 
@@ -523,6 +637,7 @@ function ProductDetails() {
             </strong>
 
             <div>
+
               <span className="overall-stars">
                 {reviews.length > 0
                   ? "★★★★★"
@@ -534,12 +649,12 @@ function ProductDetails() {
                   ? "1 customer review"
                   : `${reviews.length} customer reviews`}
               </small>
+
             </div>
 
           </div>
 
         </div>
-
 
         {/* =========================
             WRITE REVIEW
@@ -561,9 +676,10 @@ function ProductDetails() {
 
           </div>
 
-
           <form
-            onSubmit={handleReviewSubmit}
+            onSubmit={
+              handleReviewSubmit
+            }
             className="product-review-form"
           >
 
@@ -579,7 +695,9 @@ function ProductDetails() {
 
               <input
                 type="text"
-                value={reviewerName}
+                value={
+                  reviewerName
+                }
                 onChange={(e) =>
                   setReviewerName(
                     e.target.value
@@ -595,7 +713,6 @@ function ProductDetails() {
 
             </div>
 
-
             {/* RATING */}
 
             <div className="product-review-field">
@@ -610,7 +727,6 @@ function ProductDetails() {
 
                 {[1, 2, 3, 4, 5].map(
                   (star) => (
-
                     <button
                       key={star}
                       type="button"
@@ -627,7 +743,9 @@ function ProductDetails() {
                         )
                       }
                       onMouseLeave={() =>
-                        setHoverRating(0)
+                        setHoverRating(
+                          0
+                        )
                       }
                       onClick={() =>
                         setReviewRating(
@@ -638,14 +756,12 @@ function ProductDetails() {
                     >
                       ★
                     </button>
-
                   )
                 )}
 
               </div>
 
             </div>
-
 
             {/* REVIEW */}
 
@@ -675,7 +791,6 @@ function ProductDetails() {
 
             </div>
 
-
             <button
               type="submit"
               className="product-review-submit"
@@ -688,7 +803,6 @@ function ProductDetails() {
           </form>
 
         </div>
-
 
         {/* =========================
             REVIEWS LIST
@@ -709,7 +823,6 @@ function ProductDetails() {
             </span>
 
           </div>
-
 
           {reviews.length === 0 ? (
 
@@ -737,64 +850,69 @@ function ProductDetails() {
 
             <div className="product-review-grid">
 
-              {reviews.map((item) => (
+              {reviews.map(
+                (item) => (
 
-                <article
-                  className="product-review-card"
-                  key={item.id}
-                >
+                  <article
+                    className="product-review-card"
+                    key={item.id}
+                  >
 
-                  <div className="product-review-card-top">
+                    <div className="product-review-card-top">
 
-                    <div className="product-review-avatar">
-                      {item.name
-                        .charAt(0)
-                        .toUpperCase()}
-                    </div>
+                      <div className="product-review-avatar">
+                        {item.name
+                          .charAt(0)
+                          .toUpperCase()}
+                      </div>
 
-                    <div>
+                      <div>
 
-                      <h4>
-                        {item.name}
-                      </h4>
+                        <h4>
+                          {item.name}
+                        </h4>
 
-                      <div className="review-card-rating">
+                        <div className="review-card-rating">
 
-                        {"★".repeat(
-                          item.rating
-                        )}
+                          {"★".repeat(
+                            Number(
+                              item.rating
+                            )
+                          )}
 
-                        {"☆".repeat(
-                          5 - item.rating
-                        )}
+                          {"☆".repeat(
+                            5 -
+                              Number(
+                                item.rating
+                              )
+                          )}
+
+                        </div>
 
                       </div>
 
                     </div>
 
-                  </div>
+                    <p className="product-review-text">
+                      “{item.review}”
+                    </p>
 
+                    <div className="product-review-card-footer">
 
-                  <p className="product-review-text">
-                    “{item.review}”
-                  </p>
+                      <span>
+                        {item.date}
+                      </span>
 
+                      <span>
+                        ✓ Verified
+                      </span>
 
-                  <div className="product-review-card-footer">
+                    </div>
 
-                    <span>
-                      {item.date}
-                    </span>
+                  </article>
 
-                    <span>
-                      ✓ Verified
-                    </span>
-
-                  </div>
-
-                </article>
-
-              ))}
+                )
+              )}
 
             </div>
 

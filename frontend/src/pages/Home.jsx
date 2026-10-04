@@ -1,3 +1,4 @@
+import API_URL from "../api";
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { useLanguage } from "../LanguageContext";
@@ -174,9 +175,7 @@ function Home() {
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const response = await fetch(
-          "http://localhost:3000/api/products"
-        );
+        const response = await fetch(`${API_URL}/api/products`)
 
         if (!response.ok) {
           throw new Error(

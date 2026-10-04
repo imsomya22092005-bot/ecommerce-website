@@ -9,11 +9,11 @@ import {
   Star,
   Heart,
   Info,
+  LayoutDashboard,
 } from "lucide-react";
 
 import { useEffect, useState } from "react";
 import { useLanguage } from "../LanguageContext";
-
 
 /* =========================================================
    TRANSLATIONS
@@ -43,6 +43,8 @@ const translations = {
     help: "Help & Support",
     orders: "My Orders",
     trackOrder: "Track Order",
+    profile: "My Profile",
+    adminDashboard: "Admin Dashboard",
 
     wishlist: "Wishlist",
     cart: "Cart",
@@ -76,6 +78,8 @@ const translations = {
     help: "मदद और सहायता",
     orders: "मेरे ऑर्डर्स",
     trackOrder: "ऑर्डर ट्रैक करें",
+    profile: "मेरी प्रोफाइल",
+    adminDashboard: "एडमिन डैशबोर्ड",
 
     wishlist: "विशलिस्ट",
     cart: "कार्ट",
@@ -86,7 +90,6 @@ const translations = {
     close: "बंद करें",
   },
 };
-
 
 /* =========================================================
    NAVBAR
@@ -105,12 +108,15 @@ function Navbar() {
     localStorage.getItem("userName")
   );
 
+  const [userRole, setUserRole] = useState(
+    localStorage.getItem("userRole")
+  );
+
   const [search, setSearch] = useState("");
 
   const [menuOpen, setMenuOpen] = useState(false);
 
   const [moreOpen, setMoreOpen] = useState(false);
-
 
   /* =========================================================
      CART COUNT
@@ -119,11 +125,14 @@ function Navbar() {
   useEffect(() => {
     const updateCartCount = () => {
       const cart =
-        JSON.parse(localStorage.getItem("cart")) || [];
+        JSON.parse(
+          localStorage.getItem("cart")
+        ) || [];
 
       const count = cart.reduce(
         (total, item) =>
-          total + Number(item.quantity || 0),
+          total +
+          Number(item.quantity || 0),
         0
       );
 
@@ -145,7 +154,6 @@ function Navbar() {
     };
   }, []);
 
-
   /* =========================================================
      USER UPDATE
   ========================================================= */
@@ -154,6 +162,10 @@ function Navbar() {
     const updateUser = () => {
       setUserName(
         localStorage.getItem("userName")
+      );
+
+      setUserRole(
+        localStorage.getItem("userRole")
       );
     };
 
@@ -172,7 +184,6 @@ function Navbar() {
     };
   }, []);
 
-
   /* =========================================================
      SEARCH
   ========================================================= */
@@ -180,41 +191,50 @@ function Navbar() {
   const handleSearch = (e) => {
     e.preventDefault();
 
-    const value = search.trim();
+    const value =
+      search.trim();
 
     if (!value) return;
 
     navigate(
-      `/products?search=${encodeURIComponent(value)}`
+      `/products?search=${encodeURIComponent(
+        value
+      )}`
     );
 
     setSearch("");
     setMenuOpen(false);
   };
 
-
   /* =========================================================
      LOGOUT
   ========================================================= */
 
   const handleLogout = () => {
-    localStorage.removeItem("userName");
+    localStorage.removeItem(
+      "userName"
+    );
 
-    localStorage.removeItem("authToken");
+    localStorage.removeItem(
+      "authToken"
+    );
 
-    localStorage.removeItem("userRole");
+    localStorage.removeItem(
+      "userRole"
+    );
 
     setUserName(null);
+    setUserRole(null);
 
     window.dispatchEvent(
       new Event("userUpdated")
     );
 
     setMenuOpen(false);
-
     setMoreOpen(false);
-  };
 
+    navigate("/");
+  };
 
   /* =========================================================
      CLOSE MOBILE MENU
@@ -224,20 +244,26 @@ function Navbar() {
     setMenuOpen(false);
   };
 
-
   /* =========================================================
      MORE DROPDOWN
   ========================================================= */
 
   const handleMoreToggle = () => {
-    setMoreOpen((prev) => !prev);
+    setMoreOpen(
+      (prev) => !prev
+    );
   };
-
 
   const closeMore = () => {
     setMoreOpen(false);
   };
 
+  /* =========================================================
+     ADMIN CHECK
+  ========================================================= */
+
+  const isAdmin =
+    userRole === "admin";
 
   /* =========================================================
      UI
@@ -275,7 +301,6 @@ function Navbar() {
 
         </div>
 
-
         <div className="shop-topbar-right">
 
           <span>
@@ -285,10 +310,11 @@ function Navbar() {
           <select
             value={language}
             onChange={(e) =>
-              setLanguage(e.target.value)
+              setLanguage(
+                e.target.value
+              )
             }
           >
-
             <option value="English">
               English
             </option>
@@ -296,13 +322,11 @@ function Navbar() {
             <option value="Hindi">
               हिंदी
             </option>
-
           </select>
 
         </div>
 
       </div>
-
 
       {/* =====================================================
           MAIN NAVBAR
@@ -319,7 +343,6 @@ function Navbar() {
         >
           SHOPSPHERE
         </Link>
-
 
         {/* =================================================
             SEARCH
@@ -339,7 +362,9 @@ function Navbar() {
             placeholder={t.search}
             value={search}
             onChange={(e) =>
-              setSearch(e.target.value)
+              setSearch(
+                e.target.value
+              )
             }
           />
 
@@ -348,7 +373,6 @@ function Navbar() {
           </button>
 
         </form>
-
 
         {/* =================================================
             RIGHT ACTIONS
@@ -401,7 +425,6 @@ function Navbar() {
 
           )}
 
-
           {/* =================================================
               MORE
           ================================================= */}
@@ -410,12 +433,13 @@ function Navbar() {
 
             <button
               className="more-button"
-              onClick={handleMoreToggle}
+              onClick={
+                handleMoreToggle
+              }
               type="button"
             >
               {t.more} ▾
             </button>
-
 
             {moreOpen && (
 
@@ -433,7 +457,6 @@ function Navbar() {
                   ×
                 </button>
 
-
                 {/* CONTACT */}
 
                 <Link
@@ -442,7 +465,6 @@ function Navbar() {
                 >
                   📞 {t.contact}
                 </Link>
-
 
                 {/* HELP */}
 
@@ -453,7 +475,6 @@ function Navbar() {
                   ❓ {t.help}
                 </Link>
 
-
                 {/* ORDERS */}
 
                 <Link
@@ -462,7 +483,6 @@ function Navbar() {
                 >
                   📋 {t.orders}
                 </Link>
-
 
                 {/* TRACK ORDER */}
 
@@ -473,12 +493,39 @@ function Navbar() {
                   🚚 {t.trackOrder}
                 </Link>
 
+<Link
+  to="/profile"
+  onClick={closeMore}
+>
+  👤 {t.profile}
+</Link>
+
+                {/* =================================================
+                    ADMIN DASHBOARD
+                ================================================= */}
+
+                {isAdmin && (
+
+                  <Link
+                    to="/admin"
+                    onClick={closeMore}
+                    className="admin-nav-link"
+                  >
+                    <LayoutDashboard
+                      size={15}
+                      strokeWidth={1.8}
+                    />
+
+                    {t.adminDashboard}
+                  </Link>
+
+                )}
+
               </div>
 
             )}
 
           </div>
-
 
           {/* =================================================
               WISHLIST
@@ -492,7 +539,6 @@ function Navbar() {
           >
             ♡
           </Link>
-
 
           {/* =================================================
               CART
@@ -521,17 +567,20 @@ function Navbar() {
 
           </Link>
 
-
           {/* =================================================
               HAMBURGER
           ================================================= */}
 
           <button
             className={`shop-hamburger ${
-              menuOpen ? "active" : ""
+              menuOpen
+                ? "active"
+                : ""
             }`}
             onClick={() =>
-              setMenuOpen((prev) => !prev)
+              setMenuOpen(
+                (prev) => !prev
+              )
             }
             aria-label={t.menu}
             title={t.menu}
@@ -548,7 +597,6 @@ function Navbar() {
 
       </div>
 
-
       {/* =====================================================
           CATEGORY BAR
       ===================================================== */}
@@ -563,12 +611,10 @@ function Navbar() {
         >
 
           <span className="category-icon">
-
             <House
               size={20}
               strokeWidth={1.7}
             />
-
           </span>
 
           <small>
@@ -576,7 +622,6 @@ function Navbar() {
           </small>
 
         </Link>
-
 
         {/* FASHION */}
 
@@ -586,12 +631,10 @@ function Navbar() {
         >
 
           <span className="category-icon">
-
             <Shirt
               size={20}
               strokeWidth={1.7}
             />
-
           </span>
 
           <small>
@@ -599,7 +642,6 @@ function Navbar() {
           </small>
 
         </Link>
-
 
         {/* ACCESSORIES */}
 
@@ -609,12 +651,10 @@ function Navbar() {
         >
 
           <span className="category-icon">
-
             <Watch
               size={20}
               strokeWidth={1.7}
             />
-
           </span>
 
           <small>
@@ -622,7 +662,6 @@ function Navbar() {
           </small>
 
         </Link>
-
 
         {/* FOOTWEAR */}
 
@@ -632,12 +671,10 @@ function Navbar() {
         >
 
           <span className="category-icon">
-
             <Footprints
               size={20}
               strokeWidth={1.7}
             />
-
           </span>
 
           <small>
@@ -645,7 +682,6 @@ function Navbar() {
           </small>
 
         </Link>
-
 
         {/* NEW ARRIVALS */}
 
@@ -655,12 +691,10 @@ function Navbar() {
         >
 
           <span className="category-icon">
-
             <Sparkles
               size={20}
               strokeWidth={1.7}
             />
-
           </span>
 
           <small>
@@ -668,7 +702,6 @@ function Navbar() {
           </small>
 
         </Link>
-
 
         {/* BEST SELLERS */}
 
@@ -678,12 +711,10 @@ function Navbar() {
         >
 
           <span className="category-icon">
-
             <Star
               size={20}
               strokeWidth={1.7}
             />
-
           </span>
 
           <small>
@@ -691,7 +722,6 @@ function Navbar() {
           </small>
 
         </Link>
-
 
         {/* COLLECTIONS */}
 
@@ -701,12 +731,10 @@ function Navbar() {
         >
 
           <span className="category-icon">
-
             <Heart
               size={20}
               strokeWidth={1.7}
             />
-
           </span>
 
           <small>
@@ -714,7 +742,6 @@ function Navbar() {
           </small>
 
         </Link>
-
 
         {/* ABOUT */}
 
@@ -724,12 +751,10 @@ function Navbar() {
         >
 
           <span className="category-icon">
-
             <Info
               size={20}
               strokeWidth={1.7}
             />
-
           </span>
 
           <small>
@@ -739,7 +764,6 @@ function Navbar() {
         </Link>
 
       </div>
-
 
       {/* =====================================================
           MOBILE MENU
@@ -758,7 +782,6 @@ function Navbar() {
             {t.home}
           </Link>
 
-
           {/* SHOP */}
 
           <Link
@@ -767,7 +790,6 @@ function Navbar() {
           >
             {t.shop}
           </Link>
-
 
           {/* FASHION */}
 
@@ -778,7 +800,6 @@ function Navbar() {
             {t.fashion}
           </Link>
 
-
           {/* ACCESSORIES */}
 
           <Link
@@ -787,7 +808,6 @@ function Navbar() {
           >
             {t.accessories}
           </Link>
-
 
           {/* FOOTWEAR */}
 
@@ -798,7 +818,6 @@ function Navbar() {
             {t.footwear}
           </Link>
 
-
           {/* NEW ARRIVALS */}
 
           <Link
@@ -807,7 +826,6 @@ function Navbar() {
           >
             {t.newArrivals}
           </Link>
-
 
           {/* BEST SELLERS */}
 
@@ -818,7 +836,6 @@ function Navbar() {
             {t.bestSellers}
           </Link>
 
-
           {/* COLLECTIONS */}
 
           <Link
@@ -827,7 +844,6 @@ function Navbar() {
           >
             {t.collections}
           </Link>
-
 
           {/* WISHLIST */}
 
@@ -838,7 +854,6 @@ function Navbar() {
             ♡ {t.wishlist}
           </Link>
 
-
           {/* CART */}
 
           <Link
@@ -847,7 +862,6 @@ function Navbar() {
           >
             🛒 {t.cart}
           </Link>
-
 
           {/* ABOUT */}
 
@@ -858,7 +872,6 @@ function Navbar() {
             {t.about}
           </Link>
 
-
           {/* CONTACT */}
 
           <Link
@@ -867,7 +880,6 @@ function Navbar() {
           >
             📞 {t.contact}
           </Link>
-
 
           {/* HELP */}
 
@@ -878,7 +890,6 @@ function Navbar() {
             ❓ {t.help}
           </Link>
 
-
           {/* ORDERS */}
 
           <Link
@@ -887,7 +898,6 @@ function Navbar() {
           >
             📋 {t.orders}
           </Link>
-
 
           {/* TRACK ORDER */}
 
@@ -898,6 +908,33 @@ function Navbar() {
             🚚 {t.trackOrder}
           </Link>
 
+          <Link
+  to="/profile"
+  onClick={closeMenu}
+>
+  👤 {t.profile}
+</Link>
+
+          {/* =================================================
+              ADMIN DASHBOARD - MOBILE
+          ================================================= */}
+
+          {isAdmin && (
+
+            <Link
+              to="/admin"
+              onClick={closeMenu}
+              className="admin-mobile-link"
+            >
+              <LayoutDashboard
+                size={16}
+                strokeWidth={1.8}
+              />
+
+              {t.adminDashboard}
+            </Link>
+
+          )}
 
           {/* LOGIN */}
 
@@ -912,14 +949,15 @@ function Navbar() {
 
           )}
 
-
           {/* LOGOUT */}
 
           {userName && (
 
             <button
               className="mobile-logout-shop"
-              onClick={handleLogout}
+              onClick={
+                handleLogout
+              }
               type="button"
             >
               {t.logout}
@@ -934,6 +972,5 @@ function Navbar() {
     </header>
   );
 }
-
 
 export default Navbar;
