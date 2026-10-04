@@ -9,6 +9,9 @@ function Login() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
+  // Default role
+  const [role, setRole] = useState("user");
+
   const navigate = useNavigate();
   const { language } = useLanguage();
 
@@ -23,6 +26,10 @@ function Login() {
       };
     }
   };
+
+  /* =========================
+     LOGIN / REGISTER
+  ========================= */
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -70,6 +77,7 @@ function Login() {
               name,
               email,
               password,
+              role,
             }),
           }
         );
@@ -112,6 +120,7 @@ function Login() {
               "Login failed"
           );
         }
+
       } else {
         /* =========================
            LOGIN
@@ -178,6 +187,15 @@ function Login() {
         "";
 
       /* =========================
+         USER ROLE
+      ========================= */
+
+      let loggedInRole =
+        data.user?.role ||
+        data.role ||
+        "";
+
+      /* =========================
          PROFILE API
       ========================= */
 
@@ -203,6 +221,11 @@ function Login() {
             profileData.user?.fullName ||
             profileData.fullName ||
             loggedInName;
+
+          loggedInRole =
+            profileData.user?.role ||
+            profileData.role ||
+            loggedInRole;
         }
       } catch (profileError) {
         console.log(
@@ -211,14 +234,20 @@ function Login() {
         );
       }
 
-      /*
-        Fallback:
-        Agar backend response mein name nahi mila,
-        email se naam bana denge.
-      */
+      /* =========================
+         FALLBACK NAME
+      ========================= */
 
       if (!loggedInName) {
         loggedInName = email.split("@")[0];
+      }
+
+      /* =========================
+         FALLBACK ROLE
+      ========================= */
+
+      if (!loggedInRole && isRegister) {
+        loggedInRole = role;
       }
 
       /* =========================
@@ -228,6 +257,11 @@ function Login() {
       localStorage.setItem(
         "userName",
         loggedInName
+      );
+
+      localStorage.setItem(
+        "userRole",
+        loggedInRole
       );
 
       window.dispatchEvent(
@@ -258,13 +292,17 @@ function Login() {
     }
   };
 
+  /* =========================
+     CONTINUE SHOPPING
+  ========================= */
+
   const continueShopping = () => {
     setShowWelcome(false);
     navigate("/");
   };
 
   /* =========================
-     CLOSE LOGIN / REGISTER CARD
+     CLOSE LOGIN CARD
   ========================= */
 
   const closeAuth = () => {
@@ -316,6 +354,7 @@ function Login() {
         <div className="auth-card">
 
           {/* CLOSE BUTTON */}
+
           <button
             type="button"
             className="auth-close"
@@ -349,6 +388,7 @@ function Login() {
               onClick={() => {
                 setIsRegister(true);
                 setError("");
+                setRole("user");
               }}
             >
               {language === "Hindi"
@@ -363,7 +403,9 @@ function Login() {
 
           <form onSubmit={handleSubmit}>
 
-            {/* FULL NAME */}
+            {/* =========================
+                FULL NAME
+            ========================= */}
 
             {isRegister && (
               <div className="form-group">
@@ -389,7 +431,9 @@ function Login() {
             )}
 
 
-            {/* EMAIL */}
+            {/* =========================
+                EMAIL
+            ========================= */}
 
             <div className="form-group">
 
@@ -413,7 +457,9 @@ function Login() {
             </div>
 
 
-            {/* PASSWORD */}
+            {/* =========================
+                PASSWORD
+            ========================= */}
 
             <div className="form-group">
 
@@ -437,7 +483,9 @@ function Login() {
             </div>
 
 
-            {/* CONFIRM PASSWORD */}
+            {/* =========================
+                CONFIRM PASSWORD
+            ========================= */}
 
             {isRegister && (
               <div className="form-group">
@@ -463,7 +511,45 @@ function Login() {
             )}
 
 
-            {/* FORGOT PASSWORD */}
+            {/* =========================
+                ROLE - LAST FIELD
+            ========================= */}
+
+            {isRegister && (
+              <div className="form-group role-group">
+
+                <label>
+                  {language === "Hindi"
+                    ? "रोल"
+                    : "ROLE"}
+                </label>
+
+                <select
+                  name="role"
+                  value={role}
+                  onChange={(e) =>
+                    setRole(e.target.value)
+                  }
+                  required
+                >
+
+                  <option value="user">
+                    User
+                  </option>
+
+                  <option value="admin">
+                    Admin
+                  </option>
+
+                </select>
+
+              </div>
+            )}
+
+
+            {/* =========================
+                FORGOT PASSWORD
+            ========================= */}
 
             {!isRegister && (
               <div className="forgot-password">
@@ -478,7 +564,9 @@ function Login() {
             )}
 
 
-            {/* ERROR */}
+            {/* =========================
+                ERROR
+            ========================= */}
 
             {error && (
               <p
@@ -495,7 +583,9 @@ function Login() {
             )}
 
 
-            {/* SUBMIT */}
+            {/* =========================
+                SUBMIT
+            ========================= */}
 
             <button
               type="submit"
@@ -518,7 +608,9 @@ function Login() {
           </form>
 
 
-          {/* SWITCH LOGIN / REGISTER */}
+          {/* =========================
+              SWITCH LOGIN / REGISTER
+          ========================= */}
 
           <p className="auth-switch">
 
@@ -535,6 +627,10 @@ function Login() {
               onClick={() => {
                 setIsRegister(!isRegister);
                 setError("");
+
+                if (!isRegister) {
+                  setRole("user");
+                }
               }}
             >
               {isRegister
@@ -579,6 +675,7 @@ function Login() {
             </h2>
 
             <p>
+
               {isRegister
                 ? language === "Hindi"
                   ? "आपका अकाउंट सफलतापूर्वक बन गया है।"
@@ -592,6 +689,7 @@ function Login() {
               {language === "Hindi"
                 ? "हमें खुशी है कि आप हमारे साथ हैं।"
                 : "We're happy to have you with us."}
+
             </p>
 
             <button

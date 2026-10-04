@@ -87,10 +87,10 @@ function Home() {
           promoLabel:
             "SHOPSPHERE EXCLUSIVE",
 
-          promoTitle: "अपनी स्टाइल को",
+          promoTitle: "आओ,चलो",
 
           promoTitle2:
-            "नया अंदाज़ दें।",
+            "तुम्हारी स्टाइल को अच्छा करें",
 
           promoDescription:
             "चुनिंदा फैशन, एक्सेसरीज़ और रोज़मर्रा के प्रोडक्ट्स के साथ अपना अगला पसंदीदा लुक खोजें।",
@@ -102,10 +102,10 @@ function Home() {
           heroLabel:
             "NEW COLLECTION · 2026 EDITION",
 
-          heroTitle1: "Style that",
+          heroTitle1: "Come Let's",
 
           heroTitle2:
-            "feels like you.",
+            "Elevate Your Style.",
 
           heroDescription:
             "Discover thoughtfully selected fashion, accessories and everyday essentials made for modern living.",

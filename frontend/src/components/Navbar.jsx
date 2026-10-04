@@ -1,4 +1,14 @@
 import { Link, useNavigate } from "react-router-dom";
+import {
+  House,
+  Shirt,
+  Watch,
+  Footprints,
+  Sparkles,
+  Star,
+  Heart,
+  Info,
+} from "lucide-react";
 import { useEffect, useState } from "react";
 import { useLanguage } from "../LanguageContext";
 
@@ -390,85 +400,100 @@ function Navbar() {
         </div>
 
       </div>
+{/* =========================
+    CATEGORY BAR
+========================= */}
+
+<div className="shop-categorybar">
+
+  <Link
+    to="/"
+    className="shop-category active-category"
+  >
+    <span className="category-icon">
+      <House size={20} strokeWidth={1.7} />
+    </span>
+    <small>{t.home}</small>
+  </Link>
 
 
-      {/* =========================
-          CATEGORY BAR
-      ========================= */}
-      <div className="shop-categorybar">
-
-        <Link
-          to="/"
-          className="shop-category active-category"
-        >
-          <span>⌂</span>
-          <small>{t.home}</small>
-        </Link>
+  <Link
+    to="/products?category=Fashion"
+    className="shop-category"
+  >
+    <span className="category-icon">
+      <Shirt size={20} strokeWidth={1.7} />
+    </span>
+    <small>Fashion</small>
+  </Link>
 
 
-        <Link
-          to="/products?category=Fashion"
-          className="shop-category"
-        >
-          <span>♧</span>
-          <small>Fashion</small>
-        </Link>
+  <Link
+    to="/products?category=Accessories"
+    className="shop-category"
+  >
+    <span className="category-icon">
+      <Watch size={20} strokeWidth={1.7} />
+    </span>
+    <small>Accessories</small>
+  </Link>
 
 
-        <Link
-          to="/products?category=Accessories"
-          className="shop-category"
-        >
-          <span>◉</span>
-          <small>Accessories</small>
-        </Link>
+  <Link
+    to="/products?category=Footwear"
+    className="shop-category"
+  >
+    <span className="category-icon">
+      <Footprints size={20} strokeWidth={1.7} />
+    </span>
+    <small>Footwear</small>
+  </Link>
 
 
-        <Link
-          to="/products?category=Footwear"
-          className="shop-category"
-        >
-          <span>♢</span>
-          <small>Footwear</small>
-        </Link>
+  <Link
+    to="/new-arrivals"
+    className="shop-category"
+  >
+    <span className="category-icon">
+      <Sparkles size={20} strokeWidth={1.7} />
+    </span>
+    <small>New Arrivals</small>
+  </Link>
 
 
-        <Link
-          to="/new-arrivals"
-          className="shop-category"
-        >
-          <span>✦</span>
-          <small>New Arrivals</small>
-        </Link>
+  <Link
+    to="/products"
+    className="shop-category"
+  >
+    <span className="category-icon">
+      <Star size={20} strokeWidth={1.7} />
+    </span>
+    <small>Best Sellers</small>
+  </Link>
 
 
-        <Link
-          to="/products"
-          className="shop-category"
-        >
-          <span>★</span>
-          <small>Best Sellers</small>
-        </Link>
+  <Link
+    to="/products"
+    className="shop-category"
+  >
+    <span className="category-icon">
+      <Heart size={20} strokeWidth={1.7} />
+    </span>
+    <small>Collections</small>
+  </Link>
 
 
-        <Link
-          to="/products"
-          className="shop-category"
-        >
-          <span>♡</span>
-          <small>Collections</small>
-        </Link>
+  <Link
+    to="/about"
+    className="shop-category"
+  >
+    <span className="category-icon">
+      <Info size={20} strokeWidth={1.7} />
+    </span>
+    <small>About Us</small>
+  </Link>
 
-
-        <Link
-          to="/about"
-          className="shop-category"
-        >
-          <span>◌</span>
-          <small>About Us</small>
-        </Link>
-
-      </div>
+</div>
 
 
       {/* =========================
