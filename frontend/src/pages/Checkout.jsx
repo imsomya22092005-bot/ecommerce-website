@@ -41,27 +41,43 @@ function Checkout() {
   };
 
   const handleSubmit = (e) => {
-    e.preventDefault();
+  e.preventDefault();
 
-    const order = {
-      id: Date.now(),
-      customer: form,
-      items: cart,
-      total,
-      date: new Date().toLocaleDateString(),
-    };
-
-    localStorage.setItem(
-      "lastOrder",
-      JSON.stringify(order)
-    );
-
-    localStorage.removeItem("cart");
-
-    window.dispatchEvent(new Event("cartUpdated"));
-
-    navigate("/order-success");
+  const order = {
+    orderId: `SS${Date.now()}`,
+    customer: form,
+    items: cart,
+    total: total,
+    date: new Date().toLocaleDateString(),
+    status: "Confirmed",
   };
+
+  // Save latest order
+  localStorage.setItem(
+    "lastOrder",
+    JSON.stringify(order)
+  );
+
+  // Save all orders
+  const existingOrders =
+    JSON.parse(localStorage.getItem("orders")) || [];
+
+  existingOrders.unshift(order);
+
+  localStorage.setItem(
+    "orders",
+    JSON.stringify(existingOrders)
+  );
+
+  // Empty cart
+  localStorage.removeItem("cart");
+
+  // Update navbar cart count
+  window.dispatchEvent(new Event("cartUpdated"));
+
+  // Go to success page
+  navigate("/order-success");
+};
 
   if (cart.length === 0) {
     return (

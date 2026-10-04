@@ -18,6 +18,8 @@ import Footer from "./components/Footer";
 import Contact from "./pages/Contact";
 import Help from "./pages/Help";
 import Orders from "./pages/Orders";
+import TrackOrder from "./pages/TrackOrder";
+import NewArrivals from "./pages/NewArrivals";
 
 function App() {
   return (
@@ -36,6 +38,9 @@ function App() {
 <Route path="/about" element={<About />} />
 <Route path="/contact" element={<Contact />} />
 <Route path="/help" element={<Help />} />
+<Route path="/orders" element={<Orders />} />
+<Route path="/track-order" element={<TrackOrder />} />
+<Route path="/new-arrivals" element={<NewArrivals />} />
       </Routes>
 
 

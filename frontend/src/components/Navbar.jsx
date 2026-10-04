@@ -39,11 +39,15 @@ function Navbar() {
   const navigate = useNavigate();
 
   const [cartCount, setCartCount] = useState(0);
+
   const [userName, setUserName] = useState(
     localStorage.getItem("userName")
   );
+
   const [search, setSearch] = useState("");
+
   const [menuOpen, setMenuOpen] = useState(false);
+
   const [moreOpen, setMoreOpen] = useState(false);
 
   useEffect(() => {
@@ -111,19 +115,35 @@ function Navbar() {
     window.dispatchEvent(new Event("userUpdated"));
 
     setMenuOpen(false);
+    setMoreOpen(false);
   };
 
   const closeMenu = () => {
     setMenuOpen(false);
   };
 
+  const handleMoreToggle = () => {
+    setMoreOpen((prev) => !prev);
+  };
+
+  const closeMore = () => {
+    setMoreOpen(false);
+  };
+
   return (
     <header className="shop-navbar">
 
-      {/* TOP BAR */}
+      {/* =========================
+          TOP BAR
+      ========================= */}
       <div className="shop-topbar">
+
         <div className="shop-topbar-left">
-          <Link to="/" className="top-active">
+
+          <Link
+            to="/"
+            className="top-active"
+          >
             ShopSphere
           </Link>
 
@@ -131,17 +151,22 @@ function Navbar() {
             {t.shop}
           </Link>
 
-          <Link to="/#new-arrivals">
+          <Link to="/new-arrivals">
             {t.newArrivals}
           </Link>
 
           <Link to="/about">
             {t.about}
           </Link>
+
         </div>
 
+
         <div className="shop-topbar-right">
-          <span>✨ Premium Shopping</span>
+
+          <span>
+            ✨ Premium Shopping
+          </span>
 
           <select
             value={language}
@@ -149,14 +174,23 @@ function Navbar() {
               setLanguage(e.target.value)
             }
           >
-            <option value="English">English</option>
-            <option value="Hindi">हिंदी</option>
+            <option value="English">
+              English
+            </option>
+
+            <option value="Hindi">
+              हिंदी
+            </option>
           </select>
+
         </div>
+
       </div>
 
 
-      {/* MAIN NAVBAR */}
+      {/* =========================
+          MAIN NAVBAR
+      ========================= */}
       <div className="shop-mainbar">
 
         {/* LOGO */}
@@ -174,7 +208,10 @@ function Navbar() {
           className="shop-search"
           onSubmit={handleSearch}
         >
-          <span className="search-symbol">⌕</span>
+
+          <span className="search-symbol">
+            ⌕
+          </span>
 
           <input
             type="text"
@@ -188,14 +225,19 @@ function Navbar() {
           <button type="submit">
             Search
           </button>
+
         </form>
 
 
         {/* RIGHT ACTIONS */}
         <div className="shop-actions">
 
+          {/* =========================
+              LOGIN / ACCOUNT
+          ========================= */}
           {userName ? (
             <div className="shop-account">
+
               <span className="account-icon">
                 ♙
               </span>
@@ -210,12 +252,14 @@ function Navbar() {
               >
                 {t.logout}
               </button>
+
             </div>
           ) : (
             <Link
               to="/login"
               className="shop-account"
             >
+
               <span className="account-icon">
                 ♙
               </span>
@@ -223,51 +267,75 @@ function Navbar() {
               <span className="account-text">
                 {t.login}
               </span>
+
             </Link>
           )}
 
+
+          {/* =========================
+              MORE DROPDOWN
+          ========================= */}
           <div className="more-wrapper">
-  <button
-    className="more-button"
-    onClick={() => setMoreOpen(!moreOpen)}
-  >
-    {t.more} ▾
-  </button>
 
-  {moreOpen && (
-    <div className="more-dropdown">
+            <button
+              className="more-button"
+              onClick={handleMoreToggle}
+            >
+              {t.more} ▾
+            </button>
 
-      <Link
-        to="/contact"
-        onClick={() => setMoreOpen(false)}
-      >
-        📞 Contact Us
-      </Link>
 
-      <Link
-        to="/help"
-        onClick={() => setMoreOpen(false)}
-      >
-        ❓ Help & Support
-      </Link>
+            {moreOpen && (
+              <div className="more-dropdown">
 
-      <Link
-        to="/orders"
-        onClick={() => setMoreOpen(false)}
-      >
-        📋 My Orders
-      </Link>
+                {/* CLOSE BUTTON */}
+                <button
+                  className="dropdown-close"
+                  onClick={closeMore}
+                  aria-label="Close"
+                  type="button"
+                >
+                  ×
+                </button>
 
-      <Link
-        to="/track-order"
-        onClick={() => setMoreOpen(false)}
-      >
-        🚚 Track Order
-      </Link>
 
-    </div>
-  )}
-</div>
+                <Link
+                  to="/contact"
+                  onClick={closeMore}
+                >
+                  📞 Contact Us
+                </Link>
+
+                <Link
+                  to="/help"
+                  onClick={closeMore}
+                >
+                  ❓ Help & Support
+                </Link>
+
+                <Link
+                  to="/orders"
+                  onClick={closeMore}
+                >
+                  📋 My Orders
+                </Link>
+
+                <Link
+                  to="/track-order"
+                  onClick={closeMore}
+                >
+                  🚚 Track Order
+                </Link>
+
+              </div>
+            )}
+
+          </div>
+
+
+          {/* =========================
+              WISHLIST
+          ========================= */}
           <Link
             to="/wishlist"
             className="wishlist-nav"
@@ -276,11 +344,16 @@ function Navbar() {
             ♡
           </Link>
 
+
+          {/* =========================
+              CART
+          ========================= */}
           <Link
             to="/cart"
             className="shop-cart"
             aria-label={t.cart}
           >
+
             🛒
 
             {cartCount > 0 && (
@@ -292,16 +365,22 @@ function Navbar() {
             <span className="cart-text">
               {t.cart}
             </span>
+
           </Link>
 
+
+          {/* =========================
+              HAMBURGER
+          ========================= */}
           <button
             className={`shop-hamburger ${
               menuOpen ? "active" : ""
             }`}
             onClick={() =>
-              setMenuOpen(!menuOpen)
+              setMenuOpen((prev) => !prev)
             }
             aria-label="Toggle menu"
+            type="button"
           >
             <span></span>
             <span></span>
@@ -309,19 +388,23 @@ function Navbar() {
           </button>
 
         </div>
+
       </div>
 
 
-      {/* CATEGORY BAR */}
+      {/* =========================
+          CATEGORY BAR
+      ========================= */}
       <div className="shop-categorybar">
 
         <Link
-          to="/products"
+          to="/"
           className="shop-category active-category"
         >
           <span>⌂</span>
           <small>{t.home}</small>
         </Link>
+
 
         <Link
           to="/products?category=Fashion"
@@ -331,6 +414,7 @@ function Navbar() {
           <small>Fashion</small>
         </Link>
 
+
         <Link
           to="/products?category=Accessories"
           className="shop-category"
@@ -338,6 +422,7 @@ function Navbar() {
           <span>◉</span>
           <small>Accessories</small>
         </Link>
+
 
         <Link
           to="/products?category=Footwear"
@@ -347,13 +432,15 @@ function Navbar() {
           <small>Footwear</small>
         </Link>
 
+
         <Link
-          to="/#new-arrivals"
+          to="/new-arrivals"
           className="shop-category"
         >
           <span>✦</span>
           <small>New Arrivals</small>
         </Link>
+
 
         <Link
           to="/products"
@@ -363,6 +450,7 @@ function Navbar() {
           <small>Best Sellers</small>
         </Link>
 
+
         <Link
           to="/products"
           className="shop-category"
@@ -370,6 +458,7 @@ function Navbar() {
           <span>♡</span>
           <small>Collections</small>
         </Link>
+
 
         <Link
           to="/about"
@@ -382,17 +471,27 @@ function Navbar() {
       </div>
 
 
-      {/* MOBILE MENU */}
+      {/* =========================
+          MOBILE MENU
+      ========================= */}
       {menuOpen && (
         <div className="shop-mobile-menu">
 
-          <Link to="/" onClick={closeMenu}>
+          <Link
+            to="/"
+            onClick={closeMenu}
+          >
             {t.home}
           </Link>
 
-          <Link to="/products" onClick={closeMenu}>
+
+          <Link
+            to="/products"
+            onClick={closeMenu}
+          >
             {t.shop}
           </Link>
+
 
           <Link
             to="/products?category=Fashion"
@@ -401,12 +500,14 @@ function Navbar() {
             Fashion
           </Link>
 
+
           <Link
             to="/products?category=Accessories"
             onClick={closeMenu}
           >
             Accessories
           </Link>
+
 
           <Link
             to="/products?category=Footwear"
@@ -415,12 +516,22 @@ function Navbar() {
             Footwear
           </Link>
 
+
+          <Link
+            to="/new-arrivals"
+            onClick={closeMenu}
+          >
+            {t.newArrivals}
+          </Link>
+
+
           <Link
             to="/wishlist"
             onClick={closeMenu}
           >
             ♡ {t.wishlist}
           </Link>
+
 
           <Link
             to="/cart"
@@ -429,6 +540,7 @@ function Navbar() {
             🛒 {t.cart}
           </Link>
 
+
           <Link
             to="/about"
             onClick={closeMenu}
@@ -436,10 +548,22 @@ function Navbar() {
             {t.about}
           </Link>
 
+
+          {!userName && (
+            <Link
+              to="/login"
+              onClick={closeMenu}
+            >
+              ♙ {t.login}
+            </Link>
+          )}
+
+
           {userName && (
             <button
               className="mobile-logout-shop"
               onClick={handleLogout}
+              type="button"
             >
               {t.logout}
             </button>
