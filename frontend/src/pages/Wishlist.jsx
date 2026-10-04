@@ -26,9 +26,12 @@ function Wishlist() {
     };
   }, []);
 
+  // Support both MongoDB _id and old id
+  const getProductId = (item) => item._id || item.id;
+
   const removeFromWishlist = (id) => {
     const updatedWishlist = wishlist.filter(
-      (item) => item.id !== id
+      (item) => getProductId(item) !== id
     );
 
     localStorage.setItem(
@@ -37,6 +40,8 @@ function Wishlist() {
     );
 
     setWishlist(updatedWishlist);
+
+    window.dispatchEvent(new Event("wishlistUpdated"));
   };
 
   return (
@@ -86,47 +91,51 @@ function Wishlist() {
         </div>
       ) : (
         <section className="wishlist-grid">
-          {wishlist.map((product) => (
-            <article
-              className="wishlist-card"
-              key={product.id}
-            >
-              <Link to={`/product/${product.id}`}>
-                <img
-                  src={product.image}
-                  alt={product.name}
-                />
-              </Link>
+          {wishlist.map((product) => {
+            const productId = getProductId(product);
 
-              <div className="wishlist-info">
-                <p className="product-category">
-                  {language === "Hindi"
-                    ? product.category === "Fashion"
-                      ? "फैशन"
-                      : product.category === "Accessories"
-                      ? "एक्सेसरीज़"
-                      : product.category === "Footwear"
-                      ? "फुटवियर"
-                      : product.category
-                    : product.category}
-                </p>
+            return (
+              <article
+                className="wishlist-card"
+                key={productId}
+              >
+                <Link to={`/product/${productId}`}>
+                  <img
+                    src={product.image}
+                    alt={product.name}
+                  />
+                </Link>
 
-                <h2>{product.name}</h2>
+                <div className="wishlist-info">
+                  <p className="product-category">
+                    {language === "Hindi"
+                      ? product.category === "Fashion"
+                        ? "फैशन"
+                        : product.category === "Accessories"
+                        ? "एक्सेसरीज़"
+                        : product.category === "Footwear"
+                        ? "फुटवियर"
+                        : product.category
+                      : product.category}
+                  </p>
 
-                <p>₹{product.price}</p>
+                  <h2>{product.name}</h2>
 
-                <button
-                  onClick={() =>
-                    removeFromWishlist(product.id)
-                  }
-                >
-                  {language === "Hindi"
-                    ? "हटाएं"
-                    : "REMOVE"}
-                </button>
-              </div>
-            </article>
-          ))}
+                  <p>₹{product.price}</p>
+
+                  <button
+                    onClick={() =>
+                      removeFromWishlist(productId)
+                    }
+                  >
+                    {language === "Hindi"
+                      ? "हटाएं"
+                      : "REMOVE"}
+                  </button>
+                </div>
+              </article>
+            );
+          })}
         </section>
       )}
     </main>

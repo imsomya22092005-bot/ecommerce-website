@@ -1,70 +1,62 @@
+import { useSearchParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { useLanguage } from "../LanguageContext";
 import ProductCard from "../components/ProductCard";
 
+
 function Products() {
   const { language } = useLanguage();
 
-  const products = [
-    {
-      id: 1,
-      name:
-        language === "Hindi"
-          ? "क्लासिक बेज जैकेट"
-          : "Classic Beige Jacket",
-      price: 2499,
-      category: "Fashion",
-      image:
-        "https://images.unsplash.com/photo-1551028719-00167b16eac5?auto=format&fit=crop&w=800&q=80",
-    },
-    {
-      id: 2,
-      name:
-        language === "Hindi"
-          ? "मिनिमल लेदर बैग"
-          : "Minimal Leather Bag",
-      price: 1999,
-      category: "Accessories",
-      image:
-        "https://images.unsplash.com/photo-1548036328-c9fa89d128fa?auto=format&fit=crop&w=800&q=80",
-    },
-    {
-      id: 3,
-      name:
-        language === "Hindi"
-          ? "क्लासिक व्हाइट स्नीकर्स"
-          : "Classic White Sneakers",
-      price: 2999,
-      category: "Footwear",
-      image:
-        "https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&w=800&q=80",
-    },
-    {
-      id: 4,
-      name:
-        language === "Hindi"
-          ? "एवरीडे कलाई घड़ी"
-          : "Everyday Wrist Watch",
-      price: 3499,
-      category: "Accessories",
-      image:
-        "https://images.unsplash.com/photo-1524805444758-089113d48a6d?auto=format&fit=crop&w=800&q=80",
-    },
-  ];
-  console.log(language, products);
+  const [searchParams, setSearchParams] = useSearchParams();
 
-  const [search, setSearch] = useState("");
-  const [category, setCategory] = useState("All");
+  const categoryFromURL = searchParams.get("category");
+
+  const initialCategory =
+    categoryFromURL && categoryFromURL !== "all"
+      ? categoryFromURL
+      : "All";
+
+  const initialSearch = searchParams.get("search") || "";
+
+  const [products, setProducts] = useState([]);
+  const [search, setSearch] = useState(initialSearch);
+  const [category, setCategory] = useState(initialCategory);
   const [sort, setSort] = useState("default");
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
+  // Fetch products from backend
   useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    const searchQuery = params.get("search");
+    const fetchProducts = async () => {
+      try {
+        setLoading(true);
+        setError("");
 
-    if (searchQuery) {
-      setSearch(searchQuery);
-    }
-  }, []);
+        const response = await fetch("http://localhost:3000/api/products");
+
+        if (!response.ok) {
+          throw new Error("Failed to fetch products");
+        }
+
+        const data = await response.json();
+
+        setProducts(data);
+      } catch (error) {
+        console.error("Error fetching products:", error);
+        setError(
+          language === "Hindi"
+            ? "प्रोडक्ट्स लोड नहीं हो सके।"
+            : "Unable to load products."
+        );
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProducts();
+  }, [language]);
+
+  
 
   const filteredProducts = products
     .filter((product) => {
@@ -73,8 +65,7 @@ function Products() {
         .includes(search.toLowerCase());
 
       const matchesCategory =
-        category === "All" ||
-        product.category === category;
+        category === "All" || product.category === category;
 
       return matchesSearch && matchesCategory;
     })
@@ -127,35 +118,43 @@ function Products() {
               : "Search products..."
           }
           value={search}
-          onChange={(e) => setSearch(e.target.value)}
+          onChange={(e) => {
+  const value = e.target.value;
+  setSearch(value);
+
+  setSearchParams({
+    search: value,
+    ...(category !== "All" && { category }),
+  });
+}}
         />
 
         <select
           value={category}
-          onChange={(e) => setCategory(e.target.value)}
+          onChange={(e) => {
+  const value = e.target.value;
+  setCategory(value);
+
+  setSearchParams({
+    ...(search && { search }),
+    ...(value !== "All" && { category: value }),
+  });
+}}
         >
           <option value="All">
-            {language === "Hindi"
-              ? "सभी कैटेगरी"
-              : "All Categories"}
+            {language === "Hindi" ? "सभी कैटेगरी" : "All Categories"}
           </option>
 
           <option value="Fashion">
-            {language === "Hindi"
-              ? "फैशन"
-              : "Fashion"}
+            {language === "Hindi" ? "फैशन" : "Fashion"}
           </option>
 
           <option value="Accessories">
-            {language === "Hindi"
-              ? "एक्सेसरीज़"
-              : "Accessories"}
+            {language === "Hindi" ? "एक्सेसरीज़" : "Accessories"}
           </option>
 
           <option value="Footwear">
-            {language === "Hindi"
-              ? "फुटवियर"
-              : "Footwear"}
+            {language === "Hindi" ? "फुटवियर" : "Footwear"}
           </option>
         </select>
 
@@ -164,9 +163,7 @@ function Products() {
           onChange={(e) => setSort(e.target.value)}
         >
           <option value="default">
-            {language === "Hindi"
-              ? "क्रम से देखें"
-              : "Sort By"}
+            {language === "Hindi" ? "क्रम से देखें" : "Sort By"}
           </option>
 
           <option value="low">
@@ -182,38 +179,96 @@ function Products() {
           </option>
 
           <option value="name">
-            {language === "Hindi"
-              ? "नाम: A से Z"
-              : "Name: A to Z"}
+            {language === "Hindi" ? "नाम: A से Z" : "Name: A to Z"}
           </option>
         </select>
+
+        <button
+  className="clear-filters-btn"
+  onClick={() => {
+    setSearch("");
+    setCategory("All");
+    setSort("default");
+    setSearchParams({});
+  }}
+>
+  {language === "Hindi"
+    ? "फ़िल्टर साफ़ करें"
+    : "Clear Filters"}
+</button>
+
       </section>
+
+      {/* LOADING */}
+
+      {loading && (
+        <div className="no-products">
+          <h2>
+            {language === "Hindi"
+              ? "प्रोडक्ट्स लोड हो रहे हैं..."
+              : "Loading products..."}
+          </h2>
+        </div>
+      )}
+
+      {/* ERROR */}
+
+      {!loading && error && (
+        <div className="no-products">
+          <h2>{error}</h2>
+
+          <p>
+            {language === "Hindi"
+              ? "कृपया बाद में दोबारा कोशिश करें।"
+              : "Please try again later."}
+          </p>
+        </div>
+      )}
 
       {/* PRODUCTS */}
 
-      {filteredProducts.length > 0 ? (
+      {!loading && !error && filteredProducts.length > 0 ? (
         <section className="products-grid">
           {filteredProducts.map((product) => (
             <ProductCard
-              key={product.id}
+              key={product._id || product.id}
               product={product}
             />
           ))}
         </section>
       ) : (
-        <div className="no-products">
-          <h2>
-            {language === "Hindi"
-              ? "कोई प्रोडक्ट नहीं मिला"
-              : "No products found"}
-          </h2>
+        !loading &&
+        !error && (
+          <div className="no-products">
+  <div className="no-products-icon">⌕</div>
 
-          <p>
-            {language === "Hindi"
-              ? "कोई दूसरा सर्च या कैटेगरी ट्राय करें।"
-              : "Try another search or category."}
-          </p>
-        </div>
+  <h2>
+    {language === "Hindi"
+      ? "कोई प्रोडक्ट नहीं मिला"
+      : "No products found"}
+  </h2>
+
+  <p>
+    {language === "Hindi"
+      ? "कोई दूसरा सर्च या कैटेगरी ट्राय करें।"
+      : "Try another search or category."}
+  </p>
+
+  <button
+    className="clear-filters-btn"
+    onClick={() => {
+      setSearch("");
+      setCategory("All");
+      setSort("default");
+      setSearchParams({});
+    }}
+  >
+    {language === "Hindi"
+      ? "फ़िल्टर साफ़ करें"
+      : "Clear Filters"}
+  </button>
+</div>
+        )
       )}
     </main>
   );

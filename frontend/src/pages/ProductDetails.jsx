@@ -1,83 +1,60 @@
 import { Link, useParams } from "react-router-dom";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useLanguage } from "../LanguageContext";
 
 function ProductDetails() {
   const { id } = useParams();
   const { language } = useLanguage();
+
+  const [product, setProduct] = useState(null);
   const [added, setAdded] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
-  const products = [
-    {
-      id: 1,
-      name:
-        language === "Hindi"
-          ? "क्लासिक बेज जैकेट"
-          : "Classic Beige Jacket",
-      price: 2499,
-      category: "Fashion",
-      description:
-        language === "Hindi"
-          ? "रोज़मर्रा की आसान और खूबसूरत स्टाइल के लिए डिज़ाइन की गई एक शानदार बेज जैकेट। इसका साफ़ और आरामदायक डिज़ाइन आपके पसंदीदा आउटफिट्स के साथ आसानी से मैच हो जाता है।"
-          : "A timeless beige jacket designed for effortless everyday style. Clean, comfortable and easy to pair with your favorite outfits.",
-      image:
-        "https://images.unsplash.com/photo-1551028719-00167b16eac5?auto=format&fit=crop&w=1000&q=80",
-    },
+  // Fetch single product from backend
+  useEffect(() => {
+    const fetchProduct = async () => {
+      try {
+        setLoading(true);
+        setError("");
 
-    {
-      id: 2,
-      name:
-        language === "Hindi"
-          ? "मिनिमल लेदर बैग"
-          : "Minimal Leather Bag",
-      price: 1999,
-      category: "Accessories",
-      description:
-        language === "Hindi"
-          ? "साफ़ और खूबसूरत डिज़ाइन वाला मिनिमल लेदर बैग, जो रोज़मर्रा के इस्तेमाल और आधुनिक लुक के लिए बिल्कुल सही है।"
-          : "A minimal leather bag with a clean silhouette, perfect for everyday use and modern looks.",
-      image:
-        "https://images.unsplash.com/photo-1548036328-c9fa89d128fa?auto=format&fit=crop&w=1000&q=80",
-    },
+        const response = await fetch(
+          `http://localhost:3000/api/products/${id}`
+        );
 
-    {
-      id: 3,
-      name:
-        language === "Hindi"
-          ? "क्लासिक व्हाइट स्नीकर्स"
-          : "Classic White Sneakers",
-      price: 2999,
-      category: "Footwear",
-      description:
-        language === "Hindi"
-          ? "सिंपल और बहुमुखी व्हाइट स्नीकर्स, जिन्हें आपके रोज़मर्रा के वॉर्डरोब के साथ आसानी से पहना जा सकता है।"
-          : "Simple and versatile white sneakers created to complement your everyday wardrobe.",
-      image:
-        "https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&w=1000&q=80",
-    },
+        if (!response.ok) {
+          throw new Error("Product not found");
+        }
 
-    {
-      id: 4,
-      name:
-        language === "Hindi"
-          ? "एवरीडे कलाई घड़ी"
-          : "Everyday Wrist Watch",
-      price: 3499,
-      category: "Accessories",
-      description:
-        language === "Hindi"
-          ? "क्लीन डिज़ाइन और खूबसूरत रोज़मर्रा के लुक के साथ बनाई गई एक क्लासिक कलाई घड़ी।"
-          : "A classic wrist watch combining a clean design with an elegant everyday aesthetic.",
-      image:
-        "https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=1000&q=80",
-    },
-  ];
+        const data = await response.json();
 
-  const product = products.find(
-    (item) => item.id === Number(id)
-  );
+        setProduct(data);
+      } catch (error) {
+        console.error("Error fetching product:", error);
+        setError("Product not found");
+      } finally {
+        setLoading(false);
+      }
+    };
 
-  if (!product) {
+    fetchProduct();
+  }, [id]);
+
+  // Loading state
+  if (loading) {
+    return (
+      <main className="product-not-found">
+        <h1>
+          {language === "Hindi"
+            ? "प्रोडक्ट लोड हो रहा है..."
+            : "Loading product..."}
+        </h1>
+      </main>
+    );
+  }
+
+  // Error / product not found
+  if (error || !product) {
     return (
       <main className="product-not-found">
         <h1>
@@ -120,9 +97,7 @@ function ProductDetails() {
 
         <h1>{product.name}</h1>
 
-        <p className="details-price">
-          ₹{product.price}
-        </p>
+        <p className="details-price">₹{product.price}</p>
 
         <div className="details-line"></div>
 
@@ -131,7 +106,6 @@ function ProductDetails() {
         </p>
 
         <div className="details-actions">
-
           {/* ADD TO CART */}
           <button
             className="add-cart-btn"
@@ -139,15 +113,17 @@ function ProductDetails() {
               const existingCart =
                 JSON.parse(localStorage.getItem("cart")) || [];
 
+              const productId = product._id || product.id;
+
               const existingProduct = existingCart.find(
-                (item) => item.id === product.id
+                (item) => (item._id || item.id) === productId
               );
 
               let updatedCart;
 
               if (existingProduct) {
                 updatedCart = existingCart.map((item) =>
-                  item.id === product.id
+                  (item._id || item.id) === productId
                     ? {
                         ...item,
                         quantity: item.quantity + 1,
@@ -194,13 +170,15 @@ function ProductDetails() {
                   localStorage.getItem("wishlist")
                 ) || [];
 
+              const productId = product._id || product.id;
+
               const alreadySaved = wishlist.some(
-                (item) => item.id === product.id
+                (item) => (item._id || item.id) === productId
               );
 
               if (alreadySaved) {
                 const updatedWishlist = wishlist.filter(
-                  (item) => item.id !== product.id
+                  (item) => (item._id || item.id) !== productId
                 );
 
                 localStorage.setItem(

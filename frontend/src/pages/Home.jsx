@@ -1,10 +1,30 @@
 import { Link } from "react-router-dom";
+import { useEffect, useState } from "react";
 import { useLanguage } from "../LanguageContext";
 import heroImage from "../assets/hero.png";
 
 
 function Home() {
   const { language } = useLanguage();
+  const [products, setProducts] = useState([]);
+
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        const response = await fetch(
+          "http://localhost:3000/api/products"
+        );
+
+        const data = await response.json();
+
+        setProducts(data);
+      } catch (error) {
+        console.error("Failed to load products:", error);
+      }
+    };
+
+    fetchProducts();
+  }, []);
 
   const content = {
   English: {
@@ -180,11 +200,7 @@ const t = content[language];
 
           <div>
             <p className="section-label">{t.exploreCollections}</p>
-<h2>{t.shopByCategory}</h2>
-
-            <h2>
-              Shop by Category
-            </h2>
+                <h2>{t.shopByCategory}</h2>
           </div>
 
          <Link to="/products" className="text-link">
@@ -196,10 +212,10 @@ const t = content[language];
 
         <div className="categories-grid">
 
-          <Link
-            to="/products"
-            className="category-card"
-          >
+         <Link
+  to="/products?category=Fashion"
+  className="category-card"
+>
             <div className="category-number">
               01
             </div>
@@ -214,9 +230,9 @@ const t = content[language];
 
 
           <Link
-            to="/products"
-            className="category-card"
-          >
+  to="/products?category=Accessories"
+  className="category-card"
+>
             <div className="category-number">
               02
             </div>
@@ -231,9 +247,9 @@ const t = content[language];
 
 
           <Link
-            to="/products"
-            className="category-card"
-          >
+  to="/products?category=Footwear"
+  className="category-card"
+>
             <div className="category-number">
               03
             </div>
@@ -267,78 +283,55 @@ const t = content[language];
 
   </div>
 
+<div className="new-arrivals-grid">
 
-  <div className="new-arrivals-grid">
+  {products.slice(0, 3).map((product) => {
 
-    <Link to="/product/1" className="arrival-card">
-      <div className="arrival-image">
-        <img
-          src="https://images.unsplash.com/photo-1551028719-00167b16eac5?auto=format&fit=crop&w=800&q=80"
-          alt="Classic Beige Jacket"
-        />
+    const productId = product._id || product.id;
 
-        <span className="arrival-tag">
-          NEW
-        </span>
-      </div>
+    return (
+      <Link
+        key={productId}
+        to={`/product/${productId}`}
+        className="arrival-card"
+      >
 
-      <div className="arrival-info">
-        <div>
-          <p>FASHION</p>
-          <h3>Classic Beige Jacket</h3>
+        <div className="arrival-image">
+
+          <img
+            src={product.image}
+            alt={product.name}
+          />
+
+          <span className="arrival-tag">
+            NEW
+          </span>
+
         </div>
 
-        <strong>₹2,499</strong>
-      </div>
-    </Link>
+        <div className="arrival-info">
 
+          <div>
+            <p>
+              {product.category}
+            </p>
 
-    <Link to="/product/2" className="arrival-card">
-      <div className="arrival-image">
-        <img
-          src="https://images.unsplash.com/photo-1548036328-c9fa89d128fa?auto=format&fit=crop&w=800&q=80"
-          alt="Minimal Leather Bag"
-        />
+            <h3>
+              {product.name}
+            </h3>
+          </div>
 
-        <span className="arrival-tag">
-          NEW
-        </span>
-      </div>
+          <strong>
+            ₹{product.price}
+          </strong>
 
-      <div className="arrival-info">
-        <div>
-          <p>ACCESSORIES</p>
-          <h3>Minimal Leather Bag</h3>
         </div>
 
-        <strong>₹1,999</strong>
-      </div>
-    </Link>
+      </Link>
+    );
+  })}
 
-
-    <Link to="/product/3" className="arrival-card">
-      <div className="arrival-image">
-        <img
-          src="https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&w=800&q=80"
-          alt="Classic White Sneakers"
-        />
-
-        <span className="arrival-tag">
-          NEW
-        </span>
-      </div>
-
-      <div className="arrival-info">
-        <div>
-          <p>FOOTWEAR</p>
-          <h3>Classic White Sneakers</h3>
-        </div>
-
-        <strong>₹2,999</strong>
-      </div>
-    </Link>
-
-  </div>
+</div>
 
 </section>
 

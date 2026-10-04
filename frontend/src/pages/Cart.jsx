@@ -11,10 +11,12 @@ function Cart() {
     setCart(savedCart);
   }, []);
 
+  const getProductId = (item) => item._id || item.id;
+
   const updateQuantity = (id, change) => {
     const updatedCart = cart
       .map((item) =>
-        item.id === id
+        getProductId(item) === id
           ? { ...item, quantity: item.quantity + change }
           : item
       )
@@ -22,13 +24,19 @@ function Cart() {
 
     setCart(updatedCart);
     localStorage.setItem("cart", JSON.stringify(updatedCart));
+
+    window.dispatchEvent(new Event("cartUpdated"));
   };
 
   const removeItem = (id) => {
-    const updatedCart = cart.filter((item) => item.id !== id);
+    const updatedCart = cart.filter(
+      (item) => getProductId(item) !== id
+    );
 
     setCart(updatedCart);
     localStorage.setItem("cart", JSON.stringify(updatedCart));
+
+    window.dispatchEvent(new Event("cartUpdated"));
   };
 
   const total = cart.reduce(
@@ -36,157 +44,160 @@ function Cart() {
     0
   );
 
- if (cart.length === 0) {
-  return (
-    <main className="empty-cart">
-      <p className="section-label">
-        {language === "Hindi"
-          ? "SHOPSPHERE कार्ट"
-          : "SHOPSPHERE CART"}
-      </p>
+  if (cart.length === 0) {
+    return (
+      <main className="empty-cart">
+        <p className="section-label">
+          {language === "Hindi"
+            ? "SHOPSPHERE कार्ट"
+            : "SHOPSPHERE CART"}
+        </p>
 
-      <h1>
-        {language === "Hindi"
-          ? "आपका कार्ट खाली है"
-          : "Your Cart is Empty"}
-      </h1>
+        <h1>
+          {language === "Hindi"
+            ? "आपका कार्ट खाली है"
+            : "Your Cart is Empty"}
+        </h1>
 
-      <p>
-        {language === "Hindi"
-          ? "ऐसा लगता है कि आपने अभी तक अपने कार्ट में कुछ नहीं जोड़ा है।"
-          : "Looks like you haven't added anything to your cart yet."}
-      </p>
+        <p>
+          {language === "Hindi"
+            ? "ऐसा लगता है कि आपने अभी तक अपने कार्ट में कुछ नहीं जोड़ा है।"
+            : "Looks like you haven't added anything to your cart yet."}
+        </p>
 
-      <Link to="/products" className="continue-shopping">
-        {language === "Hindi"
-          ? "शॉपिंग जारी रखें"
-          : "CONTINUE SHOPPING"}
-      </Link>
-    </main>
-  );
-}
+        <Link to="/products" className="continue-shopping">
+          {language === "Hindi"
+            ? "शॉपिंग जारी रखें"
+            : "CONTINUE SHOPPING"}
+        </Link>
+      </main>
+    );
+  }
 
   return (
     <main className="cart-page">
       <div className="cart-header">
-  <p className="section-label">
-    {language === "Hindi"
-      ? "SHOPSPHERE कार्ट"
-      : "SHOPSPHERE CART"}
-  </p>
+        <p className="section-label">
+          {language === "Hindi"
+            ? "SHOPSPHERE कार्ट"
+            : "SHOPSPHERE CART"}
+        </p>
 
-  <h1>
-    {language === "Hindi"
-      ? "आपका शॉपिंग बैग"
-      : "Your Shopping Bag"}
-  </h1>
-</div>
+        <h1>
+          {language === "Hindi"
+            ? "आपका शॉपिंग बैग"
+            : "Your Shopping Bag"}
+        </h1>
+      </div>
 
       <div className="cart-layout">
         <section className="cart-items">
-          {cart.map((item) => (
-            <article className="cart-item" key={item.id}>
-              <img
-                src={item.image}
-                alt={item.name}
-              />
+          {cart.map((item) => {
+            const productId = getProductId(item);
 
-              <div className="cart-item-info">
-                <p className="product-category">
-                  {item.category}
-                </p>
+            return (
+              <article className="cart-item" key={productId}>
+                <img src={item.image} alt={item.name} />
 
-                <h2>{item.name}</h2>
+                <div className="cart-item-info">
+                  <p className="product-category">
+                    {item.category}
+                  </p>
 
-                <p className="cart-price">
-                  ₹{item.price}
-                </p>
+                  <h2>{item.name}</h2>
 
-                <div className="quantity-controls">
+                  <p className="cart-price">₹{item.price}</p>
+
+                  <div className="quantity-controls">
+                    <button
+                      onClick={() => updateQuantity(productId, -1)}
+                    >
+                      −
+                    </button>
+
+                    <span>{item.quantity}</span>
+
+                    <button
+                      onClick={() => updateQuantity(productId, 1)}
+                    >
+                      +
+                    </button>
+                  </div>
+
                   <button
-                    onClick={() => updateQuantity(item.id, -1)}
+                    className="remove-item"
+                    onClick={() => removeItem(productId)}
                   >
-                    −
-                  </button>
-
-                  <span>{item.quantity}</span>
-
-                  <button
-                    onClick={() => updateQuantity(item.id, 1)}
-                  >
-                    +
+                    {language === "Hindi"
+                      ? "हटाएं"
+                      : "REMOVE"}
                   </button>
                 </div>
-
-               <button
-  className="remove-item"
-  onClick={() => removeItem(item.id)}
->
-  {language === "Hindi" ? "हटाएं" : "REMOVE"}
-</button>
-              </div>
-            </article>
-          ))}
+              </article>
+            );
+          })}
         </section>
 
-        
+        <aside className="cart-summary">
+          <h2>
+            {language === "Hindi"
+              ? "ऑर्डर का सारांश"
+              : "Order Summary"}
+          </h2>
 
-         <aside className="cart-summary">
-  <h2>
-    {language === "Hindi"
-      ? "ऑर्डर का सारांश"
-      : "Order Summary"}
-  </h2>
+          <div className="summary-row">
+            <span>
+              {language === "Hindi"
+                ? "सबटोटल"
+                : "Subtotal"}
+            </span>
 
-  <div className="summary-row">
-    <span>
-      {language === "Hindi"
-        ? "सबटोटल"
-        : "Subtotal"}
-    </span>
+            <span>₹{total}</span>
+          </div>
 
-    <span>₹{total}</span>
-  </div>
+          <div className="summary-row">
+            <span>
+              {language === "Hindi"
+                ? "शिपिंग"
+                : "Shipping"}
+            </span>
 
-  <div className="summary-row">
-    <span>
-      {language === "Hindi"
-        ? "शिपिंग"
-        : "Shipping"}
-    </span>
+            <span>
+              {total >= 999
+                ? language === "Hindi"
+                  ? "फ्री"
+                  : "FREE"
+                : "₹99"}
+            </span>
+          </div>
 
-    <span>
-      {total >= 999
-        ? language === "Hindi"
-          ? "फ्री"
-          : "FREE"
-        : "₹99"}
-    </span>
-  </div>
+          <div className="summary-line"></div>
 
-  <div className="summary-line"></div>
+          <div className="summary-total">
+            <span>
+              {language === "Hindi"
+                ? "कुल"
+                : "Total"}
+            </span>
 
-  <div className="summary-total">
-    <span>
-      {language === "Hindi"
-        ? "कुल"
-        : "Total"}
-    </span>
+            <strong>
+              ₹{total >= 999 ? total : total + 99}
+            </strong>
+          </div>
 
-    <strong>
-      ₹{total >= 999 ? total : total + 99}
-    </strong>
-  </div>
-
-  <Link to="/checkout" className="checkout-btn">
-    {language === "Hindi"
-      ? "चेकआउट के लिए आगे बढ़ें"
-      : "PROCEED TO CHECKOUT"}
-  </Link>
-</aside>
+          <Link to="/checkout" className="checkout-btn">
+            {language === "Hindi"
+              ? "चेकआउट के लिए आगे बढ़ें"
+              : "PROCEED TO CHECKOUT"}
+          </Link>
+        </aside>
       </div>
     </main>
   );
 }
 
 export default Cart;
+/* ========================================
+   CART PAGE - RESPONSIVE
+======================================== */
+

@@ -17,6 +17,7 @@ function Login() {
       const name = e.target.elements.fullName.value;
 
       localStorage.setItem("userName", name);
+      window.dispatchEvent(new Event("userUpdated"));
 
       setWelcomeName(name);
       setShowWelcome(true);
@@ -31,6 +32,8 @@ function Login() {
         const nameFromEmail = email.split("@")[0];
 
         localStorage.setItem("userName", nameFromEmail);
+        window.dispatchEvent(new Event("userUpdated"));
+        
         setWelcomeName(nameFromEmail);
       }
 

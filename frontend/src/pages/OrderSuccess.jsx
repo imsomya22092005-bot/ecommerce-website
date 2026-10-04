@@ -38,7 +38,7 @@ function OrderSuccess() {
                 : "ORDER ID"}
             </span>
 
-            <strong>#{order.id}</strong>
+            <strong>#{order.orderId}</strong>
           </div>
 
           <div>
@@ -63,19 +63,27 @@ function OrderSuccess() {
         </div>
       )}
 
-      <div className="success-actions">
-        <Link to="/products">
-          {language === "Hindi"
-            ? "शॉपिंग जारी रखें"
-            : "CONTINUE SHOPPING"}
-        </Link>
+     <div className="success-actions">
 
-        <Link to="/">
-          {language === "Hindi"
-            ? "होम पर वापस जाएं"
-            : "BACK TO HOME"}
-        </Link>
-      </div>
+  <Link to="/orders">
+    {language === "Hindi"
+      ? "मेरे ऑर्डर्स देखें"
+      : "VIEW MY ORDERS"}
+  </Link>
+
+  <Link to="/products">
+    {language === "Hindi"
+      ? "शॉपिंग जारी रखें"
+      : "CONTINUE SHOPPING"}
+  </Link>
+
+  <Link to="/">
+    {language === "Hindi"
+      ? "होम पर वापस जाएं"
+      : "BACK TO HOME"}
+  </Link>
+
+</div>
     </main>
   );
 }
