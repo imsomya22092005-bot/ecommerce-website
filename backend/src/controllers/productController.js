@@ -252,10 +252,11 @@ const updateOrderStatus = async (req, res) => {
 };
 
 module.exports = {
-    createOrder,
-    getMyOrders,
-    getOrderById,
-    cancelOrder,
+    createProduct,
+    updateProduct,
+    getProductById,
+    deleteProduct,
+    getProducts,
     getAllOrders,
-    updateOrderStatus
+    // updateOrderStatus
 };
