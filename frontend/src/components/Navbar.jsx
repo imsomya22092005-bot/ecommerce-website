@@ -1,4 +1,5 @@
 import { Link, useNavigate } from "react-router-dom";
+
 import {
   House,
   Shirt,
@@ -9,41 +10,91 @@ import {
   Heart,
   Info,
 } from "lucide-react";
+
 import { useEffect, useState } from "react";
 import { useLanguage } from "../LanguageContext";
+
+
+/* =========================================================
+   TRANSLATIONS
+========================================================= */
 
 const translations = {
   English: {
     home: "Home",
     shop: "Shop",
-    collections: "Collections",
+    fashion: "Fashion",
+    accessories: "Accessories",
+    footwear: "Footwear",
     newArrivals: "New Arrivals",
+    bestSellers: "Best Sellers",
+    collections: "Collections",
     about: "About Us",
+
     search: "Search for Products, Brands and More",
+    searchButton: "Search",
+
     login: "Login",
     logout: "Logout",
+    hello: "Hello",
     more: "More",
+
+    contact: "Contact Us",
+    help: "Help & Support",
+    orders: "My Orders",
+    trackOrder: "Track Order",
+
     wishlist: "Wishlist",
     cart: "Cart",
+
+    premium: "✨ Premium Shopping",
+
+    menu: "Toggle menu",
+    close: "Close",
   },
 
   Hindi: {
     home: "होम",
     shop: "शॉप",
-    collections: "कलेक्शन",
+    fashion: "फैशन",
+    accessories: "एक्सेसरीज़",
+    footwear: "फुटवियर",
     newArrivals: "नए प्रोडक्ट्स",
+    bestSellers: "बेस्ट सेलर्स",
+    collections: "कलेक्शंस",
     about: "हमारे बारे में",
+
     search: "प्रोडक्ट, ब्रांड और बहुत कुछ खोजें",
+    searchButton: "खोजें",
+
     login: "लॉगिन",
     logout: "लॉगआउट",
+    hello: "नमस्ते",
     more: "और",
+
+    contact: "संपर्क करें",
+    help: "मदद और सहायता",
+    orders: "मेरे ऑर्डर्स",
+    trackOrder: "ऑर्डर ट्रैक करें",
+
     wishlist: "विशलिस्ट",
     cart: "कार्ट",
+
+    premium: "✨ प्रीमियम शॉपिंग",
+
+    menu: "मेन्यू खोलें",
+    close: "बंद करें",
   },
 };
 
+
+/* =========================================================
+   NAVBAR
+========================================================= */
+
 function Navbar() {
   const { language, setLanguage } = useLanguage();
+
   const t = translations[language];
 
   const navigate = useNavigate();
@@ -60,13 +111,19 @@ function Navbar() {
 
   const [moreOpen, setMoreOpen] = useState(false);
 
+
+  /* =========================================================
+     CART COUNT
+  ========================================================= */
+
   useEffect(() => {
     const updateCartCount = () => {
       const cart =
         JSON.parse(localStorage.getItem("cart")) || [];
 
       const count = cart.reduce(
-        (total, item) => total + item.quantity,
+        (total, item) =>
+          total + Number(item.quantity || 0),
         0
       );
 
@@ -75,7 +132,10 @@ function Navbar() {
 
     updateCartCount();
 
-    window.addEventListener("cartUpdated", updateCartCount);
+    window.addEventListener(
+      "cartUpdated",
+      updateCartCount
+    );
 
     return () => {
       window.removeEventListener(
@@ -85,14 +145,24 @@ function Navbar() {
     };
   }, []);
 
+
+  /* =========================================================
+     USER UPDATE
+  ========================================================= */
+
   useEffect(() => {
     const updateUser = () => {
-      setUserName(localStorage.getItem("userName"));
+      setUserName(
+        localStorage.getItem("userName")
+      );
     };
 
     updateUser();
 
-    window.addEventListener("userUpdated", updateUser);
+    window.addEventListener(
+      "userUpdated",
+      updateUser
+    );
 
     return () => {
       window.removeEventListener(
@@ -101,6 +171,11 @@ function Navbar() {
       );
     };
   }, []);
+
+
+  /* =========================================================
+     SEARCH
+  ========================================================= */
 
   const handleSearch = (e) => {
     e.preventDefault();
@@ -117,35 +192,64 @@ function Navbar() {
     setMenuOpen(false);
   };
 
+
+  /* =========================================================
+     LOGOUT
+  ========================================================= */
+
   const handleLogout = () => {
     localStorage.removeItem("userName");
 
+    localStorage.removeItem("authToken");
+
+    localStorage.removeItem("userRole");
+
     setUserName(null);
 
-    window.dispatchEvent(new Event("userUpdated"));
+    window.dispatchEvent(
+      new Event("userUpdated")
+    );
 
     setMenuOpen(false);
+
     setMoreOpen(false);
   };
+
+
+  /* =========================================================
+     CLOSE MOBILE MENU
+  ========================================================= */
 
   const closeMenu = () => {
     setMenuOpen(false);
   };
 
+
+  /* =========================================================
+     MORE DROPDOWN
+  ========================================================= */
+
   const handleMoreToggle = () => {
     setMoreOpen((prev) => !prev);
   };
+
 
   const closeMore = () => {
     setMoreOpen(false);
   };
 
+
+  /* =========================================================
+     UI
+  ========================================================= */
+
   return (
     <header className="shop-navbar">
 
-      {/* =========================
+      {/* =====================================================
           TOP BAR
-      ========================= */}
+      ===================================================== */}
+
       <div className="shop-topbar">
 
         <div className="shop-topbar-left">
@@ -175,7 +279,7 @@ function Navbar() {
         <div className="shop-topbar-right">
 
           <span>
-            ✨ Premium Shopping
+            {t.premium}
           </span>
 
           <select
@@ -184,6 +288,7 @@ function Navbar() {
               setLanguage(e.target.value)
             }
           >
+
             <option value="English">
               English
             </option>
@@ -191,6 +296,7 @@ function Navbar() {
             <option value="Hindi">
               हिंदी
             </option>
+
           </select>
 
         </div>
@@ -198,12 +304,14 @@ function Navbar() {
       </div>
 
 
-      {/* =========================
+      {/* =====================================================
           MAIN NAVBAR
-      ========================= */}
+      ===================================================== */}
+
       <div className="shop-mainbar">
 
         {/* LOGO */}
+
         <Link
           to="/"
           className="shop-logo"
@@ -213,7 +321,10 @@ function Navbar() {
         </Link>
 
 
-        {/* SEARCH */}
+        {/* =================================================
+            SEARCH
+        ================================================= */}
+
         <form
           className="shop-search"
           onSubmit={handleSearch}
@@ -233,19 +344,24 @@ function Navbar() {
           />
 
           <button type="submit">
-            Search
+            {t.searchButton}
           </button>
 
         </form>
 
 
-        {/* RIGHT ACTIONS */}
+        {/* =================================================
+            RIGHT ACTIONS
+        ================================================= */}
+
         <div className="shop-actions">
 
-          {/* =========================
+          {/* =================================================
               LOGIN / ACCOUNT
-          ========================= */}
+          ================================================= */}
+
           {userName ? (
+
             <div className="shop-account">
 
               <span className="account-icon">
@@ -253,18 +369,21 @@ function Navbar() {
               </span>
 
               <span className="account-text">
-                Hello, {userName}
+                {t.hello}, {userName}
               </span>
 
               <button
                 className="logout-small"
                 onClick={handleLogout}
+                type="button"
               >
                 {t.logout}
               </button>
 
             </div>
+
           ) : (
+
             <Link
               to="/login"
               className="shop-account"
@@ -279,97 +398,121 @@ function Navbar() {
               </span>
 
             </Link>
+
           )}
 
 
-          {/* =========================
-              MORE DROPDOWN
-          ========================= */}
+          {/* =================================================
+              MORE
+          ================================================= */}
+
           <div className="more-wrapper">
 
             <button
               className="more-button"
               onClick={handleMoreToggle}
+              type="button"
             >
               {t.more} ▾
             </button>
 
 
             {moreOpen && (
+
               <div className="more-dropdown">
 
-                {/* CLOSE BUTTON */}
+                {/* CLOSE */}
+
                 <button
                   className="dropdown-close"
                   onClick={closeMore}
-                  aria-label="Close"
+                  aria-label={t.close}
+                  title={t.close}
                   type="button"
                 >
                   ×
                 </button>
 
 
+                {/* CONTACT */}
+
                 <Link
                   to="/contact"
                   onClick={closeMore}
                 >
-                  📞 Contact Us
+                  📞 {t.contact}
                 </Link>
+
+
+                {/* HELP */}
 
                 <Link
                   to="/help"
                   onClick={closeMore}
                 >
-                  ❓ Help & Support
+                  ❓ {t.help}
                 </Link>
+
+
+                {/* ORDERS */}
 
                 <Link
                   to="/orders"
                   onClick={closeMore}
                 >
-                  📋 My Orders
+                  📋 {t.orders}
                 </Link>
+
+
+                {/* TRACK ORDER */}
 
                 <Link
                   to="/track-order"
                   onClick={closeMore}
                 >
-                  🚚 Track Order
+                  🚚 {t.trackOrder}
                 </Link>
 
               </div>
+
             )}
 
           </div>
 
 
-          {/* =========================
+          {/* =================================================
               WISHLIST
-          ========================= */}
+          ================================================= */}
+
           <Link
             to="/wishlist"
             className="wishlist-nav"
             aria-label={t.wishlist}
+            title={t.wishlist}
           >
             ♡
           </Link>
 
 
-          {/* =========================
+          {/* =================================================
               CART
-          ========================= */}
+          ================================================= */}
+
           <Link
             to="/cart"
             className="shop-cart"
             aria-label={t.cart}
+            title={t.cart}
           >
 
             🛒
 
             {cartCount > 0 && (
+
               <span className="shop-cart-count">
                 {cartCount}
               </span>
+
             )}
 
             <span className="cart-text">
@@ -379,9 +522,10 @@ function Navbar() {
           </Link>
 
 
-          {/* =========================
+          {/* =================================================
               HAMBURGER
-          ========================= */}
+          ================================================= */}
+
           <button
             className={`shop-hamburger ${
               menuOpen ? "active" : ""
@@ -389,118 +533,223 @@ function Navbar() {
             onClick={() =>
               setMenuOpen((prev) => !prev)
             }
-            aria-label="Toggle menu"
+            aria-label={t.menu}
+            title={t.menu}
             type="button"
           >
+
             <span></span>
             <span></span>
             <span></span>
+
           </button>
 
         </div>
 
       </div>
-{/* =========================
-    CATEGORY BAR
-========================= */}
-
-<div className="shop-categorybar">
-
-  <Link
-    to="/"
-    className="shop-category active-category"
-  >
-    <span className="category-icon">
-      <House size={20} strokeWidth={1.7} />
-    </span>
-    <small>{t.home}</small>
-  </Link>
 
 
-  <Link
-    to="/products?category=Fashion"
-    className="shop-category"
-  >
-    <span className="category-icon">
-      <Shirt size={20} strokeWidth={1.7} />
-    </span>
-    <small>Fashion</small>
-  </Link>
+      {/* =====================================================
+          CATEGORY BAR
+      ===================================================== */}
+
+      <div className="shop-categorybar">
+
+        {/* HOME */}
+
+        <Link
+          to="/"
+          className="shop-category active-category"
+        >
+
+          <span className="category-icon">
+
+            <House
+              size={20}
+              strokeWidth={1.7}
+            />
+
+          </span>
+
+          <small>
+            {t.home}
+          </small>
+
+        </Link>
 
 
-  <Link
-    to="/products?category=Accessories"
-    className="shop-category"
-  >
-    <span className="category-icon">
-      <Watch size={20} strokeWidth={1.7} />
-    </span>
-    <small>Accessories</small>
-  </Link>
+        {/* FASHION */}
+
+        <Link
+          to="/products?category=Fashion"
+          className="shop-category"
+        >
+
+          <span className="category-icon">
+
+            <Shirt
+              size={20}
+              strokeWidth={1.7}
+            />
+
+          </span>
+
+          <small>
+            {t.fashion}
+          </small>
+
+        </Link>
 
 
-  <Link
-    to="/products?category=Footwear"
-    className="shop-category"
-  >
-    <span className="category-icon">
-      <Footprints size={20} strokeWidth={1.7} />
-    </span>
-    <small>Footwear</small>
-  </Link>
+        {/* ACCESSORIES */}
+
+        <Link
+          to="/products?category=Accessories"
+          className="shop-category"
+        >
+
+          <span className="category-icon">
+
+            <Watch
+              size={20}
+              strokeWidth={1.7}
+            />
+
+          </span>
+
+          <small>
+            {t.accessories}
+          </small>
+
+        </Link>
 
 
-  <Link
-    to="/new-arrivals"
-    className="shop-category"
-  >
-    <span className="category-icon">
-      <Sparkles size={20} strokeWidth={1.7} />
-    </span>
-    <small>New Arrivals</small>
-  </Link>
+        {/* FOOTWEAR */}
+
+        <Link
+          to="/products?category=Footwear"
+          className="shop-category"
+        >
+
+          <span className="category-icon">
+
+            <Footprints
+              size={20}
+              strokeWidth={1.7}
+            />
+
+          </span>
+
+          <small>
+            {t.footwear}
+          </small>
+
+        </Link>
 
 
-  <Link
-    to="/products"
-    className="shop-category"
-  >
-    <span className="category-icon">
-      <Star size={20} strokeWidth={1.7} />
-    </span>
-    <small>Best Sellers</small>
-  </Link>
+        {/* NEW ARRIVALS */}
+
+        <Link
+          to="/new-arrivals"
+          className="shop-category"
+        >
+
+          <span className="category-icon">
+
+            <Sparkles
+              size={20}
+              strokeWidth={1.7}
+            />
+
+          </span>
+
+          <small>
+            {t.newArrivals}
+          </small>
+
+        </Link>
 
 
-  <Link
-    to="/products"
-    className="shop-category"
-  >
-    <span className="category-icon">
-      <Heart size={20} strokeWidth={1.7} />
-    </span>
-    <small>Collections</small>
-  </Link>
+        {/* BEST SELLERS */}
+
+        <Link
+          to="/products"
+          className="shop-category"
+        >
+
+          <span className="category-icon">
+
+            <Star
+              size={20}
+              strokeWidth={1.7}
+            />
+
+          </span>
+
+          <small>
+            {t.bestSellers}
+          </small>
+
+        </Link>
 
 
-  <Link
-    to="/about"
-    className="shop-category"
-  >
-    <span className="category-icon">
-      <Info size={20} strokeWidth={1.7} />
-    </span>
-    <small>About Us</small>
-  </Link>
+        {/* COLLECTIONS */}
 
-</div>
+        <Link
+          to="/products"
+          className="shop-category"
+        >
+
+          <span className="category-icon">
+
+            <Heart
+              size={20}
+              strokeWidth={1.7}
+            />
+
+          </span>
+
+          <small>
+            {t.collections}
+          </small>
+
+        </Link>
 
 
-      {/* =========================
+        {/* ABOUT */}
+
+        <Link
+          to="/about"
+          className="shop-category"
+        >
+
+          <span className="category-icon">
+
+            <Info
+              size={20}
+              strokeWidth={1.7}
+            />
+
+          </span>
+
+          <small>
+            {t.about}
+          </small>
+
+        </Link>
+
+      </div>
+
+
+      {/* =====================================================
           MOBILE MENU
-      ========================= */}
+      ===================================================== */}
+
       {menuOpen && (
+
         <div className="shop-mobile-menu">
+
+          {/* HOME */}
 
           <Link
             to="/"
@@ -510,6 +759,8 @@ function Navbar() {
           </Link>
 
 
+          {/* SHOP */}
+
           <Link
             to="/products"
             onClick={closeMenu}
@@ -518,29 +769,37 @@ function Navbar() {
           </Link>
 
 
+          {/* FASHION */}
+
           <Link
             to="/products?category=Fashion"
             onClick={closeMenu}
           >
-            Fashion
+            {t.fashion}
           </Link>
 
+
+          {/* ACCESSORIES */}
 
           <Link
             to="/products?category=Accessories"
             onClick={closeMenu}
           >
-            Accessories
+            {t.accessories}
           </Link>
 
+
+          {/* FOOTWEAR */}
 
           <Link
             to="/products?category=Footwear"
             onClick={closeMenu}
           >
-            Footwear
+            {t.footwear}
           </Link>
 
+
+          {/* NEW ARRIVALS */}
 
           <Link
             to="/new-arrivals"
@@ -550,6 +809,28 @@ function Navbar() {
           </Link>
 
 
+          {/* BEST SELLERS */}
+
+          <Link
+            to="/products"
+            onClick={closeMenu}
+          >
+            {t.bestSellers}
+          </Link>
+
+
+          {/* COLLECTIONS */}
+
+          <Link
+            to="/products"
+            onClick={closeMenu}
+          >
+            {t.collections}
+          </Link>
+
+
+          {/* WISHLIST */}
+
           <Link
             to="/wishlist"
             onClick={closeMenu}
@@ -557,6 +838,8 @@ function Navbar() {
             ♡ {t.wishlist}
           </Link>
 
+
+          {/* CART */}
 
           <Link
             to="/cart"
@@ -566,6 +849,8 @@ function Navbar() {
           </Link>
 
 
+          {/* ABOUT */}
+
           <Link
             to="/about"
             onClick={closeMenu}
@@ -574,17 +859,64 @@ function Navbar() {
           </Link>
 
 
+          {/* CONTACT */}
+
+          <Link
+            to="/contact"
+            onClick={closeMenu}
+          >
+            📞 {t.contact}
+          </Link>
+
+
+          {/* HELP */}
+
+          <Link
+            to="/help"
+            onClick={closeMenu}
+          >
+            ❓ {t.help}
+          </Link>
+
+
+          {/* ORDERS */}
+
+          <Link
+            to="/orders"
+            onClick={closeMenu}
+          >
+            📋 {t.orders}
+          </Link>
+
+
+          {/* TRACK ORDER */}
+
+          <Link
+            to="/track-order"
+            onClick={closeMenu}
+          >
+            🚚 {t.trackOrder}
+          </Link>
+
+
+          {/* LOGIN */}
+
           {!userName && (
+
             <Link
               to="/login"
               onClick={closeMenu}
             >
               ♙ {t.login}
             </Link>
+
           )}
 
 
+          {/* LOGOUT */}
+
           {userName && (
+
             <button
               className="mobile-logout-shop"
               onClick={handleLogout}
@@ -592,13 +924,16 @@ function Navbar() {
             >
               {t.logout}
             </button>
+
           )}
 
         </div>
+
       )}
 
     </header>
   );
 }
+
 
 export default Navbar;
