@@ -1,6 +1,8 @@
+const mongoose = require('mongoose');
 const Order = require('../models/orderModel');
 const Cart = require('../models/cartModel');
 const Product = require('../models/productModel');
+const User = require('../models/userModel');
 
 
 const createOrder = async (req, res) => {
@@ -144,6 +146,12 @@ const getMyOrders = async (req, res) => {
 
 const getOrderById = async (req, res) => {
     try {
+        if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+            return res.status(404).json({
+                message: 'Order not found'
+            });
+        }
+
         const order = await Order.findOne({
             _id: req.params.id,
             user: req.user.userId
@@ -168,6 +176,12 @@ const getOrderById = async (req, res) => {
 
 const cancelOrder = async (req, res) => {
     try {
+        if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+            return res.status(404).json({
+                message: 'Order not found'
+            });
+        }
+
         const order = await Order.findOne({
             _id: req.params.id,
             user: req.user.userId
@@ -223,10 +237,90 @@ const cancelOrder = async (req, res) => {
     }
 };
 
+const getAllOrders = async (req, res) => {
+    try {
+        const orders = await Order.find()
+            .populate('user', 'username email')
+            .populate('items.product')
+            .sort({ createdAt: -1 });
+
+        res.status(200).json({
+            orders
+        });
+
+    } catch (error) {
+        res.status(500).json({
+            message: 'Server error',
+            error: error.message
+        });
+    }
+};
+
+
+const updateOrderStatus = async (req, res) => {
+    try {
+        const { status } = req.body;
+
+        const allowedStatuses = [
+            'pending',
+            'confirmed',
+            'shipped',
+            'delivered',
+            'cancelled'
+        ];
+
+        if (!allowedStatuses.includes(status)) {
+            return res.status(400).json({
+                message: 'Invalid order status'
+            });
+        }
+
+        if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+            return res.status(404).json({
+                message: 'Order not found'
+            });
+        }
+
+        const order = await Order.findById(req.params.id);
+
+        if (!order) {
+            return res.status(404).json({
+                message: 'Order not found'
+            });
+        }
+
+        if (order.status === 'cancelled') {
+            return res.status(400).json({
+                message: 'Cancelled order cannot be updated'
+            });
+        }
+
+        order.status = status;
+
+        await order.save();
+
+        await order.populate('user', 'username email');
+        await order.populate('items.product');
+
+        res.status(200).json({
+            message: 'Order status updated successfully',
+            order
+        });
+
+    } catch (error) {
+        res.status(500).json({
+            message: 'Server error',
+            error: error.message
+        });
+    }
+};
+
 
 module.exports = {
     createOrder,
     getMyOrders,
     getOrderById,
-    cancelOrder
+    cancelOrder,
+    getAllOrders,
+    updateOrderStatus
 };
