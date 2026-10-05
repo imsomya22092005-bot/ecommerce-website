@@ -142,7 +142,7 @@ const categoryGroups = [
   },
 
   {
-    name: "Home",
+    name: "Home Accessories",
     hindi: "होम",
     icon: (
       <House
