@@ -517,6 +517,40 @@ function Cart() {
   };
 
   // =========================
+  // CLEAR CART
+  // =========================
+
+  const handleClearCart = async () => {
+    const token = getToken();
+    setCartError("");
+
+    if (token) {
+      try {
+        const response = await fetch(
+          `${API_URL}/api/cart/clear`,
+          {
+            method: "DELETE",
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+
+        if (!response.ok) {
+          const data = await response.json();
+          throw new Error(
+            data.message || "Failed to clear cart"
+          );
+        }
+      } catch (err) {
+        console.error("Clear cart error:", err);
+      }
+    }
+
+    saveLocalCart([]);
+  };
+
+  // =========================
   // SUBTOTAL
   // =========================
 
@@ -689,11 +723,31 @@ function Cart() {
             : "SHOPSPHERE CART"}
         </p>
 
-        <h1>
-          {language === "Hindi"
-            ? "आपका शॉपिंग बैग"
-            : "Your Shopping Bag"}
-        </h1>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", flexWrap: "wrap", gap: "12px" }}>
+          <h1>
+            {language === "Hindi"
+              ? "आपका शॉपिंग बैग"
+              : "Your Shopping Bag"}
+          </h1>
+
+          <button
+            type="button"
+            onClick={handleClearCart}
+            style={{
+              background: "transparent",
+              border: "1px solid #d8cbbb",
+              padding: "7px 14px",
+              color: "#8a6245",
+              fontSize: "10px",
+              fontWeight: 700,
+              letterSpacing: "1px",
+              cursor: "pointer",
+              marginBottom: "8px",
+            }}
+          >
+            {language === "Hindi" ? "कार्ट खाली करें" : "CLEAR CART"}
+          </button>
+        </div>
 
         {cartError && (
           <p className="coupon-error">

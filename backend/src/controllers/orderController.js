@@ -1,6 +1,8 @@
+const mongoose = require('mongoose');
 const Order = require('../models/orderModel');
 const Cart = require('../models/cartModel');
 const Product = require('../models/productModel');
+const User = require('../models/userModel');
 
 
 const createOrder = async (req, res) => {
@@ -144,6 +146,12 @@ const getMyOrders = async (req, res) => {
 
 const getOrderById = async (req, res) => {
     try {
+        if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+            return res.status(404).json({
+                message: 'Order not found'
+            });
+        }
+
         const order = await Order.findOne({
             _id: req.params.id,
             user: req.user.userId
@@ -168,6 +176,12 @@ const getOrderById = async (req, res) => {
 
 const cancelOrder = async (req, res) => {
     try {
+        if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+            return res.status(404).json({
+                message: 'Order not found'
+            });
+        }
+
         const order = await Order.findOne({
             _id: req.params.id,
             user: req.user.userId
@@ -258,6 +272,12 @@ const updateOrderStatus = async (req, res) => {
         if (!allowedStatuses.includes(status)) {
             return res.status(400).json({
                 message: 'Invalid order status'
+            });
+        }
+
+        if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+            return res.status(404).json({
+                message: 'Order not found'
             });
         }
 

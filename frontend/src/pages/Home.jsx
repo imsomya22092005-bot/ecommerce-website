@@ -187,9 +187,10 @@ function Home() {
           await response.json();
 
         setProducts(
-          Array.isArray(data)
-            ? data
-            : []
+          data.products ||
+            (Array.isArray(data)
+              ? data
+              : [])
         );
       } catch (error) {
         console.error(

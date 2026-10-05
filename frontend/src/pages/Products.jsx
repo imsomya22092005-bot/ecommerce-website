@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useLanguage } from "../LanguageContext";
 import ProductCard from "../components/ProductCard";
 
-const API_URL = "http://localhost:3000";
+// const API_URL = "http://localhost:3000";
 const PRODUCTS_PER_PAGE = 8;
 
 function Products() {
@@ -41,6 +41,19 @@ function Products() {
   const [error, setError] =
     useState("");
 
+  useEffect(() => {
+    const cat = searchParams.get("category");
+    if (cat && cat !== "all") {
+      setCategory(cat);
+    } else if (cat === "all") {
+      setCategory("All");
+    }
+    const q = searchParams.get("search");
+    if (q !== null) {
+      setSearch(q);
+    }
+  }, [searchParams]);
+
   // =========================
   // FETCH PRODUCTS
   // =========================
@@ -52,7 +65,7 @@ function Products() {
         setError("");
 
         const response = await fetch(
-          `${API_URL}/api/products`
+          `${API_URL}/api/products?limit=0`
         );
 
         if (!response.ok) {
@@ -116,9 +129,39 @@ function Products() {
             searchValue
           );
 
-        const matchesCategory =
-          category === "All" ||
-          product.category === category;
+        let matchesCategory = category === "All";
+        if (!matchesCategory) {
+          const prodCat = String(product.category || "").toLowerCase();
+          const selectedCat = String(category).toLowerCase();
+
+          if (selectedCat === "fashion") {
+            matchesCategory = [
+              "fashion",
+              "mens-shirts",
+              "womens-dresses",
+              "tops",
+            ].includes(prodCat);
+          } else if (selectedCat === "accessories") {
+            matchesCategory = [
+              "accessories",
+              "mens-watches",
+              "womens-watches",
+              "womens-jewellery",
+              "sunglasses",
+              "womens-bags",
+              "sports-accessories",
+              "mobile-accessories",
+            ].includes(prodCat);
+          } else if (selectedCat === "footwear") {
+            matchesCategory = [
+              "footwear",
+              "mens-shoes",
+              "womens-shoes",
+            ].includes(prodCat);
+          } else {
+            matchesCategory = prodCat === selectedCat;
+          }
+        }
 
         return (
           matchesSearch &&

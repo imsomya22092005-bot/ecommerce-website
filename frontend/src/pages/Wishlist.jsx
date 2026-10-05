@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { useLanguage } from "../LanguageContext";
+import API_URL from "../api";
 
 function Wishlist() {
   const [wishlist, setWishlist] = useState([]);
@@ -71,9 +72,55 @@ function Wishlist() {
   // ADD TO CART
   // =========================
 
-  const addToCart = (product) => {
+  const addToCart = async (product) => {
     const productId =
       getProductId(product);
+
+    const token = localStorage.getItem("authToken");
+
+    if (token) {
+      try {
+        const response = await fetch(`${API_URL}/api/cart/add`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            productId,
+            quantity: 1,
+          }),
+        });
+
+        const data = await response.json();
+
+        if (response.ok && data.cart) {
+          const backendItems = (data.cart.items || [])
+            .filter((item) => item?.product)
+            .map((item) => ({
+              _id: item.product._id,
+              id: item.product._id,
+              name: item.product.name,
+              price: Number(item.product.price) || 0,
+              image: item.product.image || item.product.imageUrl || "",
+              category: item.product.category || "",
+              quantity: Number(item.quantity) || 1,
+            }));
+
+          localStorage.setItem("cart", JSON.stringify(backendItems));
+          window.dispatchEvent(new Event("cartUpdated"));
+
+          alert(
+            language === "Hindi"
+              ? "प्रोडक्ट कार्ट में जोड़ दिया गया।"
+              : "Product added to cart."
+          );
+          return;
+        }
+      } catch (err) {
+        console.error("Wishlist add to cart backend error:", err);
+      }
+    }
 
     const existingCart =
       JSON.parse(

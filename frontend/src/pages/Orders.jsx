@@ -2,7 +2,7 @@ import { Link } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { useLanguage } from "../LanguageContext";
 
-const API_URL = "http://localhost:3000";
+import API_URL from "../api";
 
 function Orders() {
   const { language } = useLanguage();

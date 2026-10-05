@@ -1,37 +1,38 @@
-import { useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useLanguage } from "../LanguageContext";
+import API_URL from "../api";
 
 function AdminDashboard() {
   const { language } = useLanguage();
   const navigate = useNavigate();
 
-  const [activeTab, setActiveTab] =
-    useState("overview");
+  const [activeTab, setActiveTab] = useState("overview");
 
-  const userRole =
-    localStorage.getItem("userRole");
+  const userRole = localStorage.getItem("userRole");
+  const userName = localStorage.getItem("userName") || "Admin";
 
-  const userName =
-    localStorage.getItem("userName") ||
-    "Admin";
+  const [orders, setOrders] = useState([]);
+  const [users, setUsers] = useState([]);
+  const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+  const [statusUpdatingId, setStatusUpdatingId] = useState(null);
+  const [selectedStatuses, setSelectedStatuses] = useState({});
+  const [actionSuccess, setActionSuccess] = useState("");
+
+  const token = localStorage.getItem("authToken");
 
   // =========================
   // PROTECT ADMIN PAGE
   // =========================
-
   if (userRole !== "admin") {
     return (
       <main className="admin-access-denied">
         <div className="admin-denied-card">
+          <div className="admin-denied-icon">🔒</div>
 
-          <div className="admin-denied-icon">
-            🔒
-          </div>
-
-          <p className="section-label">
-            SHOPSPHERE
-          </p>
+          <p className="section-label">SHOPSPHERE</p>
 
           <h1>
             {language === "Hindi"
@@ -45,81 +46,216 @@ function AdminDashboard() {
               : "This dashboard is available only for administrators."}
           </p>
 
-          <Link
-            to="/"
-            className="admin-back-btn"
-          >
-            {language === "Hindi"
-              ? "होम पर जाएं →"
-              : "BACK TO HOME →"}
+          <Link to="/" className="admin-back-btn">
+            {language === "Hindi" ? "होम पर जाएं →" : "BACK TO HOME →"}
           </Link>
-
         </div>
       </main>
     );
   }
 
   // =========================
-  // LOCAL DATA
+  // FETCH ADMIN DATA
   // =========================
+  useEffect(() => {
+    const fetchAdminData = async () => {
+      try {
+        setLoading(true);
+        setError("");
 
-  const orders = useMemo(() => {
-    return (
-      JSON.parse(
-        localStorage.getItem("orders")
-      ) || []
-    );
-  }, []);
+        // 1. Fetch Orders
+        let ordersData = [];
+        try {
+          let ordersRes = await fetch(`${API_URL}/api/orders/admin/all`, {
+            headers: { Authorization: `Bearer ${token}` },
+          });
 
-  const wishlist = useMemo(() => {
-    return (
-      JSON.parse(
-        localStorage.getItem("wishlist")
-      ) || []
-    );
-  }, []);
+          if (!ordersRes.ok) {
+            ordersRes = await fetch(`${API_URL}/api/orders/all`, {
+              headers: { Authorization: `Bearer ${token}` },
+            });
+          }
 
-  const cart = useMemo(() => {
-    return (
-      JSON.parse(
-        localStorage.getItem("cart")
-      ) || []
-    );
-  }, []);
+          if (ordersRes.ok) {
+            const data = await ordersRes.json();
+            ordersData = data.orders || [];
+          } else {
+            ordersData =
+              JSON.parse(localStorage.getItem("orders")) || [];
+          }
+        } catch (err) {
+          console.error("Admin orders fetch error:", err);
+          ordersData =
+            JSON.parse(localStorage.getItem("orders")) || [];
+        }
+        setOrders(ordersData);
+
+        // Pre-fill selected statuses
+        const statusMap = {};
+        ordersData.forEach((order) => {
+          statusMap[order._id || order.orderId] = order.status || "confirmed";
+        });
+        setSelectedStatuses(statusMap);
+
+        // 2. Fetch Users
+        try {
+          const usersRes = await fetch(`${API_URL}/api/users`, {
+            headers: { Authorization: `Bearer ${token}` },
+          });
+          if (usersRes.ok) {
+            const data = await usersRes.json();
+            setUsers(data.users || []);
+          }
+        } catch (err) {
+          console.error("Admin users fetch error:", err);
+        }
+
+        // 3. Fetch Products
+        try {
+          const productsRes = await fetch(`${API_URL}/api/products?limit=0`);
+          if (productsRes.ok) {
+            const data = await productsRes.json();
+            setProducts(data.products || (Array.isArray(data) ? data : []));
+          }
+        } catch (err) {
+          console.error("Admin products fetch error:", err);
+        }
+      } catch (err) {
+        console.error("Admin data loading error:", err);
+        setError(
+          language === "Hindi"
+            ? "डेटा लोड करने में समस्या आई।"
+            : "Error loading admin data."
+        );
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (token) {
+      fetchAdminData();
+    }
+  }, [token, language]);
 
   // =========================
-  // BASIC FRONTEND STATS
+  // UPDATE ORDER STATUS
   // =========================
+  const handleUpdateStatus = async (orderId) => {
+    const newStatus = selectedStatuses[orderId];
+    if (!newStatus) return;
 
-  const totalOrders =
-    orders.length;
+    try {
+      setStatusUpdatingId(orderId);
+      setActionSuccess("");
+      setError("");
 
-  const totalWishlistItems =
-    wishlist.length;
+      let res = await fetch(`${API_URL}/api/orders/admin/${orderId}/status`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ status: newStatus }),
+      });
 
-  const totalCartItems =
-    cart.reduce(
-      (sum, item) =>
-        sum +
-        Number(item.quantity || 0),
-      0
+      if (!res.ok) {
+        res = await fetch(`${API_URL}/api/orders/${orderId}/status`, {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ status: newStatus }),
+        });
+      }
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data.message || "Failed to update order status");
+      }
+
+      setOrders((prev) =>
+        prev.map((o) =>
+          o._id === orderId ? { ...o, status: newStatus } : o
+        )
+      );
+
+      setActionSuccess(
+        language === "Hindi"
+          ? `ऑर्डर #${orderId.slice(-6)} का स्टेटस ${newStatus} में अपडेट हो गया!`
+          : `Order #${orderId.slice(-6)} status updated to ${newStatus}!`
+      );
+
+      setTimeout(() => setActionSuccess(""), 4000);
+    } catch (err) {
+      console.error("Status update error:", err);
+      setError(err.message || "Failed to update status");
+    } finally {
+      setStatusUpdatingId(null);
+    }
+  };
+
+  // =========================
+  // DELETE PRODUCT
+  // =========================
+  const handleDeleteProduct = async (productId, productName) => {
+    const confirmDelete = window.confirm(
+      language === "Hindi"
+        ? `क्या आप "${productName}" को हटाना चाहते हैं?`
+        : `Are you sure you want to delete "${productName}"?`
     );
 
-  const totalRevenue =
-    orders.reduce(
-      (sum, order) =>
-        sum +
-        Number(
-          order.totalAmount ||
+    if (!confirmDelete) return;
+
+    try {
+      setActionSuccess("");
+      setError("");
+
+      const res = await fetch(`${API_URL}/api/products/${productId}`, {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data.message || "Failed to delete product");
+      }
+
+      setProducts((prev) => prev.filter((p) => p._id !== productId));
+
+      setActionSuccess(
+        language === "Hindi"
+          ? "प्रोडक्ट सफलतापूर्वक हटा दिया गया!"
+          : "Product deleted successfully!"
+      );
+      setTimeout(() => setActionSuccess(""), 4000);
+    } catch (err) {
+      console.error("Delete product error:", err);
+      setError(err.message || "Failed to delete product");
+    }
+  };
+
+  // =========================
+  // STATS
+  // =========================
+  const totalOrders = orders.length;
+  const totalUsers = users.length;
+  const totalProducts = products.length;
+
+  const totalRevenue = orders.reduce(
+    (sum, order) =>
+      sum +
+      Number(
+        order.totalAmount ||
           order.total ||
           0
-        ),
-      0
-    );
-
-  // =========================
-  // NAVIGATION
-  // =========================
+      ),
+    0
+  );
 
   const goToStore = () => {
     navigate("/");
@@ -127,13 +263,7 @@ function AdminDashboard() {
 
   return (
     <main className="admin-dashboard">
-
-      {/* =========================
-          PAGE STYLES
-      ========================= */}
-
       <style>{`
-
         .admin-dashboard {
           min-height: 100vh;
           background: #f6f1e9;
@@ -145,10 +275,6 @@ function AdminDashboard() {
           max-width: 1450px;
           margin: 0 auto;
         }
-
-        /* =========================
-           HEADER
-        ========================= */
 
         .admin-header {
           display: flex;
@@ -172,14 +298,8 @@ function AdminDashboard() {
 
         .admin-header h1 {
           margin: 0;
-          font-family:
-            "Playfair Display",
-            serif;
-          font-size: clamp(
-            34px,
-            5vw,
-            58px
-          );
+          font-family: "Playfair Display", serif;
+          font-size: clamp(34px, 5vw, 58px);
           line-height: 1;
           font-weight: 600;
         }
@@ -208,6 +328,7 @@ function AdminDashboard() {
         .admin-user-badge span {
           color: #8a6245;
           margin-right: 6px;
+          font-weight: 700;
         }
 
         .admin-store-btn {
@@ -225,10 +346,6 @@ function AdminDashboard() {
         .admin-store-btn:hover {
           background: #8a6245;
         }
-
-        /* =========================
-           NAVIGATION
-        ========================= */
 
         .admin-tabs {
           display: flex;
@@ -256,14 +373,9 @@ function AdminDashboard() {
           color: #fffdf9;
         }
 
-        /* =========================
-           KPI CARDS
-        ========================= */
-
         .admin-kpi-grid {
           display: grid;
-          grid-template-columns:
-            repeat(4, 1fr);
+          grid-template-columns: repeat(4, 1fr);
           gap: 16px;
           margin-bottom: 28px;
         }
@@ -285,9 +397,7 @@ function AdminDashboard() {
         .admin-kpi-value {
           margin: 0;
           color: #211e1b;
-          font-family:
-            "Playfair Display",
-            serif;
+          font-family: "Playfair Display", serif;
           font-size: 32px;
           font-weight: 600;
         }
@@ -299,21 +409,16 @@ function AdminDashboard() {
           line-height: 1.5;
         }
 
-        /* =========================
-           MAIN GRID
-        ========================= */
-
         .admin-main-grid {
           display: grid;
-          grid-template-columns:
-            minmax(0, 1.7fr)
-            minmax(280px, 0.8fr);
+          grid-template-columns: minmax(0, 1.7fr) minmax(280px, 0.8fr);
           gap: 18px;
         }
 
         .admin-panel {
           border: 1px solid #e2d6c7;
           background: #fffdf9;
+          margin-bottom: 20px;
         }
 
         .admin-panel-header {
@@ -327,9 +432,7 @@ function AdminDashboard() {
 
         .admin-panel-header h2 {
           margin: 0;
-          font-family:
-            "Playfair Display",
-            serif;
+          font-family: "Playfair Display", serif;
           font-size: 22px;
           font-weight: 600;
         }
@@ -341,17 +444,13 @@ function AdminDashboard() {
           letter-spacing: 1px;
         }
 
-        /* =========================
-           ORDER TABLE
-        ========================= */
-
         .admin-table-wrap {
           overflow-x: auto;
         }
 
         .admin-table {
           width: 100%;
-          min-width: 600px;
+          min-width: 650px;
           border-collapse: collapse;
         }
 
@@ -370,6 +469,7 @@ function AdminDashboard() {
           border-top: 1px solid #eee7de;
           color: #4e4741;
           font-size: 11px;
+          vertical-align: middle;
         }
 
         .admin-order-id {
@@ -379,7 +479,7 @@ function AdminDashboard() {
 
         .admin-status {
           display: inline-block;
-          padding: 6px 9px;
+          padding: 5px 9px;
           border-radius: 20px;
           background: #eef2eb;
           color: #617458;
@@ -388,15 +488,17 @@ function AdminDashboard() {
           text-transform: capitalize;
         }
 
+        .admin-status.pending { background: #fff5e6; color: #a16207; }
+        .admin-status.confirmed { background: #eef2eb; color: #617458; }
+        .admin-status.shipped { background: #eff6ff; color: #1d4ed8; }
+        .admin-status.delivered { background: #ecfdf5; color: #047857; }
+        .admin-status.cancelled { background: #fef2f2; color: #b91c1c; }
+
         .admin-empty-row {
           padding: 35px 20px !important;
           text-align: center;
           color: #a0968b !important;
         }
-
-        /* =========================
-           QUICK ACTIONS
-        ========================= */
 
         .admin-actions {
           display: grid;
@@ -411,6 +513,11 @@ function AdminDashboard() {
           padding: 15px;
           border: 1px solid #e3d8ca;
           background: #f9f5ef;
+          cursor: pointer;
+        }
+
+        .admin-action:hover {
+          border-color: #8a6245;
         }
 
         .admin-action-icon {
@@ -440,58 +547,6 @@ function AdminDashboard() {
           font-size: 9px;
         }
 
-        /* =========================
-           FULL PANELS
-        ========================= */
-
-        .admin-full-panel {
-          margin-top: 18px;
-        }
-
-        .admin-placeholder-grid {
-          display: grid;
-          grid-template-columns:
-            repeat(3, 1fr);
-          gap: 15px;
-          padding: 20px;
-        }
-
-        .admin-placeholder-card {
-          min-height: 120px;
-          padding: 18px;
-          border: 1px solid #e5dacd;
-          background: #faf7f2;
-        }
-
-        .admin-placeholder-card span {
-          display: block;
-          margin-bottom: 10px;
-          color: #8d8176;
-          font-size: 9px;
-          font-weight: 700;
-          letter-spacing: 1px;
-        }
-
-        .admin-placeholder-card h3 {
-          margin: 0;
-          font-family:
-            "Playfair Display",
-            serif;
-          font-size: 20px;
-          font-weight: 600;
-        }
-
-        .admin-placeholder-card p {
-          margin: 8px 0 0;
-          color: #93887d;
-          font-size: 10px;
-          line-height: 1.5;
-        }
-
-        /* =========================
-           ACCESS DENIED
-        ========================= */
-
         .admin-access-denied {
           min-height: 100vh;
           display: flex;
@@ -516,9 +571,7 @@ function AdminDashboard() {
 
         .admin-denied-card h1 {
           margin: 10px 0;
-          font-family:
-            "Playfair Display",
-            serif;
+          font-family: "Playfair Display", serif;
           font-size: 38px;
         }
 
@@ -540,21 +593,11 @@ function AdminDashboard() {
           letter-spacing: 1px;
         }
 
-        /* =========================
-           MOBILE
-        ========================= */
-
         @media (max-width: 1050px) {
           .admin-kpi-grid {
-            grid-template-columns:
-              repeat(2, 1fr);
+            grid-template-columns: repeat(2, 1fr);
           }
-
           .admin-main-grid {
-            grid-template-columns: 1fr;
-          }
-
-          .admin-placeholder-grid {
             grid-template-columns: 1fr;
           }
         }
@@ -563,87 +606,45 @@ function AdminDashboard() {
           .admin-dashboard {
             padding: 25px 16px 60px;
           }
-
           .admin-header {
             align-items: flex-start;
             flex-direction: column;
           }
-
           .admin-header-right {
             width: 100%;
             flex-wrap: wrap;
           }
-
           .admin-tabs {
             width: 100%;
             overflow-x: auto;
             flex-wrap: nowrap;
           }
-
           .admin-tab {
             white-space: nowrap;
           }
-
           .admin-kpi-grid {
             grid-template-columns: 1fr 1fr;
             gap: 10px;
           }
-
-          .admin-kpi {
-            padding: 16px;
-          }
-
-          .admin-kpi-value {
-            font-size: 26px;
-          }
-
-          .admin-panel-header {
-            padding: 17px;
-          }
         }
-
-        @media (max-width: 450px) {
-          .admin-kpi-grid {
-            grid-template-columns: 1fr;
-          }
-
-          .admin-header h1 {
-            font-size: 38px;
-          }
-        }
-
       `}</style>
 
       <div className="admin-shell">
-
         {/* =========================
             HEADER
         ========================= */}
-
         <header className="admin-header">
-
           <div className="admin-header-left">
-
-            <p className="admin-eyebrow">
-              SHOPSPHERE · ADMIN
-            </p>
-
-            <h1>
-              {language === "Hindi"
-                ? "डैशबोर्ड"
-                : "Dashboard"}
-            </h1>
-
+            <p className="admin-eyebrow">SHOPSPHERE · ADMIN</p>
+            <h1>{language === "Hindi" ? "डैशबोर्ड" : "Dashboard"}</h1>
             <p className="admin-header-description">
               {language === "Hindi"
-                ? `स्वागत है, ${userName}। अपने स्टोर की गतिविधियों और ऑर्डर्स को यहां मैनेज करें।`
-                : `Welcome, ${userName}. Manage your store activity, orders and customers from one place.`}
+                ? `स्वागत है, ${userName}। अपने स्टोर की गतिविधियों, ऑर्डर्स, प्रोडक्ट्स और कस्टमर्स को यहां मैनेज करें।`
+                : `Welcome, ${userName}. Manage your store activity, orders, products, and customers from one place.`}
             </p>
-
           </div>
 
           <div className="admin-header-right">
-
             <div className="admin-user-badge">
               <span>ADMIN</span>
               {userName}
@@ -654,694 +655,642 @@ function AdminDashboard() {
               className="admin-store-btn"
               onClick={goToStore}
             >
-              {language === "Hindi"
-                ? "स्टोर देखें"
-                : "VIEW STORE"}
+              {language === "Hindi" ? "स्टोर देखें" : "VIEW STORE"}
             </button>
-
           </div>
-
         </header>
+
+        {/* NOTIFICATIONS */}
+        {actionSuccess && (
+          <div
+            style={{
+              padding: "12px 18px",
+              background: "#edf4ea",
+              color: "#3f6834",
+              border: "1px solid #c9e0c1",
+              fontSize: "12px",
+              fontWeight: 600,
+              marginBottom: "20px",
+            }}
+          >
+            ✓ {actionSuccess}
+          </div>
+        )}
+
+        {error && (
+          <div
+            style={{
+              padding: "12px 18px",
+              background: "#fcedeb",
+              color: "#a64b3c",
+              border: "1px solid #f4c7c3",
+              fontSize: "12px",
+              fontWeight: 600,
+              marginBottom: "20px",
+            }}
+          >
+            ! {error}
+          </div>
+        )}
 
         {/* =========================
             TABS
         ========================= */}
-
         <nav className="admin-tabs">
-
           <button
             type="button"
             className={`admin-tab ${
-              activeTab === "overview"
-                ? "active"
-                : ""
+              activeTab === "overview" ? "active" : ""
             }`}
-            onClick={() =>
-              setActiveTab("overview")
-            }
+            onClick={() => setActiveTab("overview")}
           >
-            {language === "Hindi"
-              ? "ओवरव्यू"
-              : "OVERVIEW"}
+            {language === "Hindi" ? "ओवरव्यू" : "OVERVIEW"}
           </button>
 
           <button
             type="button"
             className={`admin-tab ${
-              activeTab === "orders"
-                ? "active"
-                : ""
+              activeTab === "orders" ? "active" : ""
             }`}
-            onClick={() =>
-              setActiveTab("orders")
-            }
+            onClick={() => setActiveTab("orders")}
           >
-            {language === "Hindi"
-              ? "ऑर्डर्स"
-              : "ORDERS"}
+            {language === "Hindi" ? "ऑर्डर्स" : "ORDERS"} ({orders.length})
           </button>
 
           <button
             type="button"
             className={`admin-tab ${
-              activeTab === "products"
-                ? "active"
-                : ""
+              activeTab === "products" ? "active" : ""
             }`}
-            onClick={() =>
-              setActiveTab("products")
-            }
+            onClick={() => setActiveTab("products")}
           >
-            {language === "Hindi"
-              ? "प्रोडक्ट्स"
-              : "PRODUCTS"}
+            {language === "Hindi" ? "प्रोडक्ट्स" : "PRODUCTS"} (
+            {products.length})
           </button>
 
           <button
             type="button"
             className={`admin-tab ${
-              activeTab === "users"
-                ? "active"
-                : ""
+              activeTab === "users" ? "active" : ""
             }`}
-            onClick={() =>
-              setActiveTab("users")
-            }
+            onClick={() => setActiveTab("users")}
           >
-            {language === "Hindi"
-              ? "यूज़र्स"
-              : "USERS"}
+            {language === "Hindi" ? "यूज़र्स" : "USERS"} ({users.length})
           </button>
-
         </nav>
 
         {/* =========================
             KPI CARDS
         ========================= */}
-
         <section className="admin-kpi-grid">
-
           <div className="admin-kpi">
-            <p className="admin-kpi-label">
-              TOTAL ORDERS
-            </p>
-
-            <p className="admin-kpi-value">
-              {totalOrders}
-            </p>
-
+            <p className="admin-kpi-label">TOTAL ORDERS</p>
+            <p className="admin-kpi-value">{totalOrders}</p>
             <p className="admin-kpi-note">
               {language === "Hindi"
-                ? "लोकल ऑर्डर रिकॉर्ड"
-                : "Orders currently available in frontend records"}
+                ? "कुल डेटाबेस ऑर्डर्स"
+                : "Total orders in database"}
             </p>
           </div>
 
           <div className="admin-kpi">
-            <p className="admin-kpi-label">
-              REVENUE
-            </p>
-
-            <p className="admin-kpi-value">
-              ₹{totalRevenue}
-            </p>
-
+            <p className="admin-kpi-label">TOTAL REVENUE</p>
+            <p className="admin-kpi-value">₹{totalRevenue}</p>
             <p className="admin-kpi-note">
               {language === "Hindi"
-                ? "फ्रंटएंड रिकॉर्ड से"
-                : "Calculated from available order records"}
+                ? "ऑर्डर अमाउंट से परिकलित"
+                : "Calculated from database orders"}
             </p>
           </div>
 
           <div className="admin-kpi">
-            <p className="admin-kpi-label">
-              CART ITEMS
-            </p>
-
-            <p className="admin-kpi-value">
-              {totalCartItems}
-            </p>
-
+            <p className="admin-kpi-label">PRODUCTS IN STORE</p>
+            <p className="admin-kpi-value">{totalProducts}</p>
             <p className="admin-kpi-note">
               {language === "Hindi"
-                ? "वर्तमान कार्ट आइटम"
-                : "Items currently in the cart"}
+                ? "लाइव कैटलॉग प्रोडक्ट्स"
+                : "Active catalog items"}
             </p>
           </div>
 
           <div className="admin-kpi">
-            <p className="admin-kpi-label">
-              WISHLIST
-            </p>
-
-            <p className="admin-kpi-value">
-              {totalWishlistItems}
-            </p>
-
+            <p className="admin-kpi-label">REGISTERED USERS</p>
+            <p className="admin-kpi-value">{totalUsers}</p>
             <p className="admin-kpi-note">
               {language === "Hindi"
-                ? "सेव किए गए प्रोडक्ट्स"
-                : "Saved products in wishlist"}
+                ? "पंजीकृत ग्राहक और एडमिन"
+                : "Registered users & admins"}
             </p>
           </div>
-
         </section>
 
         {/* =========================
-            OVERVIEW
+            TAB 1: OVERVIEW
         ========================= */}
-
         {activeTab === "overview" && (
-          <>
-            <div className="admin-main-grid">
-
-              {/* RECENT ORDERS */}
-
-              <section className="admin-panel">
-
-                <div className="admin-panel-header">
-
-                  <h2>
-                    {language === "Hindi"
-                      ? "हाल के ऑर्डर्स"
-                      : "Recent Orders"}
-                  </h2>
-
-                  <span>
-                    {orders.length} RECORDS
-                  </span>
-
-                </div>
-
-                <div className="admin-table-wrap">
-
-                  <table className="admin-table">
-
-                    <thead>
-                      <tr>
-
-                        <th>
-                          {language === "Hindi"
-                            ? "ऑर्डर"
-                            : "ORDER"}
-                        </th>
-
-                        <th>
-                          {language === "Hindi"
-                            ? "ग्राहक"
-                            : "CUSTOMER"}
-                        </th>
-
-                        <th>
-                          {language === "Hindi"
-                            ? "कुल"
-                            : "TOTAL"}
-                        </th>
-
-                        <th>
-                          {language === "Hindi"
-                            ? "स्थिति"
-                            : "STATUS"}
-                        </th>
-
-                      </tr>
-                    </thead>
-
-                    <tbody>
-
-                      {orders.length === 0 ? (
-
-                        <tr>
-                          <td
-                            colSpan="4"
-                            className="admin-empty-row"
-                          >
-                            {language === "Hindi"
-                              ? "अभी कोई ऑर्डर रिकॉर्ड उपलब्ध नहीं है।"
-                              : "No order records are available yet."}
-                          </td>
-                        </tr>
-
-                      ) : (
-
-                        orders
-                          .slice(0, 6)
-                          .map(
-                            (
-                              order,
-                              index
-                            ) => (
-                              <tr
-                                key={
-                                  order._id ||
-                                  order.orderId ||
-                                  index
-                                }
-                              >
-
-                                <td className="admin-order-id">
-                                  #
-                                  {order._id ||
-                                    order.orderId}
-                                </td>
-
-                                <td>
-                                  {order.shippingAddress
-                                    ?.fullName ||
-                                    order.customer
-                                      ?.name ||
-                                    "Customer"}
-                                </td>
-
-                                <td>
-                                  ₹
-                                  {Number(
-                                    order.totalAmount ||
-                                      order.total ||
-                                      0
-                                  )}
-                                </td>
-
-                                <td>
-
-                                  <span className="admin-status">
-                                    {String(
-                                      order.status ||
-                                        "confirmed"
-                                    ).replace(
-                                      /_/g,
-                                      " "
-                                    )}
-                                  </span>
-
-                                </td>
-
-                              </tr>
-                            )
-                          )
-
-                      )}
-
-                    </tbody>
-
-                  </table>
-
-                </div>
-
-              </section>
-
-              {/* QUICK ACTIONS */}
-
-              <section className="admin-panel">
-
-                <div className="admin-panel-header">
-
-                  <h2>
-                    {language === "Hindi"
-                      ? "क्विक एक्शन्स"
-                      : "Quick Actions"}
-                  </h2>
-
-                </div>
-
-                <div className="admin-actions">
-
-                  <div className="admin-action">
-                    <div className="admin-action-icon">
-                      📦
-                    </div>
-
-                    <div className="admin-action-copy">
-                      <strong>
-                        {language === "Hindi"
-                          ? "ऑर्डर मैनेज करें"
-                          : "Manage Orders"}
-                      </strong>
-
-                      <span>
-                        {language === "Hindi"
-                          ? "स्टेटस और ऑर्डर देखें"
-                          : "View and update order status"}
-                      </span>
-                    </div>
-                  </div>
-
-                  <div className="admin-action">
-                    <div className="admin-action-icon">
-                      🛍️
-                    </div>
-
-                    <div className="admin-action-copy">
-                      <strong>
-                        {language === "Hindi"
-                          ? "प्रोडक्ट्स मैनेज करें"
-                          : "Manage Products"}
-                      </strong>
-
-                      <span>
-                        {language === "Hindi"
-                          ? "कैटलॉग और स्टॉक"
-                          : "Catalog and inventory management"}
-                      </span>
-                    </div>
-                  </div>
-
-                  <div className="admin-action">
-                    <div className="admin-action-icon">
-                      👥
-                    </div>
-
-                    <div className="admin-action-copy">
-                      <strong>
-                        {language === "Hindi"
-                          ? "यूज़र्स देखें"
-                          : "Manage Users"}
-                      </strong>
-
-                      <span>
-                        {language === "Hindi"
-                          ? "कस्टमर अकाउंट्स"
-                          : "Customer account management"}
-                      </span>
-                    </div>
-                  </div>
-
-                </div>
-
-              </section>
-
-            </div>
-
-            {/* STORE SNAPSHOT */}
-
-            <section className="admin-panel admin-full-panel">
-
+          <div className="admin-main-grid">
+            {/* RECENT ORDERS */}
+            <section className="admin-panel">
               <div className="admin-panel-header">
-
                 <h2>
                   {language === "Hindi"
-                    ? "स्टोर स्नैपशॉट"
-                    : "Store Snapshot"}
+                    ? "हाल के ऑर्डर्स"
+                    : "Recent Orders"}
                 </h2>
-
-                <span>
-                  FRONTEND PREVIEW
-                </span>
-
+                <span>{orders.length} RECORDS</span>
               </div>
 
-              <div className="admin-placeholder-grid">
+              <div className="admin-table-wrap">
+                <table className="admin-table">
+                  <thead>
+                    <tr>
+                      <th>{language === "Hindi" ? "ऑर्डर" : "ORDER"}</th>
+                      <th>{language === "Hindi" ? "ग्राहक" : "CUSTOMER"}</th>
+                      <th>{language === "Hindi" ? "कुल" : "TOTAL"}</th>
+                      <th>{language === "Hindi" ? "स्थिति" : "STATUS"}</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {orders.length === 0 ? (
+                      <tr>
+                        <td colSpan="4" className="admin-empty-row">
+                          {language === "Hindi"
+                            ? "अभी कोई ऑर्डर रिकॉर्ड उपलब्ध नहीं है।"
+                            : "No order records are available yet."}
+                        </td>
+                      </tr>
+                    ) : (
+                      orders.slice(0, 5).map((order) => {
+                        const orderId = order._id || order.orderId;
+                        const customerName =
+                          order.user?.username ||
+                          order.shippingAddress?.fullName ||
+                          "Customer";
+                        const amount =
+                          order.totalAmount ?? order.total ?? 0;
+                        const status = order.status || "confirmed";
 
-                <div className="admin-placeholder-card">
-
-                  <span>
-                    PRODUCTS
-                  </span>
-
-                  <h3>
-                    API CONNECTED SOON
-                  </h3>
-
-                  <p>
-                    {language === "Hindi"
-                      ? "प्रोडक्ट मैनेजमेंट को backend admin API से जोड़ा जाएगा।"
-                      : "Product management will connect to the backend admin API."}
-                  </p>
-
-                </div>
-
-                <div className="admin-placeholder-card">
-
-                  <span>
-                    USERS
-                  </span>
-
-                  <h3>
-                    API CONNECTED SOON
-                  </h3>
-
-                  <p>
-                    {language === "Hindi"
-                      ? "यूज़र मैनेजमेंट backend admin endpoint मिलने के बाद जोड़ा जाएगा।"
-                      : "User management will connect after the exact admin endpoint is wired."}
-                  </p>
-
-                </div>
-
-                <div className="admin-placeholder-card">
-
-                  <span>
-                    ANALYTICS
-                  </span>
-
-                  <h3>
-                    READY
-                  </h3>
-
-                  <p>
-                    {language === "Hindi"
-                      ? "डैशबोर्ड का विजुअल analytics structure तैयार है।"
-                      : "The visual analytics structure is ready for real data."}
-                  </p>
-
-                </div>
-
+                        return (
+                          <tr key={orderId}>
+                            <td className="admin-order-id">
+                              #{orderId ? String(orderId).slice(-8) : "—"}
+                            </td>
+                            <td>{customerName}</td>
+                            <td>₹{amount}</td>
+                            <td>
+                              <span
+                                className={`admin-status ${status.toLowerCase()}`}
+                              >
+                                {status}
+                              </span>
+                            </td>
+                          </tr>
+                        );
+                      })
+                    )}
+                  </tbody>
+                </table>
               </div>
-
             </section>
-          </>
+
+            {/* QUICK ACTIONS */}
+            <section className="admin-panel">
+              <div className="admin-panel-header">
+                <h2>
+                  {language === "Hindi"
+                    ? "क्विक एक्शन्स"
+                    : "Quick Actions"}
+                </h2>
+              </div>
+
+              <div className="admin-actions">
+                <div
+                  className="admin-action"
+                  onClick={() => setActiveTab("orders")}
+                >
+                  <div className="admin-action-icon">📦</div>
+                  <div className="admin-action-copy">
+                    <strong>
+                      {language === "Hindi"
+                        ? "ऑर्डर मैनेज करें"
+                        : "Manage Orders"}
+                    </strong>
+                    <span>
+                      {language === "Hindi"
+                        ? `${orders.length} ऑर्डर्स देखें और स्टेटस बदलें`
+                        : `View all ${orders.length} orders & update status`}
+                    </span>
+                  </div>
+                </div>
+
+                <div
+                  className="admin-action"
+                  onClick={() => setActiveTab("products")}
+                >
+                  <div className="admin-action-icon">🛍️</div>
+                  <div className="admin-action-copy">
+                    <strong>
+                      {language === "Hindi"
+                        ? "प्रोडक्ट्स देखें"
+                        : "Manage Products"}
+                    </strong>
+                    <span>
+                      {language === "Hindi"
+                        ? `${products.length} प्रोडक्ट्स और स्टॉक कैटलॉग`
+                        : `Browse catalog of ${products.length} products`}
+                    </span>
+                  </div>
+                </div>
+
+                <div
+                  className="admin-action"
+                  onClick={() => setActiveTab("users")}
+                >
+                  <div className="admin-action-icon">👥</div>
+                  <div className="admin-action-copy">
+                    <strong>
+                      {language === "Hindi"
+                        ? "यूज़र्स देखें"
+                        : "Manage Users"}
+                    </strong>
+                    <span>
+                      {language === "Hindi"
+                        ? `${users.length} रजिस्टर्ड अकाउंट्स`
+                        : `View ${users.length} registered accounts`}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </section>
+          </div>
         )}
 
         {/* =========================
-            ORDERS TAB
+            TAB 2: ORDERS MANAGEMENT
         ========================= */}
-
         {activeTab === "orders" && (
           <section className="admin-panel">
-
             <div className="admin-panel-header">
-
               <h2>
                 {language === "Hindi"
                   ? "ऑर्डर मैनेजमेंट"
                   : "Order Management"}
               </h2>
-
-              <span>
-                BACKEND INTEGRATION PENDING
-              </span>
-
+              <span>{orders.length} TOTAL ORDERS</span>
             </div>
 
-            <div className="admin-placeholder-grid">
+            <div className="admin-table-wrap">
+              <table className="admin-table">
+                <thead>
+                  <tr>
+                    <th>ORDER ID</th>
+                    <th>CUSTOMER</th>
+                    <th>SHIPPING ADDRESS</th>
+                    <th>ITEMS</th>
+                    <th>TOTAL</th>
+                    <th>CURRENT STATUS</th>
+                    <th>UPDATE STATUS</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {orders.length === 0 ? (
+                    <tr>
+                      <td colSpan="7" className="admin-empty-row">
+                        {loading
+                          ? "Loading orders..."
+                          : "No orders found."}
+                      </td>
+                    </tr>
+                  ) : (
+                    orders.map((order) => {
+                      const orderId = order._id || order.orderId;
+                      const customerName =
+                        order.user?.username ||
+                        order.shippingAddress?.fullName ||
+                        "Customer";
+                      const customerEmail =
+                        order.user?.email || "";
+                      const addressStr = order.shippingAddress
+                        ? `${order.shippingAddress.address}, ${order.shippingAddress.city}`
+                        : "—";
+                      const currentStatus =
+                        order.status || "confirmed";
+                      const currentSelectValue =
+                        selectedStatuses[orderId] || currentStatus;
+                      const isUpdating =
+                        statusUpdatingId === orderId;
 
-              <div className="admin-placeholder-card">
-                <span>
-                  VIEW ORDERS
-                </span>
+                      return (
+                        <tr key={orderId}>
+                          <td className="admin-order-id">
+                            #{orderId ? String(orderId).slice(-8) : "—"}
+                          </td>
+                          <td>
+                            <strong>{customerName}</strong>
+                            {customerEmail && (
+                              <span
+                                style={{
+                                  display: "block",
+                                  color: "#8a7f74",
+                                  fontSize: "10px",
+                                }}
+                              >
+                                {customerEmail}
+                              </span>
+                            )}
+                          </td>
+                          <td style={{ maxWidth: "200px" }}>
+                            {addressStr}
+                          </td>
+                          <td>{(order.items || []).length} items</td>
+                          <td>
+                            <strong>
+                              ₹{order.totalAmount ?? order.total ?? 0}
+                            </strong>
+                          </td>
+                          <td>
+                            <span
+                              className={`admin-status ${currentStatus.toLowerCase()}`}
+                            >
+                              {currentStatus}
+                            </span>
+                          </td>
+                          <td>
+                            <div
+                              style={{
+                                display: "flex",
+                                alignItems: "center",
+                                gap: "6px",
+                              }}
+                            >
+                              <select
+                                value={currentSelectValue}
+                                onChange={(e) =>
+                                  setSelectedStatuses({
+                                    ...selectedStatuses,
+                                    [orderId]: e.target.value,
+                                  })
+                                }
+                                disabled={
+                                  isUpdating ||
+                                  currentStatus === "cancelled"
+                                }
+                                style={{
+                                  padding: "6px 8px",
+                                  border: "1px solid #d8cbbb",
+                                  background: "#fff",
+                                  fontSize: "11px",
+                                  color: "#211e1b",
+                                }}
+                              >
+                                <option value="pending">pending</option>
+                                <option value="confirmed">confirmed</option>
+                                <option value="shipped">shipped</option>
+                                <option value="delivered">delivered</option>
+                                <option value="cancelled">cancelled</option>
+                              </select>
 
-                <h3>
-                  READY
-                </h3>
-
-                <p>
-                  {language === "Hindi"
-                    ? "रीयल ऑर्डर्स API से कनेक्ट किया जाएगा।"
-                    : "Ready to connect with the admin orders API."}
-                </p>
-              </div>
-
-              <div className="admin-placeholder-card">
-                <span>
-                  UPDATE STATUS
-                </span>
-
-                <h3>
-                  READY
-                </h3>
-
-                <p>
-                  {language === "Hindi"
-                    ? "Confirmed से Delivered तक status controls जोड़े जाएंगे।"
-                    : "Status controls will be connected to the backend."}
-                </p>
-              </div>
-
-              <div className="admin-placeholder-card">
-                <span>
-                  CANCEL / ACTIONS
-                </span>
-
-                <h3>
-                  READY
-                </h3>
-
-                <p>
-                  {language === "Hindi"
-                    ? "Admin actions के लिए frontend structure तैयार है।"
-                    : "Frontend structure is ready for admin actions."}
-                </p>
-              </div>
-
+                              <button
+                                type="button"
+                                disabled={
+                                  isUpdating ||
+                                  currentSelectValue === currentStatus ||
+                                  currentStatus === "cancelled"
+                                }
+                                onClick={() => handleUpdateStatus(orderId)}
+                                style={{
+                                  border: "none",
+                                  background:
+                                    currentSelectValue === currentStatus
+                                      ? "#d8cbbb"
+                                      : "#211e1b",
+                                  color: "#fff",
+                                  padding: "6px 10px",
+                                  fontSize: "10px",
+                                  fontWeight: 700,
+                                  cursor:
+                                    currentSelectValue === currentStatus
+                                      ? "default"
+                                      : "pointer",
+                                }}
+                              >
+                                {isUpdating ? "..." : "SAVE"}
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      );
+                    })
+                  )}
+                </tbody>
+              </table>
             </div>
-
           </section>
         )}
 
         {/* =========================
-            PRODUCTS TAB
+            TAB 3: PRODUCTS CATALOG
         ========================= */}
-
         {activeTab === "products" && (
           <section className="admin-panel">
-
             <div className="admin-panel-header">
-
               <h2>
                 {language === "Hindi"
                   ? "प्रोडक्ट मैनेजमेंट"
                   : "Product Management"}
               </h2>
-
-              <span>
-                PRODUCT API
-              </span>
-
+              <span>{products.length} PRODUCTS</span>
             </div>
 
-            <div className="admin-placeholder-grid">
-
-              <div className="admin-placeholder-card">
-                <span>
-                  CATALOG
-                </span>
-
-                <h3>
-                  PRODUCTS
-                </h3>
-
-                <p>
-                  {language === "Hindi"
-                    ? "प्रोडक्ट लिस्ट को admin controls के साथ जोड़ा जा सकता है।"
-                    : "Product listing can be connected with admin controls."}
-                </p>
-              </div>
-
-              <div className="admin-placeholder-card">
-                <span>
-                  INVENTORY
-                </span>
-
-                <h3>
-                  STOCK
-                </h3>
-
-                <p>
-                  {language === "Hindi"
-                    ? "स्टॉक management के लिए backend support जोड़ा जाएगा।"
-                    : "Inventory controls can be connected to backend support."}
-                </p>
-              </div>
-
-              <div className="admin-placeholder-card">
-                <span>
-                  FILTERS
-                </span>
-
-                <h3>
-                  SEARCH + SORT
-                </h3>
-
-                <p>
-                  {language === "Hindi"
-                    ? "Admin product table में search और sorting जोड़ी जा सकती है।"
-                    : "Search and sorting can be added to the admin product table."}
-                </p>
-              </div>
-
+            <div className="admin-table-wrap">
+              <table className="admin-table">
+                <thead>
+                  <tr>
+                    <th>IMAGE</th>
+                    <th>PRODUCT NAME</th>
+                    <th>CATEGORY</th>
+                    <th>PRICE</th>
+                    <th>STOCK</th>
+                    <th>ACTION</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {products.length === 0 ? (
+                    <tr>
+                      <td colSpan="6" className="admin-empty-row">
+                        {loading
+                          ? "Loading products..."
+                          : "No products in database."}
+                      </td>
+                    </tr>
+                  ) : (
+                    products.slice(0, 25).map((product) => (
+                      <tr key={product._id || product.id}>
+                        <td>
+                          {product.image ? (
+                            <img
+                              src={product.image}
+                              alt={product.name}
+                              style={{
+                                width: "40px",
+                                height: "40px",
+                                objectFit: "cover",
+                                border: "1px solid #e8ded0",
+                              }}
+                            />
+                          ) : (
+                            <div
+                              style={{
+                                width: "40px",
+                                height: "40px",
+                                background: "#eee",
+                              }}
+                            />
+                          )}
+                        </td>
+                        <td>
+                          <strong>{product.name}</strong>
+                        </td>
+                        <td>
+                          <span
+                            style={{
+                              textTransform: "capitalize",
+                              color: "#8a6245",
+                            }}
+                          >
+                            {product.category}
+                          </span>
+                        </td>
+                        <td>₹{product.price}</td>
+                        <td>
+                          <span
+                            style={{
+                              color:
+                                product.stock > 10 ? "#211e1b" : "#b91c1c",
+                              fontWeight: product.stock <= 10 ? 700 : 400,
+                            }}
+                          >
+                            {product.stock} left
+                          </span>
+                        </td>
+                        <td>
+                          <button
+                            type="button"
+                            onClick={() =>
+                              handleDeleteProduct(
+                                product._id,
+                                product.name
+                              )
+                            }
+                            style={{
+                              border: "1px solid #e3a89e",
+                              background: "#fff",
+                              color: "#b91c1c",
+                              padding: "5px 10px",
+                              fontSize: "10px",
+                              fontWeight: 700,
+                              cursor: "pointer",
+                            }}
+                          >
+                            DELETE
+                          </button>
+                        </td>
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+              </table>
             </div>
-
+            {products.length > 25 && (
+              <div
+                style={{
+                  padding: "12px 20px",
+                  fontSize: "11px",
+                  color: "#8a7f74",
+                  textAlign: "center",
+                  borderTop: "1px solid #eee7de",
+                }}
+              >
+                Showing first 25 of {products.length} products.
+              </div>
+            )}
           </section>
         )}
 
         {/* =========================
-            USERS TAB
+            TAB 4: USERS MANAGEMENT
         ========================= */}
-
         {activeTab === "users" && (
           <section className="admin-panel">
-
             <div className="admin-panel-header">
-
               <h2>
                 {language === "Hindi"
                   ? "यूज़र मैनेजमेंट"
                   : "User Management"}
               </h2>
-
-              <span>
-                ADMIN API
-              </span>
-
+              <span>{users.length} REGISTERED USERS</span>
             </div>
 
-            <div className="admin-placeholder-grid">
-
-              <div className="admin-placeholder-card">
-                <span>
-                  CUSTOMERS
-                </span>
-
-                <h3>
-                  USER LIST
-                </h3>
-
-                <p>
-                  {language === "Hindi"
-                    ? "Backend के admin user endpoint से customer list लाएंगे।"
-                    : "Customer list will be loaded from the admin user endpoint."}
-                </p>
-              </div>
-
-              <div className="admin-placeholder-card">
-                <span>
-                  ROLES
-                </span>
-
-                <h3>
-                  USER / ADMIN
-                </h3>
-
-                <p>
-                  {language === "Hindi"
-                    ? "Role-based access frontend में पहले से मौजूद है।"
-                    : "Role-based access is already supported in the frontend."}
-                </p>
-              </div>
-
-              <div className="admin-placeholder-card">
-                <span>
-                  ACCOUNT ACTIONS
-                </span>
-
-                <h3>
-                  READY
-                </h3>
-
-                <p>
-                  {language === "Hindi"
-                    ? "Exact backend actions मिलने पर buttons connect होंगे।"
-                    : "Action buttons will be connected after exact backend routes are confirmed."}
-                </p>
-              </div>
-
+            <div className="admin-table-wrap">
+              <table className="admin-table">
+                <thead>
+                  <tr>
+                    <th>USER ID</th>
+                    <th>USERNAME</th>
+                    <th>EMAIL</th>
+                    <th>ROLE</th>
+                    <th>REGISTERED DATE</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {users.length === 0 ? (
+                    <tr>
+                      <td colSpan="5" className="admin-empty-row">
+                        {loading ? "Loading users..." : "No users found."}
+                      </td>
+                    </tr>
+                  ) : (
+                    users.map((u) => (
+                      <tr key={u._id}>
+                        <td className="admin-order-id">
+                          #{String(u._id).slice(-8)}
+                        </td>
+                        <td>
+                          <strong>{u.username}</strong>
+                        </td>
+                        <td>{u.email}</td>
+                        <td>
+                          <span
+                            style={{
+                              display: "inline-block",
+                              padding: "4px 8px",
+                              fontSize: "9px",
+                              fontWeight: 700,
+                              textTransform: "uppercase",
+                              letterSpacing: "0.5px",
+                              background:
+                                u.role === "admin" ? "#211e1b" : "#e8ded0",
+                              color:
+                                u.role === "admin" ? "#fffdf9" : "#4e4741",
+                            }}
+                          >
+                            {u.role || "user"}
+                          </span>
+                        </td>
+                        <td>
+                          {u.createdAt
+                            ? new Date(u.createdAt).toLocaleDateString()
+                            : "—"}
+                        </td>
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+              </table>
             </div>
-
           </section>
         )}
-
       </div>
-
     </main>
   );
 }

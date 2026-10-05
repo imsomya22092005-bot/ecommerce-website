@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { useLanguage } from "../LanguageContext";
+import API_URL from "../api";
 
 function NewArrivals() {
   const { language } = useLanguage();
@@ -12,7 +13,7 @@ function NewArrivals() {
     const fetchProducts = async () => {
       try {
         const response = await fetch(
-          "http://localhost:3000/api/products"
+          `${API_URL}/api/products?limit=12`
         );
 
         if (!response.ok) {
@@ -21,9 +22,8 @@ function NewArrivals() {
 
         const data = await response.json();
 
-        setProducts(
-          Array.isArray(data) ? data : []
-        );
+        const list = data.products || (Array.isArray(data) ? data : []);
+        setProducts(list);
       } catch (error) {
         console.error(
           "Failed to fetch products:",

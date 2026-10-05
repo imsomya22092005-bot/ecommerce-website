@@ -11,8 +11,6 @@ function Login() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const [role, setRole] = useState("user");
-
   const navigate = useNavigate();
   const { language } = useLanguage();
 
@@ -126,10 +124,9 @@ function Login() {
                 "application/json",
             },
             body: JSON.stringify({
-              name,
+              username: name,
               email,
               password,
-              role,
             }),
           }
         );
@@ -232,7 +229,9 @@ function Login() {
       // =========================
 
       let loggedInName =
+        data.user?.username ||
         data.user?.name ||
+        data.username ||
         data.name ||
         data.user?.fullName ||
         data.fullName ||
@@ -273,6 +272,8 @@ function Login() {
 
         if (profileResponse.ok) {
           loggedInName =
+            profileData.username ||
+            profileData.user?.username ||
             profileData.user?.name ||
             profileData.name ||
             profileData.user?.fullName ||
@@ -280,8 +281,8 @@ function Login() {
             loggedInName;
 
           loggedInRole =
-            profileData.user?.role ||
             profileData.role ||
+            profileData.user?.role ||
             loggedInRole;
         }
       } catch (profileError) {
@@ -301,10 +302,7 @@ function Login() {
       }
 
       if (!loggedInRole) {
-        loggedInRole =
-          isRegister
-            ? role
-            : "user";
+        loggedInRole = "user";
       }
 
       // =========================
@@ -447,7 +445,6 @@ function Login() {
               onClick={() => {
                 setIsRegister(true);
                 setError("");
-                setRole("user");
               }}
             >
               {language === "Hindi"
@@ -557,39 +554,6 @@ function Login() {
               </div>
             )}
 
-            {/* ROLE */}
-
-            {isRegister && (
-              <div className="form-group role-group">
-
-                <label>
-                  {language === "Hindi"
-                    ? "रोल"
-                    : "ROLE"}
-                </label>
-
-                <select
-                  name="role"
-                  value={role}
-                  onChange={(e) =>
-                    setRole(
-                      e.target.value
-                    )
-                  }
-                  required
-                >
-                  <option value="user">
-                    User
-                  </option>
-
-                  <option value="admin">
-                    Admin
-                  </option>
-                </select>
-
-              </div>
-            )}
-
             {/* FORGOT PASSWORD */}
 
             {!isRegister && (
@@ -672,10 +636,6 @@ function Login() {
                 );
 
                 setError("");
-
-                if (!isRegister) {
-                  setRole("user");
-                }
               }}
             >
               {isRegister

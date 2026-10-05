@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useSearchParams, Link } from "react-router-dom";
 
-const API_URL = "http://localhost:3000";
+import API_URL from "../api";
 
 function TrackOrder() {
   const [searchParams] = useSearchParams();
@@ -49,7 +49,7 @@ function TrackOrder() {
     e.preventDefault();
 
     const value =
-      orderId.trim();
+      orderId.trim().replace(/^#/, "");
 
     if (!value) return;
 
