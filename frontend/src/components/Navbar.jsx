@@ -4,15 +4,11 @@ import {
 } from "react-router-dom";
 
 import {
-  House,
-  Shirt,
-  Watch,
-  Footprints,
-  Sparkles,
-  Star,
-  Heart,
-  Info,
   LayoutDashboard,
+  UserRound,
+  ShoppingCart,
+  Menu,
+  X,
 } from "lucide-react";
 
 import {
@@ -22,6 +18,7 @@ import {
 
 import { useLanguage } from "../LanguageContext";
 import API_URL from "../api";
+import CategoryBar from "./CategoryBar";
 
 /* =========================================================
    TRANSLATIONS
@@ -31,12 +28,7 @@ const translations = {
   English: {
     home: "Home",
     shop: "Shop",
-    fashion: "Fashion",
-    accessories: "Accessories",
-    footwear: "Footwear",
     newArrivals: "New Arrivals",
-    bestSellers: "Best Sellers",
-    collections: "Collections",
     about: "About Us",
 
     search:
@@ -46,6 +38,7 @@ const translations = {
     login: "Login",
     logout: "Logout",
     hello: "Hello",
+
     more: "More",
 
     contact: "Contact Us",
@@ -53,6 +46,7 @@ const translations = {
     orders: "My Orders",
     trackOrder: "Track Order",
     profile: "My Profile",
+
     adminDashboard:
       "Admin Dashboard",
 
@@ -68,14 +62,8 @@ const translations = {
   Hindi: {
     home: "होम",
     shop: "शॉप",
-    fashion: "फैशन",
-    accessories: "एक्सेसरीज़",
-    footwear: "फुटवियर",
     newArrivals:
       "नए प्रोडक्ट्स",
-    bestSellers:
-      "बेस्ट सेलर्स",
-    collections: "कलेक्शंस",
     about: "हमारे बारे में",
 
     search:
@@ -85,6 +73,7 @@ const translations = {
     login: "लॉगिन",
     logout: "लॉगआउट",
     hello: "नमस्ते",
+
     more: "और",
 
     contact: "संपर्क करें",
@@ -93,6 +82,7 @@ const translations = {
     trackOrder:
       "ऑर्डर ट्रैक करें",
     profile: "मेरी प्रोफाइल",
+
     adminDashboard:
       "एडमिन डैशबोर्ड",
 
@@ -122,6 +112,10 @@ function Navbar() {
   const navigate =
     useNavigate();
 
+  /* =======================================================
+     STATES
+  ======================================================= */
+
   const [cartCount, setCartCount] =
     useState(0);
 
@@ -148,9 +142,9 @@ function Navbar() {
   const [moreOpen, setMoreOpen] =
     useState(false);
 
-  // =========================
-  // LOAD CART COUNT
-  // =========================
+  /* =======================================================
+     LOAD CART COUNT
+  ======================================================= */
 
   const loadCartCount =
     async () => {
@@ -159,7 +153,6 @@ function Navbar() {
           "authToken"
         );
 
-      // Guest has no backend cart
       if (!token) {
         setCartCount(0);
         return;
@@ -214,17 +207,16 @@ function Navbar() {
       }
     };
 
-  // =========================
-  // CART UPDATE LISTENER
-  // =========================
+  /* =======================================================
+     CART UPDATE LISTENER
+  ======================================================= */
 
   useEffect(() => {
     loadCartCount();
 
-    const updateCart =
-      () => {
-        loadCartCount();
-      };
+    const updateCart = () => {
+      loadCartCount();
+    };
 
     window.addEventListener(
       "cartUpdated",
@@ -239,9 +231,9 @@ function Navbar() {
     };
   }, [userName]);
 
-  // =========================
-  // USER UPDATE
-  // =========================
+  /* =======================================================
+     USER UPDATE LISTENER
+  ======================================================= */
 
   useEffect(() => {
     const updateUser = () => {
@@ -273,9 +265,9 @@ function Navbar() {
     };
   }, []);
 
-  // =========================
-  // SEARCH
-  // =========================
+  /* =======================================================
+     SEARCH
+  ======================================================= */
 
   const handleSearch = (e) => {
     e.preventDefault();
@@ -298,9 +290,9 @@ function Navbar() {
     setMoreOpen(false);
   };
 
-  // =========================
-  // LOGOUT
-  // =========================
+  /* =======================================================
+     LOGOUT
+  ======================================================= */
 
   const handleLogout = () => {
     localStorage.removeItem(
@@ -337,17 +329,17 @@ function Navbar() {
     navigate("/");
   };
 
-  // =========================
-  // CLOSE MOBILE MENU
-  // =========================
+  /* =======================================================
+     CLOSE MENU
+  ======================================================= */
 
   const closeMenu = () => {
     setMenuOpen(false);
   };
 
-  // =========================
-  // MORE
-  // =========================
+  /* =======================================================
+     MORE
+  ======================================================= */
 
   const handleMoreToggle =
     () => {
@@ -360,12 +352,16 @@ function Navbar() {
     setMoreOpen(false);
   };
 
-  // =========================
-  // ADMIN
-  // =========================
+  /* =======================================================
+     ADMIN
+  ======================================================= */
 
   const isAdmin =
     userRole === "admin";
+
+  /* =======================================================
+     UI
+  ======================================================= */
 
   return (
     <header className="shop-navbar">
@@ -437,9 +433,7 @@ function Navbar() {
         <Link
           to="/"
           className="shop-logo"
-          onClick={
-            closeMenu
-          }
+          onClick={closeMenu}
         >
           SHOPSPHERE
         </Link>
@@ -478,13 +472,18 @@ function Navbar() {
 
         <div className="shop-actions">
 
-          {/* LOGIN / ACCOUNT */}
+          {/* =================================================
+              LOGIN / ACCOUNT
+          ================================================= */}
 
           {userName ? (
             <div className="shop-account">
 
               <span className="account-icon">
-                ♙
+                <UserRound
+                  size={18}
+                  strokeWidth={1.6}
+                />
               </span>
 
               <span className="account-text">
@@ -510,7 +509,10 @@ function Navbar() {
             >
 
               <span className="account-icon">
-                ♙
+                <UserRound
+                  size={18}
+                  strokeWidth={1.6}
+                />
               </span>
 
               <span className="account-text">
@@ -520,7 +522,9 @@ function Navbar() {
             </Link>
           )}
 
-          {/* MORE */}
+          {/* =================================================
+              MORE
+          ================================================= */}
 
           <div className="more-wrapper">
 
@@ -621,7 +625,9 @@ function Navbar() {
 
           </div>
 
-          {/* CART */}
+          {/* =================================================
+              CART
+          ================================================= */}
 
           <Link
             to="/cart"
@@ -630,7 +636,10 @@ function Navbar() {
             title={t.cart}
           >
 
-            🛒
+            <ShoppingCart
+              size={21}
+              strokeWidth={1.7}
+            />
 
             {cartCount > 0 && (
               <span className="shop-cart-count">
@@ -644,7 +653,9 @@ function Navbar() {
 
           </Link>
 
-          {/* HAMBURGER */}
+          {/* =================================================
+              HAMBURGER
+          ================================================= */}
 
           <button
             className={`shop-hamburger ${
@@ -663,9 +674,11 @@ function Navbar() {
             type="button"
           >
 
-            <span></span>
-            <span></span>
-            <span></span>
+            {menuOpen ? (
+              <X size={22} />
+            ) : (
+              <Menu size={22} />
+            )}
 
           </button>
 
@@ -674,140 +687,10 @@ function Navbar() {
       </div>
 
       {/* =====================================================
-          CATEGORY BAR
+          DYNAMIC CATEGORY BAR
       ===================================================== */}
 
-      <div className="shop-categorybar">
-
-        <Link
-          to="/"
-          className="shop-category active-category"
-        >
-          <span className="category-icon">
-            <House
-              size={20}
-              strokeWidth={1.7}
-            />
-          </span>
-
-          <small>
-            {t.home}
-          </small>
-        </Link>
-
-        <Link
-          to="/products?category=Fashion"
-          className="shop-category"
-        >
-          <span className="category-icon">
-            <Shirt
-              size={20}
-              strokeWidth={1.7}
-            />
-          </span>
-
-          <small>
-            {t.fashion}
-          </small>
-        </Link>
-
-        <Link
-          to="/products?category=Accessories"
-          className="shop-category"
-        >
-          <span className="category-icon">
-            <Watch
-              size={20}
-              strokeWidth={1.7}
-            />
-          </span>
-
-          <small>
-            {t.accessories}
-          </small>
-        </Link>
-
-        <Link
-          to="/products?category=Footwear"
-          className="shop-category"
-        >
-          <span className="category-icon">
-            <Footprints
-              size={20}
-              strokeWidth={1.7}
-            />
-          </span>
-
-          <small>
-            {t.footwear}
-          </small>
-        </Link>
-
-        <Link
-          to="/new-arrivals"
-          className="shop-category"
-        >
-          <span className="category-icon">
-            <Sparkles
-              size={20}
-              strokeWidth={1.7}
-            />
-          </span>
-
-          <small>
-            {t.newArrivals}
-          </small>
-        </Link>
-
-        <Link
-          to="/products"
-          className="shop-category"
-        >
-          <span className="category-icon">
-            <Star
-              size={20}
-              strokeWidth={1.7}
-            />
-          </span>
-
-          <small>
-            {t.bestSellers}
-          </small>
-        </Link>
-
-        <Link
-          to="/products"
-          className="shop-category"
-        >
-          <span className="category-icon">
-            <Heart
-              size={20}
-              strokeWidth={1.7}
-            />
-          </span>
-
-          <small>
-            {t.collections}
-          </small>
-        </Link>
-
-        <Link
-          to="/about"
-          className="shop-category"
-        >
-          <span className="category-icon">
-            <Info
-              size={20}
-              strokeWidth={1.7}
-            />
-          </span>
-
-          <small>
-            {t.about}
-          </small>
-        </Link>
-
-      </div>
+      <CategoryBar />
 
       {/* =====================================================
           MOBILE MENU
@@ -831,27 +714,6 @@ function Navbar() {
           </Link>
 
           <Link
-            to="/products?category=Fashion"
-            onClick={closeMenu}
-          >
-            {t.fashion}
-          </Link>
-
-          <Link
-            to="/products?category=Accessories"
-            onClick={closeMenu}
-          >
-            {t.accessories}
-          </Link>
-
-          <Link
-            to="/products?category=Footwear"
-            onClick={closeMenu}
-          >
-            {t.footwear}
-          </Link>
-
-          <Link
             to="/new-arrivals"
             onClick={closeMenu}
           >
@@ -859,7 +721,7 @@ function Navbar() {
           </Link>
 
           <Link
-            to="/products"
+            to="/products?sort=price_desc"
             onClick={closeMenu}
           >
             {t.bestSellers}
@@ -941,7 +803,7 @@ function Navbar() {
               to="/login"
               onClick={closeMenu}
             >
-              ♙ {t.login}
+              👤 {t.login}
             </Link>
           )}
 
