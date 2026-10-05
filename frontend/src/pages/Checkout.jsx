@@ -1,7 +1,6 @@
 import { Link, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { useLanguage } from "../LanguageContext";
-
 import API_URL from "../api";
 
 function Checkout() {
@@ -15,7 +14,6 @@ function Checkout() {
 
   const [form, setForm] = useState({
     name: "",
-    email: "",
     phone: "",
     address: "",
     city: "",
@@ -24,141 +22,180 @@ function Checkout() {
   });
 
   // =========================
-  // GET PRODUCT ID
+  // TOKEN
   // =========================
 
-  const getProductId = (item) =>
-    item._id ||
-    item.id ||
-    item.product?._id ||
-    item.product?.id;
-
-  // =========================
-  // GET TOKEN
-  // =========================
-
-  const getToken = () =>
+  const token =
     localStorage.getItem("authToken");
 
   // =========================
-  // NORMALIZE BACKEND CART
+  // NORMALIZE CART
   // =========================
 
-  const normalizeBackendCart = (backendCart) => {
-    const items = backendCart?.items || [];
+  const normalizeBackendCart = (
+    backendCart
+  ) => {
+    const items =
+      backendCart?.items || [];
 
     return items
-      .filter((item) => item?.product)
+      .filter(
+        (item) => item?.product
+      )
       .map((item) => ({
-        _id: item.product._id,
-        id: item.product._id,
-        name: item.product.name || "",
-        price: Number(item.product.price) || 0,
+        _id:
+          item.product._id,
+        id:
+          item.product._id,
+        name:
+          item.product.name || "",
+        price:
+          Number(
+            item.product.price
+          ) || 0,
         image:
-          item.product.image ||
-          item.product.imageUrl ||
-          "",
-        category: item.product.category || "",
-        quantity: Number(item.quantity) || 1,
+          item.product.image || "",
+        category:
+          item.product.category || "",
+        quantity:
+          Number(item.quantity) || 1,
+        stock:
+          Number(
+            item.product.stock
+          ) || 0,
       }));
   };
+
+  // =========================
+  // LOAD USER PROFILE
+  // =========================
+
+  useEffect(() => {
+    const loadProfile = async () => {
+      if (!token) {
+        return;
+      }
+
+      try {
+        const response =
+          await fetch(
+            `${API_URL}/api/auth/profile`,
+            {
+              headers: {
+                Authorization:
+                  `Bearer ${token}`,
+              },
+            }
+          );
+
+        const data =
+          await response.json();
+
+        if (response.ok) {
+          const profile =
+            data?.user || data;
+
+          setForm((current) => ({
+            ...current,
+            name:
+              profile?.username ||
+              "",
+          }));
+        }
+      } catch (err) {
+        console.error(
+          "Profile loading error:",
+          err
+        );
+      }
+    };
+
+    loadProfile();
+  }, [token]);
 
   // =========================
   // LOAD CART
   // =========================
 
   useEffect(() => {
-    const loadCart = async () => {
-      const token = getToken();
-
-      // =========================
-      // USER NOT LOGGED IN
-      // =========================
-
-      if (!token) {
-        const savedCart =
-          JSON.parse(
-            localStorage.getItem("cart")
-          ) || [];
-
-        setCart(savedCart);
-        setLoading(false);
-        return;
-      }
-
-      // =========================
-      // LOGGED-IN USER
-      // =========================
-
-      try {
-        setLoading(true);
-        setError("");
-
-        const response = await fetch(
-          `${API_URL}/api/cart`,
-          {
-            method: "GET",
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
-
-        const data =
-          await response.json();
-
-        if (!response.ok) {
-          throw new Error(
-            data.message ||
-              "Could not load cart"
-          );
+    const loadCart =
+      async () => {
+        if (!token) {
+          setLoading(false);
+          return;
         }
 
-        const backendCart =
-          normalizeBackendCart(data);
+        try {
+          setLoading(true);
+          setError("");
 
-        setCart(backendCart);
+          const response =
+            await fetch(
+              `${API_URL}/api/cart`,
+              {
+                method: "GET",
+                headers: {
+                  Authorization:
+                    `Bearer ${token}`,
+                },
+              }
+            );
 
-        localStorage.setItem(
-          "cart",
-          JSON.stringify(backendCart)
-        );
-      } catch (err) {
-        console.error(
-          "Checkout cart error:",
-          err
-        );
+          const data =
+            await response.json();
 
-        // Fallback to local cart
-        const savedCart =
-          JSON.parse(
-            localStorage.getItem("cart")
-          ) || [];
+          if (!response.ok) {
+            throw new Error(
+              data.message ||
+                (language ===
+                "Hindi"
+                  ? "कार्ट लोड नहीं हो पाया।"
+                  : "Could not load cart.")
+            );
+          }
 
-        setCart(savedCart);
+          setCart(
+            normalizeBackendCart(
+              data
+            )
+          );
+        } catch (err) {
+          console.error(
+            "Checkout cart error:",
+            err
+          );
 
-        setError(
-          language === "Hindi"
-            ? "कार्ट लोड नहीं हो पाया।"
-            : "Could not load cart."
-        );
-      } finally {
-        setLoading(false);
-      }
-    };
+          setCart([]);
+
+          setError(
+            err.message ||
+              (language ===
+              "Hindi"
+                ? "कार्ट लोड नहीं हो पाया।"
+                : "Could not load cart.")
+          );
+        } finally {
+          setLoading(false);
+        }
+      };
 
     loadCart();
-  }, []);
+  }, [token, language]);
 
   // =========================
   // FORM CHANGE
   // =========================
 
   const handleChange = (e) => {
-    setForm({
-      ...form,
-      [e.target.name]: e.target.value,
-    });
+    const {
+      name,
+      value,
+    } = e.target;
+
+    setForm((current) => ({
+      ...current,
+      [name]: value,
+    }));
 
     setError("");
   };
@@ -167,209 +204,202 @@ function Checkout() {
   // SUBTOTAL
   // =========================
 
-  const subtotal = cart.reduce(
-    (total, item) =>
-      total +
-      Number(item.price) *
-        Number(item.quantity),
-    0
-  );
+  const subtotal =
+    cart.reduce(
+      (total, item) =>
+        total +
+        Number(item.price) *
+          Number(item.quantity),
+      0
+    );
 
-  // =========================
-  // SHIPPING
-  // =========================
+  // Backend currently calculates
+  // the order total as:
+  // product price × quantity
 
-  const shipping =
-    subtotal >= 999 ? 0 : 99;
-
-  // =========================
-  // TOTAL
-  // =========================
-
-  const total =
-    subtotal + shipping;
+  const total = subtotal;
 
   // =========================
   // PLACE ORDER
   // =========================
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const handleSubmit =
+    async (e) => {
+      e.preventDefault();
 
-    const token = getToken();
+      setError("");
 
-    setError("");
+      // =========================
+      // LOGIN
+      // =========================
 
-    // =========================
-    // LOGIN REQUIRED
-    // =========================
-
-    if (!token) {
-      alert(
-        language === "Hindi"
-          ? "ऑर्डर करने से पहले लॉगिन करें।"
-          : "Please login before placing an order."
-      );
-
-      navigate("/login");
-      return;
-    }
-
-    // =========================
-    // CHECK CART
-    // =========================
-
-    if (cart.length === 0) {
-      setError(
-        language === "Hindi"
-          ? "आपका कार्ट खाली है।"
-          : "Your cart is empty."
-      );
-
-      return;
-    }
-
-    // =========================
-    // BACKEND REQUEST
-    // =========================
-
-    try {
-      setPlacingOrder(true);
-
-      const response = await fetch(
-        `${API_URL}/api/orders`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type":
-              "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify({
-            fullName: form.name,
-            address: form.address,
-            city: form.city,
-            state: form.state,
-            pincode: form.pincode,
-            phone: form.phone,
-          }),
-        }
-      );
-
-      const data =
-        await response.json();
-
-      if (!response.ok) {
-        throw new Error(
-          data.message ||
-            "Could not place order"
+      if (!token) {
+        alert(
+          language === "Hindi"
+            ? "ऑर्डर करने से पहले लॉगिन करें।"
+            : "Please log in before placing an order."
         );
+
+        navigate("/login");
+        return;
       }
 
       // =========================
-      // SAVE ORDER FOR SUCCESS PAGE
+      // EMPTY CART
       // =========================
 
-      const backendOrder =
-        data.order;
+      if (cart.length === 0) {
+        setError(
+          language === "Hindi"
+            ? "आपका कार्ट खाली है।"
+            : "Your cart is empty."
+        );
 
-      const orderForFrontend = {
-        orderId:
-          backendOrder?._id ||
-          `SS${Date.now()}`,
-
-        customer: form,
-
-        items:
-          backendOrder?.items || cart,
-
-        total:
-          Number(
-            backendOrder?.totalAmount
-          ) || subtotal,
-
-        shipping,
-
-        finalTotal:
-          (Number(
-            backendOrder?.totalAmount
-          ) || subtotal) +
-          shipping,
-
-        date:
-          backendOrder?.createdAt
-            ? new Date(
-                backendOrder.createdAt
-              ).toLocaleDateString()
-            : new Date().toLocaleDateString(),
-
-        status:
-          backendOrder?.status ||
-          "confirmed",
-      };
+        return;
+      }
 
       // =========================
-      // SAVE LATEST ORDER
+      // PLACE ORDER
       // =========================
 
-      localStorage.setItem(
-        "lastOrder",
-        JSON.stringify(
-          orderForFrontend
-        )
-      );
+      try {
+        setPlacingOrder(true);
 
-      // =========================
-      // SAVE ORDER HISTORY LOCALLY
-      // =========================
+        const response =
+          await fetch(
+            `${API_URL}/api/orders`,
+            {
+              method: "POST",
+              headers: {
+                "Content-Type":
+                  "application/json",
+                Authorization:
+                  `Bearer ${token}`,
+              },
+              body: JSON.stringify({
+                fullName:
+                  form.name.trim(),
+                address:
+                  form.address.trim(),
+                city:
+                  form.city.trim(),
+                state:
+                  form.state.trim(),
+                pincode:
+                  form.pincode.trim(),
+                phone:
+                  form.phone.trim(),
+              }),
+            }
+          );
 
-      const existingOrders =
-        JSON.parse(
-          localStorage.getItem("orders")
-        ) || [];
+        const data =
+          await response.json();
 
-      existingOrders.unshift(
-        orderForFrontend
-      );
+        if (!response.ok) {
+          throw new Error(
+            data.message ||
+              (language ===
+              "Hindi"
+                ? "ऑर्डर प्लेस नहीं हो पाया।"
+                : "Could not place order.")
+          );
+        }
 
-      localStorage.setItem(
-        "orders",
-        JSON.stringify(
-          existingOrders
-        )
-      );
+        const backendOrder =
+          data?.order;
 
-      // =========================
-      // CLEAR LOCAL CART
-      // =========================
+        if (!backendOrder) {
+          throw new Error(
+            language === "Hindi"
+              ? "ऑर्डर की जानकारी प्राप्त नहीं हुई।"
+              : "Order information was not returned."
+          );
+        }
 
-      localStorage.removeItem("cart");
+        // =========================
+        // SAVE ONLY LATEST BACKEND ORDER
+        // FOR ORDER SUCCESS PAGE
+        // =========================
 
-      window.dispatchEvent(
-        new Event("cartUpdated")
-      );
+        localStorage.setItem(
+          "lastOrder",
+          JSON.stringify(
+            backendOrder
+          )
+        );
 
-      // =========================
-      // GO TO SUCCESS
-      // =========================
+        // Backend automatically:
+        // 1. creates order
+        // 2. calculates total
+        // 3. decreases stock
+        // 4. clears backend cart
 
-      navigate("/order-success");
-    } catch (err) {
-      console.error(
-        "Place order error:",
-        err
-      );
+        setCart([]);
 
-      setError(
-        err.message ||
-          (language === "Hindi"
-            ? "ऑर्डर प्लेस नहीं हो पाया।"
-            : "Could not place order.")
-      );
-    } finally {
-      setPlacingOrder(false);
-    }
-  };
+        window.dispatchEvent(
+          new Event("cartUpdated")
+        );
+
+        navigate(
+          "/order-success"
+        );
+      } catch (err) {
+        console.error(
+          "Place order error:",
+          err
+        );
+
+        setError(
+          err.message ||
+            (language ===
+            "Hindi"
+              ? "ऑर्डर प्लेस नहीं हो पाया।"
+              : "Could not place order.")
+        );
+      } finally {
+        setPlacingOrder(false);
+      }
+    };
+
+  // =========================
+  // LOGIN REQUIRED
+  // =========================
+
+  if (!token) {
+    return (
+      <main className="empty-cart">
+
+        <p className="section-label">
+          {language === "Hindi"
+            ? "चेकआउट"
+            : "CHECKOUT"}
+        </p>
+
+        <h1>
+          {language === "Hindi"
+            ? "लॉगिन आवश्यक है"
+            : "Login Required"}
+        </h1>
+
+        <p>
+          {language === "Hindi"
+            ? "चेकआउट करने के लिए पहले अपने अकाउंट में लॉगिन करें।"
+            : "Please log in to your account before checkout."}
+        </p>
+
+        <Link
+          to="/login"
+          className="continue-shopping"
+        >
+          {language === "Hindi"
+            ? "लॉगिन करें"
+            : "LOGIN"}
+        </Link>
+
+      </main>
+    );
+  }
 
   // =========================
   // LOADING
@@ -378,6 +408,7 @@ function Checkout() {
   if (loading) {
     return (
       <main className="empty-cart">
+
         <p className="section-label">
           {language === "Hindi"
             ? "चेकआउट"
@@ -389,6 +420,7 @@ function Checkout() {
             ? "चेकआउट लोड हो रहा है..."
             : "Loading Checkout..."}
         </h1>
+
       </main>
     );
   }
@@ -397,9 +429,13 @@ function Checkout() {
   // EMPTY CART
   // =========================
 
-  if (cart.length === 0) {
+  if (
+    cart.length === 0 &&
+    !error
+  ) {
     return (
       <main className="empty-cart">
+
         <p className="section-label">
           {language === "Hindi"
             ? "चेकआउट"
@@ -426,22 +462,20 @@ function Checkout() {
             ? "शॉपिंग जारी रखें"
             : "CONTINUE SHOPPING"}
         </Link>
+
       </main>
     );
   }
-
-  // =========================
-  // MAIN CHECKOUT
-  // =========================
 
   return (
     <main className="checkout-page">
 
       {/* =========================
-          CHECKOUT HEADER
+          HEADER
       ========================= */}
 
       <div className="checkout-header">
+
         <p className="section-label">
           {language === "Hindi"
             ? "SHOPSPHERE चेकआउट"
@@ -459,6 +493,7 @@ function Checkout() {
             {error}
           </p>
         )}
+
       </div>
 
       <div className="checkout-layout">
@@ -474,15 +509,16 @@ function Checkout() {
 
           <h2>
             {language === "Hindi"
-              ? "शिपिंग की जानकारी"
-              : "Shipping Information"}
+              ? "डिलीवरी की जानकारी"
+              : "Delivery Information"}
           </h2>
 
           <div className="checkout-fields">
 
-            {/* FULL NAME */}
+            {/* NAME */}
 
             <div className="form-group">
+
               <label>
                 {language === "Hindi"
                   ? "पूरा नाम"
@@ -492,42 +528,24 @@ function Checkout() {
               <input
                 name="name"
                 value={form.name}
-                onChange={handleChange}
+                onChange={
+                  handleChange
+                }
                 placeholder={
-                  language === "Hindi"
+                  language ===
+                  "Hindi"
                     ? "अपना पूरा नाम दर्ज करें"
                     : "Enter your full name"
                 }
                 required
               />
-            </div>
 
-            {/* EMAIL */}
-
-            <div className="form-group">
-              <label>
-                {language === "Hindi"
-                  ? "ईमेल पता"
-                  : "EMAIL ADDRESS"}
-              </label>
-
-              <input
-                type="email"
-                name="email"
-                value={form.email}
-                onChange={handleChange}
-                placeholder={
-                  language === "Hindi"
-                    ? "अपना ईमेल दर्ज करें"
-                    : "Enter your email"
-                }
-                required
-              />
             </div>
 
             {/* PHONE */}
 
             <div className="form-group">
+
               <label>
                 {language === "Hindi"
                   ? "फोन नंबर"
@@ -538,21 +556,26 @@ function Checkout() {
                 type="tel"
                 name="phone"
                 value={form.phone}
-                onChange={handleChange}
+                onChange={
+                  handleChange
+                }
                 placeholder={
-                  language === "Hindi"
-                    ? "अपना फोन नंबर दर्ज करें"
-                    : "Enter your phone number"
+                  language ===
+                  "Hindi"
+                    ? "10 अंकों का फोन नंबर"
+                    : "10-digit phone number"
                 }
                 pattern="[0-9]{10}"
                 maxLength="10"
                 required
               />
+
             </div>
 
             {/* PINCODE */}
 
             <div className="form-group">
+
               <label>
                 {language === "Hindi"
                   ? "पिनकोड"
@@ -561,45 +584,59 @@ function Checkout() {
 
               <input
                 name="pincode"
-                value={form.pincode}
-                onChange={handleChange}
+                value={
+                  form.pincode
+                }
+                onChange={
+                  handleChange
+                }
                 placeholder={
-                  language === "Hindi"
-                    ? "पिनकोड दर्ज करें"
-                    : "Enter pincode"
+                  language ===
+                  "Hindi"
+                    ? "6 अंकों का पिनकोड"
+                    : "6-digit pincode"
                 }
                 pattern="[0-9]{6}"
                 maxLength="6"
                 required
               />
+
             </div>
 
             {/* ADDRESS */}
 
             <div className="form-group full-width">
+
               <label>
                 {language === "Hindi"
-                  ? "पता"
+                  ? "पूरा पता"
                   : "ADDRESS"}
               </label>
 
               <textarea
                 name="address"
-                value={form.address}
-                onChange={handleChange}
+                value={
+                  form.address
+                }
+                onChange={
+                  handleChange
+                }
                 placeholder={
-                  language === "Hindi"
+                  language ===
+                  "Hindi"
                     ? "मकान नंबर, गली, क्षेत्र"
                     : "House no., street, locality"
                 }
                 rows="4"
                 required
               />
+
             </div>
 
             {/* CITY */}
 
             <div className="form-group">
+
               <label>
                 {language === "Hindi"
                   ? "शहर"
@@ -609,19 +646,24 @@ function Checkout() {
               <input
                 name="city"
                 value={form.city}
-                onChange={handleChange}
+                onChange={
+                  handleChange
+                }
                 placeholder={
-                  language === "Hindi"
+                  language ===
+                  "Hindi"
                     ? "शहर दर्ज करें"
                     : "Enter city"
                 }
                 required
               />
+
             </div>
 
             {/* STATE */}
 
             <div className="form-group">
+
               <label>
                 {language === "Hindi"
                   ? "राज्य"
@@ -631,48 +673,48 @@ function Checkout() {
               <input
                 name="state"
                 value={form.state}
-                onChange={handleChange}
+                onChange={
+                  handleChange
+                }
                 placeholder={
-                  language === "Hindi"
+                  language ===
+                  "Hindi"
                     ? "राज्य दर्ज करें"
                     : "Enter state"
                 }
                 required
               />
+
             </div>
 
           </div>
 
           {/* =========================
-              PAYMENT
+              ORDER INFORMATION
           ========================= */}
 
           <h2 className="payment-title">
             {language === "Hindi"
-              ? "भुगतान का तरीका"
-              : "Payment Method"}
+              ? "ऑर्डर जानकारी"
+              : "Order Information"}
           </h2>
 
           <div className="payment-option">
 
-            <input
-              type="radio"
-              checked
-              readOnly
-            />
-
             <div>
+
               <strong>
                 {language === "Hindi"
-                  ? "कैश ऑन डिलीवरी"
-                  : "Cash on Delivery"}
+                  ? "ऑर्डर प्लेस करने के लिए तैयार"
+                  : "Ready to place your order"}
               </strong>
 
               <span>
                 {language === "Hindi"
-                  ? "ऑर्डर आने पर भुगतान करें"
-                  : "Pay when your order arrives"}
+                  ? "आपकी डिलीवरी जानकारी सुरक्षित रूप से ऑर्डर के साथ भेजी जाएगी।"
+                  : "Your delivery information will be submitted securely with the order."}
               </span>
+
             </div>
 
           </div>
@@ -684,13 +726,17 @@ function Checkout() {
           <button
             className="place-order-btn"
             type="submit"
-            disabled={placingOrder}
+            disabled={
+              placingOrder
+            }
           >
             {placingOrder
-              ? language === "Hindi"
+              ? language ===
+                "Hindi"
                 ? "ऑर्डर प्लेस हो रहा है..."
                 : "PLACING ORDER..."
-              : language === "Hindi"
+              : language ===
+                "Hindi"
               ? "ऑर्डर करें"
               : "PLACE ORDER"}
           </button>
@@ -709,41 +755,63 @@ function Checkout() {
               : "Order Summary"}
           </h2>
 
-          {cart.map((item) => {
-            const productId =
-              getProductId(item);
+          {cart.map((item) => (
+            <div
+              className="checkout-product"
+              key={item._id}
+            >
 
-            return (
-              <div
-                className="checkout-product"
-                key={productId}
-              >
-
+              {item.image ? (
                 <img
                   src={item.image}
                   alt={item.name}
                 />
-
-                <div>
-                  <strong>
-                    {item.name}
-                  </strong>
-
-                  <span>
-                    {item.quantity} × ₹
-                    {item.price}
-                  </span>
+              ) : (
+                <div
+                  style={{
+                    width: "60px",
+                    height: "70px",
+                    display: "flex",
+                    alignItems:
+                      "center",
+                    justifyContent:
+                      "center",
+                    background:
+                      "#eee5da",
+                    color:
+                      "#8a6245",
+                  }}
+                >
+                  🛍️
                 </div>
+              )}
+
+              <div>
+
+                <strong>
+                  {item.name}
+                </strong>
+
+                <span>
+                  {item.quantity} × ₹
+                  {Number(
+                    item.price
+                  ).toLocaleString(
+                    "en-IN"
+                  )}
+                </span>
 
               </div>
-            );
-          })}
+
+            </div>
+          ))}
 
           <div className="summary-line"></div>
 
           {/* SUBTOTAL */}
 
           <div className="summary-row">
+
             <span>
               {language === "Hindi"
                 ? "सबटोटल"
@@ -751,31 +819,18 @@ function Checkout() {
             </span>
 
             <span>
-              ₹{subtotal}
-            </span>
-          </div>
-
-          {/* SHIPPING */}
-
-          <div className="summary-row">
-            <span>
-              {language === "Hindi"
-                ? "शिपिंग"
-                : "Shipping"}
+              ₹
+              {subtotal.toLocaleString(
+                "en-IN"
+              )}
             </span>
 
-            <span>
-              {shipping === 0
-                ? language === "Hindi"
-                  ? "फ्री"
-                  : "FREE"
-                : `₹${shipping}`}
-            </span>
           </div>
 
           {/* TOTAL */}
 
           <div className="summary-total">
+
             <span>
               {language === "Hindi"
                 ? "कुल"
@@ -783,13 +838,18 @@ function Checkout() {
             </span>
 
             <strong>
-              ₹{total}
+              ₹
+              {total.toLocaleString(
+                "en-IN"
+              )}
             </strong>
+
           </div>
 
         </aside>
 
       </div>
+
     </main>
   );
 }

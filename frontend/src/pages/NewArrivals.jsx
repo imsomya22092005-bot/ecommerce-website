@@ -1,49 +1,109 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { useLanguage } from "../LanguageContext";
+import API_URL from "../api";
 
 function NewArrivals() {
   const { language } = useLanguage();
 
-  const [products, setProducts] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [products, setProducts] =
+    useState([]);
+
+  const [loading, setLoading] =
+    useState(true);
+
+  const [error, setError] =
+    useState("");
+
+  // =========================
+  // FETCH PRODUCTS
+  // =========================
 
   useEffect(() => {
-    const fetchProducts = async () => {
-      try {
-        const response = await fetch(
-          "http://localhost:3000/api/products"
-        );
+    const fetchNewArrivals =
+      async () => {
+        try {
+          setLoading(true);
+          setError("");
 
-        if (!response.ok) {
-          throw new Error("Failed to fetch products");
+          // Backend supports limit.
+          // createdAt is available because
+          // Product model uses timestamps.
+          const response =
+            await fetch(
+              `${API_URL}/api/products?limit=1000`
+            );
+
+          const data =
+            await response.json();
+
+          if (!response.ok) {
+            throw new Error(
+              data.message ||
+                (language === "Hindi"
+                  ? "प्रोडक्ट्स लोड नहीं हो सके।"
+                  : "Unable to load products.")
+            );
+          }
+
+          const productList =
+            Array.isArray(data)
+              ? data
+              : data.products || [];
+
+          // =========================
+          // SORT NEWEST FIRST
+          // =========================
+
+          const sortedProducts =
+            [...productList].sort(
+              (a, b) => {
+                const dateA =
+                  new Date(
+                    a.createdAt || 0
+                  ).getTime();
+
+                const dateB =
+                  new Date(
+                    b.createdAt || 0
+                  ).getTime();
+
+                return (
+                  dateB - dateA
+                );
+              }
+            );
+
+          setProducts(
+            sortedProducts
+          );
+        } catch (err) {
+          console.error(
+            "Failed to fetch new arrivals:",
+            err
+          );
+
+          setProducts([]);
+
+          setError(
+            err.message ||
+              (language === "Hindi"
+                ? "प्रोडक्ट्स लोड नहीं हो सके।"
+                : "Unable to load products.")
+          );
+        } finally {
+          setLoading(false);
         }
+      };
 
-        const data = await response.json();
-
-        setProducts(
-          Array.isArray(data) ? data : []
-        );
-      } catch (error) {
-        console.error(
-          "Failed to fetch products:",
-          error
-        );
-
-        setProducts([]);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchProducts();
-  }, []);
+    fetchNewArrivals();
+  }, [language]);
 
   return (
     <main className="new-arrivals-page">
 
       {/* =========================
-          PAGE HEADER
+          HEADER
       ========================= */}
 
       <section className="new-arrivals-page-header">
@@ -52,52 +112,50 @@ function NewArrivals() {
 
         <p className="new-arrivals-label">
           {language === "Hindi"
-            ? "अभी-अभी आया"
-            : "JUST DROPPED"}
+            ? "नवीनतम प्रोडक्ट्स"
+            : "LATEST PRODUCTS"}
         </p>
 
         <h1>
           {language === "Hindi"
-            ? "नए प्रोडक्ट्स"
+            ? "New Arrivals"
             : "New Arrivals"}
         </h1>
 
         <p className="new-arrivals-subtitle">
           {language === "Hindi"
-            ? "हमारी नवीनतम कलेक्शन को एक्सप्लोर करें।"
-            : "Explore the latest pieces added to the ShopSphere collection."}
+            ? "ShopSphere में हाल ही में जोड़े गए प्रोडक्ट्स देखें।"
+            : "Explore the products most recently added to ShopSphere."}
         </p>
 
         <div className="new-arrivals-header-meta">
+
           <span>
             {language === "Hindi"
-              ? "नई कलेक्शन · 2026"
-              : "NEW COLLECTION · 2026"}
+              ? "नवीनतम कलेक्शन"
+              : "LATEST COLLECTION"}
           </span>
 
           <span>
-            {products.length > 0
-              ? `${products.length} ${
-                  language === "Hindi"
-                    ? "प्रोडक्ट्स"
-                    : "PRODUCTS"
-                }`
-              : language === "Hindi"
-              ? "COMING SOON"
-              : "COMING SOON"}
+            {products.length}{" "}
+            {language === "Hindi"
+              ? "प्रोडक्ट्स"
+              : "PRODUCTS"}
           </span>
+
         </div>
 
       </section>
 
-
       {/* =========================
-          PRODUCTS CONTENT
+          CONTENT
       ========================= */}
 
       <section className="new-arrivals-page-content">
 
-        {/* LOADING */}
+        {/* =========================
+            LOADING
+        ========================= */}
 
         {loading && (
           <div className="new-arrivals-loading">
@@ -106,43 +164,38 @@ function NewArrivals() {
 
             <p>
               {language === "Hindi"
-                ? "नई कलेक्शन लोड हो रही है..."
-                : "Loading the latest collection..."}
+                ? "नवीनतम प्रोडक्ट्स लोड हो रहे हैं..."
+                : "Loading the latest products..."}
             </p>
 
           </div>
         )}
 
+        {/* =========================
+            ERROR
+        ========================= */}
 
-        {/* EMPTY STATE */}
-
-        {!loading && products.length === 0 && (
+        {!loading && error && (
           <div className="new-arrivals-empty">
 
             <div className="empty-arrivals-shape">
-
-              <span>✦</span>
-              <span>✦</span>
-              <span>✦</span>
-
+              <span>!</span>
             </div>
 
             <p className="empty-arrivals-label">
               {language === "Hindi"
-                ? "COMING SOON"
-                : "COMING SOON"}
+                ? "ERROR"
+                : "ERROR"}
             </p>
 
             <h2>
               {language === "Hindi"
-                ? "नए प्रोडक्ट्स जल्द आ रहे हैं"
-                : "New arrivals are coming soon"}
+                ? "प्रोडक्ट्स लोड नहीं हो सके"
+                : "Could not load products"}
             </h2>
 
             <p>
-              {language === "Hindi"
-                ? "हमारी नई कलेक्शन तैयार हो रही है। कृपया जल्द दोबारा देखें।"
-                : "We're preparing something new for you. Please check back soon for the latest products."}
+              {error}
             </p>
 
             <Link
@@ -150,93 +203,198 @@ function NewArrivals() {
               className="new-arrivals-empty-btn"
             >
               {language === "Hindi"
-                ? "कलेक्शन एक्सप्लोर करें →"
-                : "EXPLORE COLLECTION →"}
+                ? "सभी प्रोडक्ट्स देखें →"
+                : "VIEW ALL PRODUCTS →"}
             </Link>
 
           </div>
         )}
 
+        {/* =========================
+            EMPTY
+        ========================= */}
 
-        {/* PRODUCTS */}
+        {!loading &&
+          !error &&
+          products.length === 0 && (
+            <div className="new-arrivals-empty">
 
-        {!loading && products.length > 0 && (
-          <div className="new-arrivals-page-grid">
+              <div className="empty-arrivals-shape">
 
-            {products.map((product, index) => {
+                <span>✦</span>
+                <span>✦</span>
+                <span>✦</span>
 
-              const productId =
-                product._id || product.id;
+              </div>
 
-              return (
-                <Link
-                  key={productId}
-                  to={`/product/${productId}`}
-                  className="new-arrival-product-card"
-                >
+              <p className="empty-arrivals-label">
+                {language === "Hindi"
+                  ? "NO PRODUCTS"
+                  : "NO PRODUCTS"}
+              </p>
 
-                  {/* IMAGE */}
+              <h2>
+                {language === "Hindi"
+                  ? "अभी कोई प्रोडक्ट उपलब्ध नहीं है"
+                  : "No products available"}
+              </h2>
 
-                  <div className="new-arrival-product-image">
+              <p>
+                {language === "Hindi"
+                  ? "फिलहाल दिखाने के लिए कोई प्रोडक्ट नहीं है।"
+                  : "There are currently no products to display."}
+              </p>
 
-                    <img
-                      src={product.image}
-                      alt={product.name}
-                    />
+              <Link
+                to="/products"
+                className="new-arrivals-empty-btn"
+              >
+                {language === "Hindi"
+                  ? "कलेक्शन देखें →"
+                  : "EXPLORE COLLECTION →"}
+              </Link>
 
-                    <span className="new-arrival-product-number">
-                      {String(index + 1).padStart(2, "0")}
-                    </span>
+            </div>
+          )}
 
-                    <span className="new-arrival-product-tag">
-                      {language === "Hindi"
-                        ? "नया"
-                        : "NEW"}
-                    </span>
+        {/* =========================
+            PRODUCTS
+        ========================= */}
 
-                  </div>
+        {!loading &&
+          !error &&
+          products.length > 0 && (
+            <div className="new-arrivals-page-grid">
 
+              {products.map(
+                (product, index) => {
+                  const productId =
+                    product._id ||
+                    product.id;
 
-                  {/* INFO */}
+                  return (
+                    <Link
+                      key={
+                        productId
+                      }
+                      to={`/product/${productId}`}
+                      className="new-arrival-product-card"
+                    >
 
-                  <div className="new-arrival-product-info">
+                      {/* IMAGE */}
 
-                    <div className="new-arrival-product-copy">
+                      <div className="new-arrival-product-image">
 
-                      <p>
-                        {product.category ||
-                          "SHOPSPHERE"}
-                      </p>
+                        {product.image ? (
+                          <img
+                            src={
+                              product.image
+                            }
+                            alt={
+                              product.name
+                            }
+                            loading="lazy"
+                          />
+                        ) : (
+                          <div
+                            style={{
+                              width:
+                                "100%",
+                              height:
+                                "100%",
+                              minHeight:
+                                "260px",
+                              display:
+                                "flex",
+                              alignItems:
+                                "center",
+                              justifyContent:
+                                "center",
+                              background:
+                                "#e8ded0",
+                              color:
+                                "#8a6245",
+                              fontSize:
+                                "12px",
+                            }}
+                          >
+                            {language ===
+                            "Hindi"
+                              ? "Image उपलब्ध नहीं"
+                              : "Image unavailable"}
+                          </div>
+                        )}
 
-                      <h3>
-                        {product.name}
-                      </h3>
+                        <span className="new-arrival-product-number">
+                          {String(
+                            index + 1
+                          ).padStart(
+                            2,
+                            "0"
+                          )}
+                        </span>
 
-                    </div>
+                        <span className="new-arrival-product-tag">
+                          {language ===
+                          "Hindi"
+                            ? "नया"
+                            : "NEW"}
+                        </span>
 
-                    <strong>
-                      ₹{product.price}
-                    </strong>
+                      </div>
 
-                  </div>
+                      {/* INFO */}
 
+                      <div className="new-arrival-product-info">
 
-                  <div className="new-arrival-product-footer">
-                    <span>
-                      {language === "Hindi"
-                        ? "प्रोडक्ट देखें"
-                        : "VIEW PRODUCT"}
-                    </span>
+                        <div className="new-arrival-product-copy">
 
-                    <span>↗</span>
-                  </div>
+                          <p>
+                            {product.category ||
+                              "SHOPSPHERE"}
+                          </p>
 
-                </Link>
-              );
-            })}
+                          <h3>
+                            {product.name}
+                          </h3>
 
-          </div>
-        )}
+                        </div>
+
+                        <strong>
+                          ₹
+                          {Number(
+                            product.price
+                          ).toLocaleString(
+                            "en-IN"
+                          )}
+                        </strong>
+
+                      </div>
+
+                      {/* FOOTER */}
+
+                      <div className="new-arrival-product-footer">
+
+                        <span>
+                          {language ===
+                          "Hindi"
+                            ? "प्रोडक्ट देखें"
+                            : "VIEW PRODUCT"}
+                        </span>
+
+                        <span>
+                          ↗
+                        </span>
+
+                      </div>
+
+                    </Link>
+                  );
+                }
+              )}
+
+            </div>
+          )}
 
       </section>
 

@@ -6,10 +6,17 @@ function Footer() {
 
   return (
     <footer className="footer">
+
       <div className="footer-main">
 
+        {/* BRAND */}
+
         <div className="footer-brand">
-          <Link to="/" className="footer-logo">
+
+          <Link
+            to="/"
+            className="footer-logo"
+          >
             SHOPSPHERE
           </Link>
 
@@ -18,9 +25,13 @@ function Footer() {
               ? "आपकी रोज़मर्रा की स्टाइल और ज़िंदगी के लिए सोच-समझकर चुने गए प्रोडक्ट्स।"
               : "Thoughtfully selected products for your everyday style and life."}
           </p>
+
         </div>
 
+        {/* SHOP */}
+
         <div className="footer-column">
+
           <h3>
             {language === "Hindi"
               ? "शॉप"
@@ -33,7 +44,7 @@ function Footer() {
               : "All Products"}
           </Link>
 
-          <Link to="/#new-arrivals">
+          <Link to="/new-arrivals">
             {language === "Hindi"
               ? "नए प्रोडक्ट्स"
               : "New Arrivals"}
@@ -44,9 +55,13 @@ function Footer() {
               ? "कलेक्शन"
               : "Collections"}
           </Link>
+
         </div>
 
+        {/* COMPANY */}
+
         <div className="footer-column">
+
           <h3>
             {language === "Hindi"
               ? "कंपनी"
@@ -59,20 +74,24 @@ function Footer() {
               : "About Us"}
           </Link>
 
-          <Link to="/login">
+          <Link to="/profile">
             {language === "Hindi"
-              ? "मेरा अकाउंट"
-              : "My Account"}
+              ? "मेरी प्रोफाइल"
+              : "My Profile"}
           </Link>
 
-          <Link to="/wishlist">
+          <Link to="/orders">
             {language === "Hindi"
-              ? "विशलिस्ट"
-              : "Wishlist"}
+              ? "मेरे ऑर्डर्स"
+              : "My Orders"}
           </Link>
+
         </div>
 
+        {/* HELP */}
+
         <div className="footer-column">
+
           <h3>
             {language === "Hindi"
               ? "सहायता"
@@ -91,16 +110,26 @@ function Footer() {
               : "Checkout"}
           </Link>
 
-          <a href="mailto:support@shopsphere.com">
+          <Link to="/help">
+            {language === "Hindi"
+              ? "मदद और सहायता"
+              : "Help & Support"}
+          </Link>
+
+          <Link to="/contact">
             {language === "Hindi"
               ? "हमसे संपर्क करें"
               : "Contact Us"}
-          </a>
+          </Link>
+
         </div>
 
       </div>
 
+      {/* BOTTOM */}
+
       <div className="footer-bottom">
+
         <p>
           {language === "Hindi"
             ? "© 2026 ShopSphere. सर्वाधिकार सुरक्षित।"
@@ -112,7 +141,9 @@ function Footer() {
             ? "सादगी को ध्यान में रखकर डिज़ाइन किया गया।"
             : "Designed with simplicity in mind."}
         </p>
+
       </div>
+
     </footer>
   );
 }

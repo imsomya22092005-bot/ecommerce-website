@@ -1,4 +1,7 @@
-import { Link, useNavigate } from "react-router-dom";
+import {
+  Link,
+  useNavigate,
+} from "react-router-dom";
 
 import {
   House,
@@ -12,8 +15,13 @@ import {
   LayoutDashboard,
 } from "lucide-react";
 
-import { useEffect, useState } from "react";
+import {
+  useEffect,
+  useState,
+} from "react";
+
 import { useLanguage } from "../LanguageContext";
+import API_URL from "../api";
 
 /* =========================================================
    TRANSLATIONS
@@ -31,7 +39,8 @@ const translations = {
     collections: "Collections",
     about: "About Us",
 
-    search: "Search for Products, Brands and More",
+    search:
+      "Search for Products, Brands and More",
     searchButton: "Search",
 
     login: "Login",
@@ -44,12 +53,13 @@ const translations = {
     orders: "My Orders",
     trackOrder: "Track Order",
     profile: "My Profile",
-    adminDashboard: "Admin Dashboard",
+    adminDashboard:
+      "Admin Dashboard",
 
-    wishlist: "Wishlist",
     cart: "Cart",
 
-    premium: "✨ Premium Shopping",
+    premium:
+      "✨ Premium Shopping",
 
     menu: "Toggle menu",
     close: "Close",
@@ -61,12 +71,15 @@ const translations = {
     fashion: "फैशन",
     accessories: "एक्सेसरीज़",
     footwear: "फुटवियर",
-    newArrivals: "नए प्रोडक्ट्स",
-    bestSellers: "बेस्ट सेलर्स",
+    newArrivals:
+      "नए प्रोडक्ट्स",
+    bestSellers:
+      "बेस्ट सेलर्स",
     collections: "कलेक्शंस",
     about: "हमारे बारे में",
 
-    search: "प्रोडक्ट, ब्रांड और बहुत कुछ खोजें",
+    search:
+      "प्रोडक्ट, ब्रांड और बहुत कुछ खोजें",
     searchButton: "खोजें",
 
     login: "लॉगिन",
@@ -77,14 +90,16 @@ const translations = {
     contact: "संपर्क करें",
     help: "मदद और सहायता",
     orders: "मेरे ऑर्डर्स",
-    trackOrder: "ऑर्डर ट्रैक करें",
+    trackOrder:
+      "ऑर्डर ट्रैक करें",
     profile: "मेरी प्रोफाइल",
-    adminDashboard: "एडमिन डैशबोर्ड",
+    adminDashboard:
+      "एडमिन डैशबोर्ड",
 
-    wishlist: "विशलिस्ट",
     cart: "कार्ट",
 
-    premium: "✨ प्रीमियम शॉपिंग",
+    premium:
+      "✨ प्रीमियम शॉपिंग",
 
     menu: "मेन्यू खोलें",
     close: "बंद करें",
@@ -96,76 +111,150 @@ const translations = {
 ========================================================= */
 
 function Navbar() {
-  const { language, setLanguage } = useLanguage();
+  const {
+    language,
+    setLanguage,
+  } = useLanguage();
 
-  const t = translations[language];
+  const t =
+    translations[language];
 
-  const navigate = useNavigate();
+  const navigate =
+    useNavigate();
 
-  const [cartCount, setCartCount] = useState(0);
+  const [cartCount, setCartCount] =
+    useState(0);
 
-  const [userName, setUserName] = useState(
-    localStorage.getItem("userName")
-  );
+  const [userName, setUserName] =
+    useState(
+      localStorage.getItem(
+        "userName"
+      )
+    );
 
-  const [userRole, setUserRole] = useState(
-    localStorage.getItem("userRole")
-  );
+  const [userRole, setUserRole] =
+    useState(
+      localStorage.getItem(
+        "userRole"
+      )
+    );
 
-  const [search, setSearch] = useState("");
+  const [search, setSearch] =
+    useState("");
 
-  const [menuOpen, setMenuOpen] = useState(false);
+  const [menuOpen, setMenuOpen] =
+    useState(false);
 
-  const [moreOpen, setMoreOpen] = useState(false);
+  const [moreOpen, setMoreOpen] =
+    useState(false);
 
-  /* =========================================================
-     CART COUNT
-  ========================================================= */
+  // =========================
+  // LOAD CART COUNT
+  // =========================
 
-  useEffect(() => {
-    const updateCartCount = () => {
-      const cart =
-        JSON.parse(
-          localStorage.getItem("cart")
-        ) || [];
+  const loadCartCount =
+    async () => {
+      const token =
+        localStorage.getItem(
+          "authToken"
+        );
 
-      const count = cart.reduce(
-        (total, item) =>
-          total +
-          Number(item.quantity || 0),
-        0
-      );
+      // Guest has no backend cart
+      if (!token) {
+        setCartCount(0);
+        return;
+      }
 
-      setCartCount(count);
+      try {
+        const response =
+          await fetch(
+            `${API_URL}/api/cart`,
+            {
+              method: "GET",
+              headers: {
+                Authorization:
+                  `Bearer ${token}`,
+              },
+            }
+          );
+
+        if (!response.ok) {
+          setCartCount(0);
+          return;
+        }
+
+        const data =
+          await response.json();
+
+        const items =
+          Array.isArray(
+            data?.items
+          )
+            ? data.items
+            : [];
+
+        const count =
+          items.reduce(
+            (total, item) =>
+              total +
+              Number(
+                item.quantity || 0
+              ),
+            0
+          );
+
+        setCartCount(count);
+      } catch (error) {
+        console.error(
+          "Cart count error:",
+          error
+        );
+
+        setCartCount(0);
+      }
     };
 
-    updateCartCount();
+  // =========================
+  // CART UPDATE LISTENER
+  // =========================
+
+  useEffect(() => {
+    loadCartCount();
+
+    const updateCart =
+      () => {
+        loadCartCount();
+      };
 
     window.addEventListener(
       "cartUpdated",
-      updateCartCount
+      updateCart
     );
 
     return () => {
       window.removeEventListener(
         "cartUpdated",
-        updateCartCount
+        updateCart
       );
     };
-  }, []);
+  }, [userName]);
 
-  /* =========================================================
-     USER UPDATE
-  ========================================================= */
+  // =========================
+  // USER UPDATE
+  // =========================
 
   useEffect(() => {
     const updateUser = () => {
       setUserName(
-        localStorage.getItem("userName")
+        localStorage.getItem(
+          "userName"
+        )
       );
 
       setUserRole(
-        localStorage.getItem("userRole")
+        localStorage.getItem(
+          "userRole"
+        )
       );
     };
 
@@ -184,9 +273,9 @@ function Navbar() {
     };
   }, []);
 
-  /* =========================================================
-     SEARCH
-  ========================================================= */
+  // =========================
+  // SEARCH
+  // =========================
 
   const handleSearch = (e) => {
     e.preventDefault();
@@ -194,7 +283,9 @@ function Navbar() {
     const value =
       search.trim();
 
-    if (!value) return;
+    if (!value) {
+      return;
+    }
 
     navigate(
       `/products?search=${encodeURIComponent(
@@ -204,15 +295,20 @@ function Navbar() {
 
     setSearch("");
     setMenuOpen(false);
+    setMoreOpen(false);
   };
 
-  /* =========================================================
-     LOGOUT
-  ========================================================= */
+  // =========================
+  // LOGOUT
+  // =========================
 
   const handleLogout = () => {
     localStorage.removeItem(
       "userName"
+    );
+
+    localStorage.removeItem(
+      "userEmail"
     );
 
     localStorage.removeItem(
@@ -225,9 +321,14 @@ function Navbar() {
 
     setUserName(null);
     setUserRole(null);
+    setCartCount(0);
 
     window.dispatchEvent(
       new Event("userUpdated")
+    );
+
+    window.dispatchEvent(
+      new Event("cartUpdated")
     );
 
     setMenuOpen(false);
@@ -236,38 +337,35 @@ function Navbar() {
     navigate("/");
   };
 
-  /* =========================================================
-     CLOSE MOBILE MENU
-  ========================================================= */
+  // =========================
+  // CLOSE MOBILE MENU
+  // =========================
 
   const closeMenu = () => {
     setMenuOpen(false);
   };
 
-  /* =========================================================
-     MORE DROPDOWN
-  ========================================================= */
+  // =========================
+  // MORE
+  // =========================
 
-  const handleMoreToggle = () => {
-    setMoreOpen(
-      (prev) => !prev
-    );
-  };
+  const handleMoreToggle =
+    () => {
+      setMoreOpen(
+        (prev) => !prev
+      );
+    };
 
   const closeMore = () => {
     setMoreOpen(false);
   };
 
-  /* =========================================================
-     ADMIN CHECK
-  ========================================================= */
+  // =========================
+  // ADMIN
+  // =========================
 
   const isAdmin =
     userRole === "admin";
-
-  /* =========================================================
-     UI
-  ========================================================= */
 
   return (
     <header className="shop-navbar">
@@ -329,7 +427,7 @@ function Navbar() {
       </div>
 
       {/* =====================================================
-          MAIN NAVBAR
+          MAIN BAR
       ===================================================== */}
 
       <div className="shop-mainbar">
@@ -339,18 +437,20 @@ function Navbar() {
         <Link
           to="/"
           className="shop-logo"
-          onClick={closeMenu}
+          onClick={
+            closeMenu
+          }
         >
           SHOPSPHERE
         </Link>
 
-        {/* =================================================
-            SEARCH
-        ================================================= */}
+        {/* SEARCH */}
 
         <form
           className="shop-search"
-          onSubmit={handleSearch}
+          onSubmit={
+            handleSearch
+          }
         >
 
           <span className="search-symbol">
@@ -374,18 +474,13 @@ function Navbar() {
 
         </form>
 
-        {/* =================================================
-            RIGHT ACTIONS
-        ================================================= */}
+        {/* ACTIONS */}
 
         <div className="shop-actions">
 
-          {/* =================================================
-              LOGIN / ACCOUNT
-          ================================================= */}
+          {/* LOGIN / ACCOUNT */}
 
           {userName ? (
-
             <div className="shop-account">
 
               <span className="account-icon">
@@ -393,21 +488,22 @@ function Navbar() {
               </span>
 
               <span className="account-text">
-                {t.hello}, {userName}
+                {t.hello},{" "}
+                {userName}
               </span>
 
               <button
                 className="logout-small"
-                onClick={handleLogout}
+                onClick={
+                  handleLogout
+                }
                 type="button"
               >
                 {t.logout}
               </button>
 
             </div>
-
           ) : (
-
             <Link
               to="/login"
               className="shop-account"
@@ -422,12 +518,9 @@ function Navbar() {
               </span>
 
             </Link>
-
           )}
 
-          {/* =================================================
-              MORE
-          ================================================= */}
+          {/* MORE */}
 
           <div className="more-wrapper">
 
@@ -442,73 +535,74 @@ function Navbar() {
             </button>
 
             {moreOpen && (
-
               <div className="more-dropdown">
-
-                {/* CLOSE */}
 
                 <button
                   className="dropdown-close"
-                  onClick={closeMore}
-                  aria-label={t.close}
+                  onClick={
+                    closeMore
+                  }
+                  aria-label={
+                    t.close
+                  }
                   title={t.close}
                   type="button"
                 >
                   ×
                 </button>
 
-                {/* CONTACT */}
-
                 <Link
                   to="/contact"
-                  onClick={closeMore}
+                  onClick={
+                    closeMore
+                  }
                 >
                   📞 {t.contact}
                 </Link>
 
-                {/* HELP */}
-
                 <Link
                   to="/help"
-                  onClick={closeMore}
+                  onClick={
+                    closeMore
+                  }
                 >
                   ❓ {t.help}
                 </Link>
 
-                {/* ORDERS */}
-
                 <Link
                   to="/orders"
-                  onClick={closeMore}
+                  onClick={
+                    closeMore
+                  }
                 >
                   📋 {t.orders}
                 </Link>
 
-                {/* TRACK ORDER */}
-
                 <Link
                   to="/track-order"
-                  onClick={closeMore}
+                  onClick={
+                    closeMore
+                  }
                 >
-                  🚚 {t.trackOrder}
+                  🚚{" "}
+                  {t.trackOrder}
                 </Link>
 
-<Link
-  to="/profile"
-  onClick={closeMore}
->
-  👤 {t.profile}
-</Link>
-
-                {/* =================================================
-                    ADMIN DASHBOARD
-                ================================================= */}
+                <Link
+                  to="/profile"
+                  onClick={
+                    closeMore
+                  }
+                >
+                  👤 {t.profile}
+                </Link>
 
                 {isAdmin && (
-
                   <Link
                     to="/admin"
-                    onClick={closeMore}
+                    onClick={
+                      closeMore
+                    }
                     className="admin-nav-link"
                   >
                     <LayoutDashboard
@@ -516,33 +610,18 @@ function Navbar() {
                       strokeWidth={1.8}
                     />
 
-                    {t.adminDashboard}
+                    {
+                      t.adminDashboard
+                    }
                   </Link>
-
                 )}
 
               </div>
-
             )}
 
           </div>
 
-          {/* =================================================
-              WISHLIST
-          ================================================= */}
-
-          <Link
-            to="/wishlist"
-            className="wishlist-nav"
-            aria-label={t.wishlist}
-            title={t.wishlist}
-          >
-            ♡
-          </Link>
-
-          {/* =================================================
-              CART
-          ================================================= */}
+          {/* CART */}
 
           <Link
             to="/cart"
@@ -554,11 +633,9 @@ function Navbar() {
             🛒
 
             {cartCount > 0 && (
-
               <span className="shop-cart-count">
                 {cartCount}
               </span>
-
             )}
 
             <span className="cart-text">
@@ -567,9 +644,7 @@ function Navbar() {
 
           </Link>
 
-          {/* =================================================
-              HAMBURGER
-          ================================================= */}
+          {/* HAMBURGER */}
 
           <button
             className={`shop-hamburger ${
@@ -579,7 +654,8 @@ function Navbar() {
             }`}
             onClick={() =>
               setMenuOpen(
-                (prev) => !prev
+                (prev) =>
+                  !prev
               )
             }
             aria-label={t.menu}
@@ -603,13 +679,10 @@ function Navbar() {
 
       <div className="shop-categorybar">
 
-        {/* HOME */}
-
         <Link
           to="/"
           className="shop-category active-category"
         >
-
           <span className="category-icon">
             <House
               size={20}
@@ -620,16 +693,12 @@ function Navbar() {
           <small>
             {t.home}
           </small>
-
         </Link>
-
-        {/* FASHION */}
 
         <Link
           to="/products?category=Fashion"
           className="shop-category"
         >
-
           <span className="category-icon">
             <Shirt
               size={20}
@@ -640,16 +709,12 @@ function Navbar() {
           <small>
             {t.fashion}
           </small>
-
         </Link>
-
-        {/* ACCESSORIES */}
 
         <Link
           to="/products?category=Accessories"
           className="shop-category"
         >
-
           <span className="category-icon">
             <Watch
               size={20}
@@ -660,16 +725,12 @@ function Navbar() {
           <small>
             {t.accessories}
           </small>
-
         </Link>
-
-        {/* FOOTWEAR */}
 
         <Link
           to="/products?category=Footwear"
           className="shop-category"
         >
-
           <span className="category-icon">
             <Footprints
               size={20}
@@ -680,16 +741,12 @@ function Navbar() {
           <small>
             {t.footwear}
           </small>
-
         </Link>
-
-        {/* NEW ARRIVALS */}
 
         <Link
           to="/new-arrivals"
           className="shop-category"
         >
-
           <span className="category-icon">
             <Sparkles
               size={20}
@@ -700,16 +757,12 @@ function Navbar() {
           <small>
             {t.newArrivals}
           </small>
-
         </Link>
-
-        {/* BEST SELLERS */}
 
         <Link
           to="/products"
           className="shop-category"
         >
-
           <span className="category-icon">
             <Star
               size={20}
@@ -720,16 +773,12 @@ function Navbar() {
           <small>
             {t.bestSellers}
           </small>
-
         </Link>
-
-        {/* COLLECTIONS */}
 
         <Link
           to="/products"
           className="shop-category"
         >
-
           <span className="category-icon">
             <Heart
               size={20}
@@ -740,16 +789,12 @@ function Navbar() {
           <small>
             {t.collections}
           </small>
-
         </Link>
-
-        {/* ABOUT */}
 
         <Link
           to="/about"
           className="shop-category"
         >
-
           <span className="category-icon">
             <Info
               size={20}
@@ -760,7 +805,6 @@ function Navbar() {
           <small>
             {t.about}
           </small>
-
         </Link>
 
       </div>
@@ -770,10 +814,7 @@ function Navbar() {
       ===================================================== */}
 
       {menuOpen && (
-
         <div className="shop-mobile-menu">
-
-          {/* HOME */}
 
           <Link
             to="/"
@@ -782,16 +823,12 @@ function Navbar() {
             {t.home}
           </Link>
 
-          {/* SHOP */}
-
           <Link
             to="/products"
             onClick={closeMenu}
           >
             {t.shop}
           </Link>
-
-          {/* FASHION */}
 
           <Link
             to="/products?category=Fashion"
@@ -800,16 +837,12 @@ function Navbar() {
             {t.fashion}
           </Link>
 
-          {/* ACCESSORIES */}
-
           <Link
             to="/products?category=Accessories"
             onClick={closeMenu}
           >
             {t.accessories}
           </Link>
-
-          {/* FOOTWEAR */}
 
           <Link
             to="/products?category=Footwear"
@@ -818,16 +851,12 @@ function Navbar() {
             {t.footwear}
           </Link>
 
-          {/* NEW ARRIVALS */}
-
           <Link
             to="/new-arrivals"
             onClick={closeMenu}
           >
             {t.newArrivals}
           </Link>
-
-          {/* BEST SELLERS */}
 
           <Link
             to="/products"
@@ -836,25 +865,12 @@ function Navbar() {
             {t.bestSellers}
           </Link>
 
-          {/* COLLECTIONS */}
-
           <Link
             to="/products"
             onClick={closeMenu}
           >
             {t.collections}
           </Link>
-
-          {/* WISHLIST */}
-
-          <Link
-            to="/wishlist"
-            onClick={closeMenu}
-          >
-            ♡ {t.wishlist}
-          </Link>
-
-          {/* CART */}
 
           <Link
             to="/cart"
@@ -863,16 +879,12 @@ function Navbar() {
             🛒 {t.cart}
           </Link>
 
-          {/* ABOUT */}
-
           <Link
             to="/about"
             onClick={closeMenu}
           >
             {t.about}
           </Link>
-
-          {/* CONTACT */}
 
           <Link
             to="/contact"
@@ -881,8 +893,6 @@ function Navbar() {
             📞 {t.contact}
           </Link>
 
-          {/* HELP */}
-
           <Link
             to="/help"
             onClick={closeMenu}
@@ -890,16 +900,12 @@ function Navbar() {
             ❓ {t.help}
           </Link>
 
-          {/* ORDERS */}
-
           <Link
             to="/orders"
             onClick={closeMenu}
           >
             📋 {t.orders}
           </Link>
-
-          {/* TRACK ORDER */}
 
           <Link
             to="/track-order"
@@ -909,18 +915,13 @@ function Navbar() {
           </Link>
 
           <Link
-  to="/profile"
-  onClick={closeMenu}
->
-  👤 {t.profile}
-</Link>
-
-          {/* =================================================
-              ADMIN DASHBOARD - MOBILE
-          ================================================= */}
+            to="/profile"
+            onClick={closeMenu}
+          >
+            👤 {t.profile}
+          </Link>
 
           {isAdmin && (
-
             <Link
               to="/admin"
               onClick={closeMenu}
@@ -933,26 +934,18 @@ function Navbar() {
 
               {t.adminDashboard}
             </Link>
-
           )}
 
-          {/* LOGIN */}
-
           {!userName && (
-
             <Link
               to="/login"
               onClick={closeMenu}
             >
               ♙ {t.login}
             </Link>
-
           )}
 
-          {/* LOGOUT */}
-
           {userName && (
-
             <button
               className="mobile-logout-shop"
               onClick={
@@ -962,11 +955,9 @@ function Navbar() {
             >
               {t.logout}
             </button>
-
           )}
 
         </div>
-
       )}
 
     </header>

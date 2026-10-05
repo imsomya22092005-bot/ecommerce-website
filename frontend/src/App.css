@@ -926,195 +926,6 @@
   }
 }
 
-/* =========================================
-   LOGIN / REGISTER
-========================================= */
-
-.auth-page {
-  min-height: calc(100vh - 82px);
-
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  padding: 70px 50px;
-
-  background: #eee5d9;
-}
-
-.auth-container {
-  width: 100%;
-  max-width: 1100px;
-
-  display: grid;
-  grid-template-columns: 1fr 430px;
-
-  gap: 80px;
-
-  align-items: center;
-}
-
-.auth-intro {
-  max-width: 500px;
-}
-
-.auth-intro h1 {
-  margin-bottom: 25px;
-
-  font-family: "Playfair Display", serif;
-  font-size: clamp(50px, 5vw, 75px);
-  font-weight: 600;
-  line-height: 0.98;
-}
-
-.auth-intro > p:last-child {
-  max-width: 430px;
-
-  color: #71685f;
-
-  font-size: 14px;
-  line-height: 1.8;
-}
-
-.auth-card {
-  padding: 40px;
-
-  background: #fffdf9;
-
-  border: 1px solid #ded5c9;
-}
-
-.auth-tabs {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-
-  margin-bottom: 35px;
-
-  border-bottom: 1px solid #ded5c9;
-}
-
-.auth-tabs button {
-  padding: 14px 5px;
-
-  border: none;
-  border-bottom: 1px solid transparent;
-
-  background: transparent;
-
-  color: #81776e;
-
-  font-size: 10px;
-  font-weight: 700;
-  letter-spacing: 1px;
-
-  cursor: pointer;
-}
-
-.auth-tabs button.active {
-  border-bottom-color: #211e1b;
-  color: #211e1b;
-}
-
-.form-group {
-  margin-bottom: 20px;
-}
-
-.form-group label {
-  display: block;
-
-  margin-bottom: 8px;
-
-  color: #4d4741;
-
-  font-size: 9px;
-  font-weight: 700;
-  letter-spacing: 1px;
-}
-
-.form-group input {
-  width: 100%;
-
-  padding: 14px;
-
-  border: 1px solid #d8cec1;
-
-  background: #f6f1e9;
-  color: #211e1b;
-
-  outline: none;
-
-  font-size: 13px;
-}
-
-.form-group input:focus {
-  border-color: #8a6245;
-}
-
-.form-group input::placeholder {
-  color: #958b81;
-}
-
-.forgot-password {
-  margin: -5px 0 20px;
-
-  text-align: right;
-}
-
-.forgot-password button {
-  border: none;
-  background: transparent;
-
-  color: #8a6245;
-
-  font-size: 10px;
-
-  cursor: pointer;
-}
-
-.auth-submit {
-  width: 100%;
-
-  padding: 16px;
-
-  border: none;
-
-  background: #211e1b;
-  color: white;
-
-  font-size: 10px;
-  font-weight: 700;
-  letter-spacing: 1px;
-
-  cursor: pointer;
-
-  transition: background 0.25s ease;
-}
-
-.auth-submit:hover {
-  background: #8a6245;
-}
-
-.auth-switch {
-  margin-top: 25px;
-
-  text-align: center;
-
-  color: #81776e;
-
-  font-size: 11px;
-}
-
-.auth-switch button {
-  border: none;
-  background: transparent;
-
-  color: #8a6245;
-
-  font-weight: 700;
-
-  cursor: pointer;
-}
-
 /* ---------- AUTH RESPONSIVE ---------- */
 
 @media (max-width: 800px) {
@@ -1188,145 +999,6 @@
   line-height: 1;
 }
 
-/* =========================================
-   WISHLIST
-========================================= */
-
-.wishlist-page {
-  min-height: calc(100vh - 82px);
-  padding-bottom: 80px;
-}
-
-.wishlist-header {
-  padding: 75px 30px 50px;
-  text-align: center;
-}
-
-.wishlist-header h1 {
-  margin-bottom: 15px;
-
-  font-family: "Playfair Display", serif;
-  font-size: clamp(45px, 5vw, 65px);
-}
-
-.wishlist-header > p:last-child {
-  color: #71685f;
-  font-size: 14px;
-}
-
-.wishlist-grid {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 24px;
-  padding: 0 55px;
-}
-
-.wishlist-card img {
-  width: 100%;
-  aspect-ratio: 0.82;
-
-  display: block;
-  object-fit: cover;
-
-  background: #e8ded0;
-}
-
-.wishlist-info {
-  padding: 16px 2px;
-}
-
-.wishlist-info h2 {
-  margin-bottom: 8px;
-
-  font-family: "Playfair Display", serif;
-  font-size: 19px;
-  font-weight: 500;
-}
-
-.wishlist-info > p:not(.product-category) {
-  margin-bottom: 14px;
-
-  font-size: 14px;
-  font-weight: 600;
-}
-
-.wishlist-info button {
-  border: none;
-  background: transparent;
-
-  color: #8a6245;
-
-  font-size: 9px;
-  font-weight: 700;
-  letter-spacing: 1px;
-
-  cursor: pointer;
-}
-
-.empty-wishlist {
-  min-height: 350px;
-
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-
-  text-align: center;
-}
-
-.empty-heart {
-  margin-bottom: 15px;
-
-  font-size: 55px;
-  color: #8a6245;
-}
-
-.empty-wishlist h2 {
-  margin-bottom: 8px;
-
-  font-family: "Playfair Display", serif;
-  font-size: 30px;
-}
-
-.empty-wishlist p {
-  margin-bottom: 25px;
-
-  color: #81776e;
-  font-size: 13px;
-}
-
-.continue-shopping {
-  display: inline-block;
-
-  padding: 14px 22px;
-
-  background: #211e1b;
-  color: white;
-
-  text-decoration: none;
-
-  font-size: 10px;
-  font-weight: 700;
-  letter-spacing: 1px;
-}
-
-@media (max-width: 900px) {
-  .wishlist-grid {
-    grid-template-columns: repeat(2, 1fr);
-    padding: 0 30px;
-  }
-}
-
-@media (max-width: 600px) {
-  .wishlist-grid {
-    grid-template-columns: 1fr;
-    padding: 0 20px;
-  }
-
-  .wishlist-header {
-    padding: 50px 20px 35px;
-  }
-}
 
 /* =========================================
    CHECKOUT
@@ -9043,93 +8715,7 @@
   }
 
 }
-/* ===== PRODUCT REVIEWS ===== */
 
-.product-rating-summary {
-  margin: 12px 0 20px;
-  font-size: 15px;
-  color: #8a6245;
-}
-
-.product-reviews-section {
-  margin-top: 60px;
-  padding: 40px;
-  background: #fffdf9;
-  border: 1px solid #e8ded0;
-}
-
-.product-review-overall {
-  margin-bottom: 30px;
-}
-
-.product-review-write {
-  padding: 25px;
-  background: #f6f1e9;
-  margin-bottom: 30px;
-}
-
-.product-rating-picker {
-  display: flex;
-  gap: 6px;
-  margin: 10px 0 20px;
-}
-
-.product-rating-picker button {
-  border: none;
-  background: none;
-  font-size: 28px;
-  cursor: pointer;
-}
-
-.product-review-write input,
-.product-review-write textarea {
-  width: 100%;
-  padding: 13px;
-  margin-bottom: 15px;
-  border: 1px solid #d8cbbb;
-  background: #fffdf9;
-  font-family: inherit;
-}
-
-.product-review-write textarea {
-  min-height: 110px;
-  resize: vertical;
-}
-
-.product-review-write button[type="submit"] {
-  padding: 12px 24px;
-  border: none;
-  background: #211e1b;
-  color: #fffdf9;
-  cursor: pointer;
-}
-
-.product-review-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 20px;
-}
-
-.product-review-card {
-  padding: 20px;
-  border: 1px solid #e8ded0;
-  background: #fffdf9;
-}
-
-.product-review-card .review-stars {
-  color: #d4a24c;
-  margin: 8px 0;
-}
-
-@media (max-width: 700px) {
-  .product-reviews-section {
-    padding: 20px;
-  }
-
-  .product-review-grid {
-    grid-template-columns: 1fr;
-  }
-}
 /* ================================
    COUPON SYSTEM
 ================================ */
@@ -9895,4 +9481,40 @@
 .admin-nav-link:hover svg,
 .admin-mobile-link:hover svg {
   color: #c96f5b;
+}
+
+/* =========================
+   LOADER
+========================= */
+
+.loader {
+  min-height: 300px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  padding: 40px 20px;
+}
+
+.loader-spinner {
+  width: 42px;
+  height: 42px;
+  border: 4px solid #e5e5e5;
+  border-top: 4px solid #111;
+  border-radius: 50%;
+  animation: loaderSpin 0.8s linear infinite;
+}
+
+.loader p {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 500;
+  color: #666;
+}
+
+@keyframes loaderSpin {
+  to {
+    transform: rotate(360deg);
+  }
 }

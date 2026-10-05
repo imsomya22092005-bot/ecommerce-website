@@ -1,35 +1,30 @@
-
 import { Link, useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { useLanguage } from "../LanguageContext";
-
 import API_URL from "../api";
 
 function ProductDetails() {
   const { id } = useParams();
   const { language } = useLanguage();
 
-  const [product, setProduct] = useState(null);
-  const [added, setAdded] = useState(false);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
+  const [product, setProduct] =
+    useState(null);
 
-  /* =========================
-     REVIEW STATES
-  ========================= */
+  const [added, setAdded] =
+    useState(false);
 
-  const [reviews, setReviews] = useState([]);
-  const [reviewRating, setReviewRating] = useState(0);
-  const [hoverRating, setHoverRating] = useState(0);
-  const [reviewText, setReviewText] = useState("");
+  const [loading, setLoading] =
+    useState(true);
 
-  const [reviewerName, setReviewerName] = useState(
-    localStorage.getItem("userName") || ""
-  );
+  const [error, setError] =
+    useState("");
 
-  /* =========================
-     FETCH PRODUCT
-  ========================= */
+  const [actionError, setActionError] =
+    useState("");
+
+  // =========================
+  // FETCH PRODUCT
+  // =========================
 
   useEffect(() => {
     const fetchProduct = async () => {
@@ -37,24 +32,36 @@ function ProductDetails() {
         setLoading(true);
         setError("");
 
-        const response = await fetch(
-          `${API_URL}/api/products/${id}`
-        );
+        const response =
+          await fetch(
+            `${API_URL}/api/products/${id}`
+          );
+
+        const data =
+          await response.json();
 
         if (!response.ok) {
-          throw new Error("Product not found");
+          throw new Error(
+            data.message ||
+              (language === "Hindi"
+                ? "प्रोडक्ट नहीं मिला।"
+                : "Product not found.")
+          );
         }
 
-        const data = await response.json();
-
         setProduct(data);
-      } catch (error) {
+      } catch (err) {
         console.error(
           "Error fetching product:",
-          error
+          err
         );
 
-        setError("Product not found");
+        setError(
+          err.message ||
+            (language === "Hindi"
+              ? "प्रोडक्ट नहीं मिला।"
+              : "Product not found.")
+        );
       } finally {
         setLoading(false);
       }
@@ -63,105 +70,166 @@ function ProductDetails() {
     if (id) {
       fetchProduct();
     }
-  }, [id]);
+  }, [id, language]);
 
-  /* =========================
-     LOAD PRODUCT REVIEWS
-  ========================= */
+  // =========================
+  // ADD TO CART
+  // =========================
 
-  useEffect(() => {
-    if (!id) return;
+  const handleAddToCart = async () => {
+    const token =
+      localStorage.getItem("authToken");
 
-    const storageKey =
-      `shopSphereReviews_${id}`;
+    setActionError("");
 
-    const savedReviews =
-      JSON.parse(
-        localStorage.getItem(storageKey)
-      ) || [];
-
-    setReviews(savedReviews);
-
-    setReviewRating(0);
-    setHoverRating(0);
-    setReviewText("");
-
-    setReviewerName(
-      localStorage.getItem("userName") || ""
-    );
-  }, [id]);
-
-  /* =========================
-     ADD REVIEW
-  ========================= */
-
-  const handleReviewSubmit = (e) => {
-    e.preventDefault();
-
-    const name =
-      reviewerName.trim();
-
-    const text =
-      reviewText.trim();
-
-    if (!name) return;
-
-    if (reviewRating === 0) return;
-
-    if (!text) return;
-
-    const newReview = {
-      id: Date.now(),
-      name,
-      rating: reviewRating,
-      review: text,
-      date: new Date().toLocaleDateString(
+    // Backend cart requires authentication
+    if (!token) {
+      alert(
         language === "Hindi"
-          ? "hi-IN"
-          : "en-IN"
-      ),
-    };
+          ? "कार्ट में product जोड़ने के लिए पहले login करें।"
+          : "Please login before adding a product to cart."
+      );
 
-    const updatedReviews = [
-      newReview,
-      ...reviews,
-    ];
+      return;
+    }
 
-    setReviews(updatedReviews);
+    const productId =
+      product?._id || product?.id;
 
-    localStorage.setItem(
-      `shopSphereReviews_${id}`,
-      JSON.stringify(updatedReviews)
-    );
+    if (!productId) {
+      return;
+    }
 
-    setReviewText("");
-    setReviewRating(0);
-    setHoverRating(0);
+    try {
+      const response =
+        await fetch(
+          `${API_URL}/api/cart/add`,
+          {
+            method: "POST",
 
-    localStorage.setItem(
-      "userName",
-      name
-    );
+            headers: {
+              "Content-Type":
+                "application/json",
+
+              Authorization:
+                `Bearer ${token}`,
+            },
+
+            body: JSON.stringify({
+              productId,
+              quantity: 1,
+            }),
+          }
+        );
+
+      const data =
+        await response.json();
+
+      if (!response.ok) {
+        throw new Error(
+          data.message ||
+            (language === "Hindi"
+              ? "Product cart में add नहीं हो सका।"
+              : "Could not add product to cart.")
+        );
+      }
+
+      // =========================
+      // SAVE BACKEND CART LOCALLY
+      // =========================
+
+      const backendItems =
+        data?.cart?.items || [];
+
+      const normalizedCart =
+        backendItems
+          .filter(
+            (item) =>
+              item?.product
+          )
+          .map((item) => {
+            const backendProduct =
+              item.product;
+
+            const backendProductId =
+              backendProduct._id ||
+              backendProduct.id;
+
+            return {
+              _id:
+                backendProductId,
+
+              id:
+                backendProductId,
+
+              name:
+                backendProduct.name ||
+                "",
+
+              description:
+                backendProduct.description ||
+                "",
+
+              price:
+                Number(
+                  backendProduct.price
+                ) || 0,
+
+              category:
+                backendProduct.category ||
+                "",
+
+              image:
+                backendProduct.image ||
+                "",
+
+              stock:
+                Number(
+                  backendProduct.stock
+                ) || 0,
+
+              quantity:
+                Number(
+                  item.quantity
+                ) || 1,
+            };
+          });
+
+      localStorage.setItem(
+        "cart",
+        JSON.stringify(
+          normalizedCart
+        )
+      );
+
+      window.dispatchEvent(
+        new Event("cartUpdated")
+      );
+
+      setAdded(true);
+
+      setTimeout(() => {
+        setAdded(false);
+      }, 2500);
+
+    } catch (err) {
+      console.error(
+        "Add to cart error:",
+        err
+      );
+
+      setActionError(
+        err.message ||
+          (language === "Hindi"
+            ? "Product cart में add नहीं हो सका।"
+            : "Could not add product to cart.")
+      );
+    }
   };
 
-  /* =========================
-     RATING CALCULATION
-  ========================= */
-
-  const averageRating =
-    reviews.length > 0
-      ? (
-          reviews.reduce(
-            (total, item) =>
-              total + Number(item.rating),
-            0
-          ) / reviews.length
-        ).toFixed(1)
-      : "0.0";
-
-  /* =========================
-     LOADING
-  ========================= */
+  // =========================
+  // LOADING
+  // =========================
 
   if (loading) {
     return (
@@ -175,259 +243,101 @@ function ProductDetails() {
     );
   }
 
-  /* =========================
-     ERROR
-  ========================= */
+  // =========================
+  // ERROR
+  // =========================
 
   if (error || !product) {
     return (
       <main className="product-not-found">
+
         <h1>
           {language === "Hindi"
             ? "प्रोडक्ट नहीं मिला"
             : "Product Not Found"}
         </h1>
 
+        <p>
+          {error}
+        </p>
+
         <Link to="/products">
           {language === "Hindi"
             ? "प्रोडक्ट्स पर वापस जाएं"
             : "Back to Products"}
         </Link>
+
       </main>
     );
   }
 
-  /* =========================
-     PRODUCT ID
-  ========================= */
+  // =========================
+  // PRODUCT DATA
+  // =========================
 
   const productId =
     product._id || product.id;
 
-  /* =========================
-     ADD TO CART
-  ========================= */
+  const productName =
+    product.name || "Product";
 
-  const handleAddToCart = async () => {
-    const token =
-      localStorage.getItem("authToken");
+  const productDescription =
+    product.description || "";
 
-    /* =========================
-       LOGGED-IN USER
-    ========================= */
+  const productPrice =
+    Number(product.price) || 0;
 
-    if (token) {
-      try {
-        const response = await fetch(
-          `${API_URL}/api/cart/add`,
-          {
-            method: "POST",
-            headers: {
-              "Content-Type":
-                "application/json",
-              Authorization:
-                `Bearer ${token}`,
-            },
-            body: JSON.stringify({
-              productId,
-              quantity: 1,
-            }),
-          }
-        );
+  const productStock =
+    Number(product.stock) || 0;
 
-        const data =
-          await response.json();
+  const productImage =
+    product.image || "";
 
-        if (!response.ok) {
-          throw new Error(
-            data.message ||
-              "Could not add product to cart"
-          );
-        }
+  const productCategory =
+    product.category || "";
 
-        /* =========================
-           SAVE BACKEND CART LOCALLY
-        ========================= */
+  // =========================
+  // CATEGORY
+  // =========================
 
-        if (data.cart) {
-          const backendItems =
-            data.cart.items || [];
-
-          const normalizedCart =
-            backendItems
-              .filter(
-                (item) =>
-                  item?.product
-              )
-              .map((item) => ({
-                _id:
-                  item.product._id,
-                id:
-                  item.product._id,
-                name:
-                  item.product.name ||
-                  "",
-                price:
-                  Number(
-                    item.product.price
-                  ) || 0,
-                image:
-                  item.product.image ||
-                  item.product.imageUrl ||
-                  "",
-                category:
-                  item.product.category ||
-                  "",
-                quantity:
-                  Number(
-                    item.quantity
-                  ) || 1,
-              }));
-
-          localStorage.setItem(
-            "cart",
-            JSON.stringify(
-              normalizedCart
-            )
-          );
-        }
-
-        window.dispatchEvent(
-          new Event("cartUpdated")
-        );
-
-        setAdded(true);
-
-        setTimeout(() => {
-          setAdded(false);
-        }, 2500);
-
-      } catch (error) {
-        console.error(
-          "Add to cart error:",
-          error
-        );
-
-        alert(
-          language === "Hindi"
-            ? error.message ||
-                "प्रोडक्ट कार्ट में नहीं जोड़ा जा सका।"
-            : error.message ||
-                "Could not add product to cart."
-        );
-      }
-
-      return;
+  const getCategoryName = () => {
+    if (language !== "Hindi") {
+      return productCategory;
     }
 
-    /* =========================
-       GUEST USER
-    ========================= */
+    const categories = {
+      Fashion: "फैशन",
+      Accessories: "एक्सेसरीज़",
+      Footwear: "फुटवियर",
+      Electronics: "इलेक्ट्रॉनिक्स",
+      Smartphones: "स्मार्टफोन",
+      Laptops: "लैपटॉप",
+      Audio: "ऑडियो",
+      Beauty: "ब्यूटी",
+      Home: "होम",
+    };
 
-    const existingCart =
-      JSON.parse(
-        localStorage.getItem("cart")
-      ) || [];
-
-    const existingProduct =
-      existingCart.find(
-        (item) =>
-          (item._id || item.id) ===
-          productId
-      );
-
-    let updatedCart;
-
-    if (existingProduct) {
-      updatedCart =
-        existingCart.map(
-          (item) =>
-            (item._id || item.id) ===
-            productId
-              ? {
-                  ...item,
-                  quantity:
-                    Number(
-                      item.quantity
-                    ) + 1,
-                }
-              : item
-        );
-    } else {
-      updatedCart = [
-        ...existingCart,
-        {
-          ...product,
-          quantity: 1,
-        },
-      ];
-    }
-
-    localStorage.setItem(
-      "cart",
-      JSON.stringify(updatedCart)
-    );
-
-    window.dispatchEvent(
-      new Event("cartUpdated")
-    );
-
-    setAdded(true);
-
-    setTimeout(() => {
-      setAdded(false);
-    }, 2500);
-  };
-
-  /* =========================
-     WISHLIST
-  ========================= */
-
-  const handleWishlist = () => {
-    const wishlist =
-      JSON.parse(
-        localStorage.getItem("wishlist")
-      ) || [];
-
-    const alreadySaved =
-      wishlist.some(
-        (item) =>
-          (item._id || item.id) ===
-          productId
-      );
-
-    if (alreadySaved) {
-      const updatedWishlist =
-        wishlist.filter(
-          (item) =>
-            (item._id || item.id) !==
-            productId
-        );
-
-      localStorage.setItem(
-        "wishlist",
-        JSON.stringify(
-          updatedWishlist
-        )
-      );
-    } else {
-      const updatedWishlist = [
-        ...wishlist,
-        product,
-      ];
-
-      localStorage.setItem(
-        "wishlist",
-        JSON.stringify(
-          updatedWishlist
-        )
-      );
-    }
-
-    window.dispatchEvent(
-      new Event("wishlistUpdated")
+    return (
+      categories[productCategory] ||
+      productCategory
     );
   };
+
+  // =========================
+  // STOCK STATUS
+  // =========================
+
+  const isOutOfStock =
+    productStock <= 0;
+
+  const stockMessage =
+    isOutOfStock
+      ? language === "Hindi"
+        ? "स्टॉक में उपलब्ध नहीं"
+        : "Out of Stock"
+      : language === "Hindi"
+      ? `${productStock} उपलब्ध`
+      : `${productStock} in stock`;
 
   return (
     <main className="product-details-page">
@@ -438,84 +348,152 @@ function ProductDetails() {
 
       <section className="product-details">
 
+        {/* =========================
+            IMAGE
+        ========================= */}
+
         <div className="details-image-wrapper">
 
-          <img
-            src={product.image}
-            alt={product.name}
-            className="details-image"
-          />
+          {productImage ? (
+            <img
+              src={productImage}
+              alt={productName}
+              className="details-image"
+            />
+          ) : (
+            <div
+              className="details-image"
+              style={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                minHeight: "400px",
+                background:
+                  "#e8ded0",
+                color: "#8a6245",
+                fontSize: "13px",
+              }}
+            >
+              {language === "Hindi"
+                ? "Image उपलब्ध नहीं"
+                : "Image unavailable"}
+            </div>
+          )}
 
         </div>
+
+        {/* =========================
+            CONTENT
+        ========================= */}
 
         <div className="details-content">
 
           {/* CATEGORY */}
 
           <p className="details-category">
-
-            {language === "Hindi"
-              ? product.category ===
-                "Fashion"
-                ? "फैशन"
-                : product.category ===
-                  "Accessories"
-                ? "एक्सेसरीज़"
-                : product.category ===
-                  "Footwear"
-                ? "फुटवियर"
-                : product.category
-              : product.category}
-
+            {getCategoryName()}
           </p>
 
-          {/* PRODUCT NAME */}
+          {/* NAME */}
 
           <h1>
-            {product.name}
+            {productName}
           </h1>
-
-          {/* PRODUCT RATING SUMMARY */}
-
-          <div className="product-rating-summary">
-
-            <div className="product-rating-stars">
-
-              {reviews.length > 0
-                ? "★★★★★"
-                : "☆☆☆☆☆"}
-
-            </div>
-
-            <strong>
-              {reviews.length > 0
-                ? averageRating
-                : "No rating"}
-            </strong>
-
-            <span>
-              {reviews.length === 1
-                ? "1 Review"
-                : `${reviews.length} Reviews`}
-            </span>
-
-          </div>
 
           {/* PRICE */}
 
           <p className="details-price">
-            ₹{product.price}
+            ₹
+            {productPrice.toLocaleString(
+              "en-IN"
+            )}
           </p>
 
           <div className="details-line"></div>
 
           {/* DESCRIPTION */}
 
-          <p className="details-description">
-            {product.description}
-          </p>
+          <div className="details-description">
+            <p>
+              {productDescription}
+            </p>
+          </div>
 
-          {/* ACTIONS */}
+          {/* =========================
+              STOCK
+          ========================= */}
+
+          <div
+            style={{
+              margin:
+                "22px 0",
+              padding:
+                "14px 16px",
+              border:
+                "1px solid #e2d7ca",
+              background:
+                "#fffdf9",
+            }}
+          >
+            <span
+              style={{
+                display:
+                  "block",
+                marginBottom:
+                  "5px",
+                fontSize:
+                  "9px",
+                letterSpacing:
+                  "1px",
+                fontWeight:
+                  "700",
+                color:
+                  "#8a6245",
+              }}
+            >
+              {language === "Hindi"
+                ? "स्टॉक"
+                : "STOCK"}
+            </span>
+
+            <strong
+              style={{
+                color:
+                  isOutOfStock
+                    ? "#b45845"
+                    : "#5f7858",
+                fontSize:
+                  "14px",
+              }}
+            >
+              {stockMessage}
+            </strong>
+          </div>
+
+          {/* =========================
+              ERROR
+          ========================= */}
+
+          {actionError && (
+            <p
+              style={{
+                margin:
+                  "0 0 15px",
+                color:
+                  "#a64b3c",
+                fontSize:
+                  "12px",
+                lineHeight:
+                  "1.5",
+              }}
+            >
+              {actionError}
+            </p>
+          )}
+
+          {/* =========================
+              ACTIONS
+          ========================= */}
 
           <div className="details-actions">
 
@@ -525,8 +503,25 @@ function ProductDetails() {
               onClick={
                 handleAddToCart
               }
+              disabled={
+                isOutOfStock
+              }
+              style={{
+                opacity:
+                  isOutOfStock
+                    ? 0.55
+                    : 1,
+                cursor:
+                  isOutOfStock
+                    ? "not-allowed"
+                    : "pointer",
+              }}
             >
-              {added
+              {isOutOfStock
+                ? language === "Hindi"
+                  ? "स्टॉक खत्म है"
+                  : "OUT OF STOCK"
+                : added
                 ? language === "Hindi"
                   ? "कार्ट में जोड़ा गया ✓"
                   : "ADDED TO CART ✓"
@@ -535,69 +530,51 @@ function ProductDetails() {
                 : "ADD TO CART"}
             </button>
 
-            <button
-              type="button"
-              className="wishlist-btn"
-              onClick={
-                handleWishlist
-              }
-              aria-label="Add to wishlist"
-            >
-              ♡
-            </button>
-
           </div>
 
-          {/* PRODUCT INFO */}
+          {/* =========================
+              BASIC PRODUCT INFO
+          ========================= */}
 
           <div className="product-info-box">
 
             <div>
-
               <strong>
                 {language === "Hindi"
-                  ? "फ्री शिपिंग"
-                  : "FREE SHIPPING"}
+                  ? "कैटेगरी"
+                  : "CATEGORY"}
               </strong>
 
               <span>
-                {language === "Hindi"
-                  ? "₹999 से अधिक के ऑर्डर पर"
-                  : "On orders over ₹999"}
+                {getCategoryName()}
               </span>
-
             </div>
 
             <div>
-
               <strong>
                 {language === "Hindi"
-                  ? "आसान रिटर्न"
-                  : "EASY RETURNS"}
+                  ? "कीमत"
+                  : "PRICE"}
               </strong>
 
               <span>
-                {language === "Hindi"
-                  ? "30 दिन की रिटर्न पॉलिसी"
-                  : "30-day return policy"}
+                ₹
+                {productPrice.toLocaleString(
+                  "en-IN"
+                )}
               </span>
-
             </div>
 
             <div>
-
               <strong>
                 {language === "Hindi"
-                  ? "सुरक्षित भुगतान"
-                  : "SECURE PAYMENT"}
+                  ? "उपलब्धता"
+                  : "AVAILABILITY"}
               </strong>
 
               <span>
-                {language === "Hindi"
-                  ? "100% सुरक्षित चेकआउट"
-                  : "100% secure checkout"}
+                {stockMessage}
               </span>
-
             </div>
 
           </div>
@@ -607,319 +584,27 @@ function ProductDetails() {
       </section>
 
       {/* =========================
-          REVIEWS SECTION
+          BOTTOM NAVIGATION
       ========================= */}
 
-      <section className="product-reviews-section">
-
-        <div className="product-reviews-header">
-
-          <div>
-
-            <p className="section-label">
-              {language === "Hindi"
-                ? "ग्राहक अनुभव"
-                : "CUSTOMER EXPERIENCE"}
-            </p>
-
-            <h2>
-              Reviews & Ratings
-            </h2>
-
-          </div>
-
-          <div className="product-review-overall">
-
-            <strong>
-              {reviews.length > 0
-                ? averageRating
-                : "0.0"}
-            </strong>
-
-            <div>
-
-              <span className="overall-stars">
-                {reviews.length > 0
-                  ? "★★★★★"
-                  : "☆☆☆☆☆"}
-              </span>
-
-              <small>
-                {reviews.length === 1
-                  ? "1 customer review"
-                  : `${reviews.length} customer reviews`}
-              </small>
-
-            </div>
-
-          </div>
-
-        </div>
-
-        {/* =========================
-            WRITE REVIEW
-        ========================= */}
-
-        <div className="product-review-write">
-
-          <div className="review-write-title">
-
-            <p>
-              WRITE A REVIEW
-            </p>
-
-            <h3>
-              {language === "Hindi"
-                ? "इस प्रोडक्ट के बारे में बताएं"
-                : "Tell us about this product"}
-            </h3>
-
-          </div>
-
-          <form
-            onSubmit={
-              handleReviewSubmit
-            }
-            className="product-review-form"
-          >
-
-            {/* NAME */}
-
-            <div className="product-review-field">
-
-              <label>
-                {language === "Hindi"
-                  ? "आपका नाम"
-                  : "YOUR NAME"}
-              </label>
-
-              <input
-                type="text"
-                value={
-                  reviewerName
-                }
-                onChange={(e) =>
-                  setReviewerName(
-                    e.target.value
-                  )
-                }
-                placeholder={
-                  language === "Hindi"
-                    ? "अपना नाम दर्ज करें"
-                    : "Enter your name"
-                }
-                required
-              />
-
-            </div>
-
-            {/* RATING */}
-
-            <div className="product-review-field">
-
-              <label>
-                {language === "Hindi"
-                  ? "आपकी रेटिंग"
-                  : "YOUR RATING"}
-              </label>
-
-              <div className="product-rating-picker">
-
-                {[1, 2, 3, 4, 5].map(
-                  (star) => (
-                    <button
-                      key={star}
-                      type="button"
-                      className={
-                        star <=
-                        (hoverRating ||
-                          reviewRating)
-                          ? "rating-star active"
-                          : "rating-star"
-                      }
-                      onMouseEnter={() =>
-                        setHoverRating(
-                          star
-                        )
-                      }
-                      onMouseLeave={() =>
-                        setHoverRating(
-                          0
-                        )
-                      }
-                      onClick={() =>
-                        setReviewRating(
-                          star
-                        )
-                      }
-                      aria-label={`Rate ${star} stars`}
-                    >
-                      ★
-                    </button>
-                  )
-                )}
-
-              </div>
-
-            </div>
-
-            {/* REVIEW */}
-
-            <div className="product-review-field">
-
-              <label>
-                {language === "Hindi"
-                  ? "आपका रिव्यू"
-                  : "YOUR REVIEW"}
-              </label>
-
-              <textarea
-                value={reviewText}
-                onChange={(e) =>
-                  setReviewText(
-                    e.target.value
-                  )
-                }
-                placeholder={
-                  language === "Hindi"
-                    ? "इस प्रोडक्ट के बारे में अपना अनुभव लिखें..."
-                    : "Write your experience with this product..."
-                }
-                rows="5"
-                required
-              />
-
-            </div>
-
-            <button
-              type="submit"
-              className="product-review-submit"
-            >
-              {language === "Hindi"
-                ? "रिव्यू पोस्ट करें →"
-                : "POST REVIEW →"}
-            </button>
-
-          </form>
-
-        </div>
-
-        {/* =========================
-            REVIEWS LIST
-        ========================= */}
-
-        <div className="product-review-list">
-
-          <div className="product-review-list-title">
-
-            <h3>
-              {language === "Hindi"
-                ? "Customers Say"
-                : "What customers say"}
-            </h3>
-
-            <span>
-              {reviews.length} REVIEWS
-            </span>
-
-          </div>
-
-          {reviews.length === 0 ? (
-
-            <div className="no-product-reviews">
-
-              <span>
-                ✦
-              </span>
-
-              <h3>
-                {language === "Hindi"
-                  ? "अभी कोई रिव्यू नहीं है"
-                  : "No reviews yet"}
-              </h3>
-
-              <p>
-                {language === "Hindi"
-                  ? "इस प्रोडक्ट पर पहला रिव्यू देने वाले बनें।"
-                  : "Be the first shopper to review this product."}
-              </p>
-
-            </div>
-
-          ) : (
-
-            <div className="product-review-grid">
-
-              {reviews.map(
-                (item) => (
-
-                  <article
-                    className="product-review-card"
-                    key={item.id}
-                  >
-
-                    <div className="product-review-card-top">
-
-                      <div className="product-review-avatar">
-                        {item.name
-                          .charAt(0)
-                          .toUpperCase()}
-                      </div>
-
-                      <div>
-
-                        <h4>
-                          {item.name}
-                        </h4>
-
-                        <div className="review-card-rating">
-
-                          {"★".repeat(
-                            Number(
-                              item.rating
-                            )
-                          )}
-
-                          {"☆".repeat(
-                            5 -
-                              Number(
-                                item.rating
-                              )
-                          )}
-
-                        </div>
-
-                      </div>
-
-                    </div>
-
-                    <p className="product-review-text">
-                      “{item.review}”
-                    </p>
-
-                    <div className="product-review-card-footer">
-
-                      <span>
-                        {item.date}
-                      </span>
-
-                      <span>
-                        ✓ Verified
-                      </span>
-
-                    </div>
-
-                  </article>
-
-                )
-              )}
-
-            </div>
-
-          )}
-
-        </div>
-
+      <section
+        style={{
+          maxWidth:
+            "1200px",
+          margin:
+            "0 auto",
+          padding:
+            "0 30px 70px",
+        }}
+      >
+        <Link
+          to="/products"
+          className="continue-shopping"
+        >
+          {language === "Hindi"
+            ? "← सभी प्रोडक्ट्स देखें"
+            : "← VIEW ALL PRODUCTS"}
+        </Link>
       </section>
 
     </main>

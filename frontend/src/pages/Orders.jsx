@@ -1,8 +1,7 @@
 import { Link } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { useLanguage } from "../LanguageContext";
-
-const API_URL = "http://localhost:3000";
+import API_URL from "../api";
 
 function Orders() {
   const { language } = useLanguage();
@@ -10,13 +9,14 @@ function Orders() {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const [cancellingId, setCancellingId] = useState(null);
+  const [cancellingId, setCancellingId] =
+    useState(null);
 
   // =========================
   // TOKEN
   // =========================
 
-  const getToken = () =>
+  const token =
     localStorage.getItem("authToken");
 
   // =========================
@@ -25,26 +25,10 @@ function Orders() {
 
   useEffect(() => {
     const loadOrders = async () => {
-      const token = getToken();
-
-      // =========================
-      // NOT LOGGED IN
-      // =========================
-
       if (!token) {
-        const savedOrders =
-          JSON.parse(
-            localStorage.getItem("orders")
-          ) || [];
-
-        setOrders(savedOrders);
         setLoading(false);
         return;
       }
-
-      // =========================
-      // BACKEND ORDERS
-      // =========================
 
       try {
         setLoading(true);
@@ -66,22 +50,16 @@ function Orders() {
         if (!response.ok) {
           throw new Error(
             data.message ||
-              "Could not load orders"
+              (language === "Hindi"
+                ? "ऑर्डर्स लोड नहीं हो पाए।"
+                : "Could not load orders.")
           );
         }
 
-        const backendOrders =
-          data.orders || [];
-
-        setOrders(backendOrders);
-
-        // =========================
-        // KEEP LOCAL COPY
-        // =========================
-
-        localStorage.setItem(
-          "orders",
-          JSON.stringify(backendOrders)
+        setOrders(
+          Array.isArray(data.orders)
+            ? data.orders
+            : []
         );
       } catch (err) {
         console.error(
@@ -90,25 +68,20 @@ function Orders() {
         );
 
         setError(
-          language === "Hindi"
-            ? "ऑर्डर्स लोड नहीं हो पाए।"
-            : "Could not load orders."
+          err.message ||
+            (language === "Hindi"
+              ? "ऑर्डर्स लोड नहीं हो पाए।"
+              : "Could not load orders.")
         );
 
-        // Fallback
-        const savedOrders =
-          JSON.parse(
-            localStorage.getItem("orders")
-          ) || [];
-
-        setOrders(savedOrders);
+        setOrders([]);
       } finally {
         setLoading(false);
       }
     };
 
     loadOrders();
-  }, []);
+  }, [token, language]);
 
   // =========================
   // CANCEL ORDER
@@ -117,8 +90,6 @@ function Orders() {
   const handleCancelOrder = async (
     orderId
   ) => {
-    const token = getToken();
-
     if (!token) {
       return;
     }
@@ -153,41 +124,21 @@ function Orders() {
       if (!response.ok) {
         throw new Error(
           data.message ||
-            "Could not cancel order"
+            (language === "Hindi"
+              ? "ऑर्डर कैंसल नहीं हो पाया।"
+              : "Could not cancel order.")
         );
       }
 
-      const updatedOrder =
-        data.order;
-
-      setOrders((currentOrders) =>
-        currentOrders.map((order) =>
-          order._id === orderId
-            ? updatedOrder
-            : order
-        )
-      );
-
-      // Update local copy too
-      const savedOrders =
-        JSON.parse(
-          localStorage.getItem("orders")
-        ) || [];
-
-      const updatedLocalOrders =
-        savedOrders.map((order) =>
-          order._id === orderId ||
-          order.orderId === orderId
-            ? updatedOrder
-            : order
+      if (data.order) {
+        setOrders((currentOrders) =>
+          currentOrders.map((order) =>
+            order._id === orderId
+              ? data.order
+              : order
+          )
         );
-
-      localStorage.setItem(
-        "orders",
-        JSON.stringify(
-          updatedLocalOrders
-        )
-      );
+      }
     } catch (err) {
       console.error(
         "Cancel order error:",
@@ -206,7 +157,7 @@ function Orders() {
   };
 
   // =========================
-  // FORMAT STATUS
+  // STATUS TEXT
   // =========================
 
   const getStatusText = (status) => {
@@ -215,12 +166,14 @@ function Orders() {
         .toLowerCase();
 
     if (language !== "Hindi") {
-      return status || "Confirmed";
+      return (
+        normalizedStatus || "confirmed"
+      );
     }
 
     const statusMap = {
+      pending: "पेंडिंग",
       confirmed: "पुष्टि की गई",
-      processing: "प्रोसेसिंग",
       shipped: "भेज दिया गया",
       delivered: "डिलीवर हो गया",
       cancelled: "कैंसल किया गया",
@@ -228,40 +181,32 @@ function Orders() {
 
     return (
       statusMap[normalizedStatus] ||
-      status ||
       "पुष्टि की गई"
     );
   };
 
   // =========================
-  // FORMAT DATE
+  // DATE
   // =========================
 
   const formatDate = (order) => {
-    if (order.createdAt) {
-      return new Date(
-        order.createdAt
-      ).toLocaleDateString(
-        language === "Hindi"
-          ? "hi-IN"
-          : "en-IN"
-      );
+    if (!order.createdAt) {
+      return "—";
     }
 
-    if (order.date) {
-      return order.date;
-    }
-
-    return "—";
+    return new Date(
+      order.createdAt
+    ).toLocaleDateString(
+      language === "Hindi"
+        ? "hi-IN"
+        : "en-IN",
+      {
+        day: "2-digit",
+        month: "short",
+        year: "numeric",
+      }
+    );
   };
-
-  // =========================
-  // ORDER ID
-  // =========================
-
-  const getOrderId = (order) =>
-    order._id ||
-    order.orderId;
 
   // =========================
   // ITEM COUNT
@@ -282,7 +227,6 @@ function Orders() {
   if (loading) {
     return (
       <main className="orders-page">
-
         <section className="orders-header">
           <p>
             {language === "Hindi"
@@ -298,9 +242,7 @@ function Orders() {
         </section>
 
         <section className="orders-content">
-
           <div className="orders-empty">
-
             <div className="orders-empty-icon">
               📦
             </div>
@@ -310,9 +252,66 @@ function Orders() {
                 ? "ऑर्डर्स लोड हो रहे हैं..."
                 : "Loading orders..."}
             </h2>
-
           </div>
+        </section>
+      </main>
+    );
+  }
 
+  // =========================
+  // NOT LOGGED IN
+  // =========================
+
+  if (!token) {
+    return (
+      <main className="orders-page">
+        <section className="orders-header">
+          <p>
+            {language === "Hindi"
+              ? "मेरा अकाउंट"
+              : "MY ACCOUNT"}
+          </p>
+
+          <h1>
+            {language === "Hindi"
+              ? "मेरे ऑर्डर्स"
+              : "My Orders"}
+          </h1>
+
+          <span>
+            {language === "Hindi"
+              ? "अपने ऑर्डर्स देखने के लिए लॉगिन करें।"
+              : "Please log in to view your orders."}
+          </span>
+        </section>
+
+        <section className="orders-content">
+          <div className="orders-empty">
+            <div className="orders-empty-icon">
+              🔐
+            </div>
+
+            <h2>
+              {language === "Hindi"
+                ? "कृपया लॉगिन करें"
+                : "Login required"}
+            </h2>
+
+            <p>
+              {language === "Hindi"
+                ? "अपने ऑर्डर्स देखने के लिए अपने अकाउंट में लॉगिन करें।"
+                : "Log in to your account to view your orders."}
+            </p>
+
+            <Link
+              to="/login"
+              className="orders-shop-btn"
+            >
+              {language === "Hindi"
+                ? "लॉगिन करें →"
+                : "Login →"}
+            </Link>
+          </div>
         </section>
       </main>
     );
@@ -354,7 +353,7 @@ function Orders() {
       </section>
 
       {/* =========================
-          ORDERS CONTENT
+          CONTENT
       ========================= */}
 
       <section className="orders-content">
@@ -393,48 +392,35 @@ function Orders() {
 
             {orders.map(
               (order, index) => {
-
                 const orderId =
-                  getOrderId(order);
+                  order._id || index;
 
                 const itemCount =
                   getItemCount(order);
 
-                const customerName =
-                  order.shippingAddress
-                    ?.fullName ||
-                  order.customer?.name ||
-                  "Customer";
-
                 const totalAmount =
                   Number(
                     order.totalAmount
-                  ) ||
-                  Number(order.total) ||
-                  0;
+                  ) || 0;
+
+                const status =
+                  String(
+                    order.status || ""
+                  ).toLowerCase();
 
                 const isCancelled =
-                  String(
-                    order.status
-                  ).toLowerCase() ===
-                  "cancelled";
+                  status === "cancelled";
 
                 const canCancel =
                   [
+                    "pending",
                     "confirmed",
-                    "processing",
-                  ].includes(
-                    String(
-                      order.status
-                    ).toLowerCase()
-                  );
+                  ].includes(status);
 
                 return (
                   <div
                     className="order-card"
-                    key={
-                      orderId || index
-                    }
+                    key={orderId}
                   >
 
                     {/* =========================
@@ -444,7 +430,6 @@ function Orders() {
                     <div className="order-card-top">
 
                       <div>
-
                         <p className="order-label">
                           {language === "Hindi"
                             ? "ऑर्डर आईडी"
@@ -454,7 +439,6 @@ function Orders() {
                         <h3>
                           #{orderId}
                         </h3>
-
                       </div>
 
                       <span className="order-status">
@@ -477,7 +461,9 @@ function Orders() {
                             ? "नाम:"
                             : "Name:"}
                         </strong>{" "}
-                        {customerName}
+                        {order.shippingAddress
+                          ?.fullName ||
+                          "Customer"}
                       </p>
 
                       <p>
@@ -498,17 +484,6 @@ function Orders() {
                         {itemCount}
                       </p>
 
-                      <p>
-                        <strong>
-                          {language === "Hindi"
-                            ? "भुगतान:"
-                            : "Payment:"}
-                        </strong>{" "}
-                        {language === "Hindi"
-                          ? "कैश ऑन डिलीवरी"
-                          : "Cash on Delivery"}
-                      </p>
-
                     </div>
 
                     {/* =========================
@@ -519,19 +494,17 @@ function Orders() {
 
                       {(order.items || []).map(
                         (item, itemIndex) => {
-
                           const product =
                             item.product ||
-                            item;
+                            {};
 
                           const productId =
                             product._id ||
-                            product.id ||
+                            item.product?._id ||
                             itemIndex;
 
                           const image =
                             product.image ||
-                            product.imageUrl ||
                             item.image ||
                             "";
 
@@ -543,21 +516,42 @@ function Orders() {
                           const price =
                             Number(
                               item.price ??
-                              product.price
+                                product.price
                             ) || 0;
 
                           return (
                             <div
                               className="order-product"
-                              key={
-                                productId
-                              }
+                              key={productId}
                             >
 
-                              <img
-                                src={image}
-                                alt={name}
-                              />
+                              {image ? (
+                                <img
+                                  src={image}
+                                  alt={name}
+                                />
+                              ) : (
+                                <div
+                                  style={{
+                                    width:
+                                      "70px",
+                                    height:
+                                      "70px",
+                                    display:
+                                      "flex",
+                                    alignItems:
+                                      "center",
+                                    justifyContent:
+                                      "center",
+                                    background:
+                                      "#eee",
+                                    borderRadius:
+                                      "8px",
+                                  }}
+                                >
+                                  🛍️
+                                </div>
+                              )}
 
                               <div>
 
@@ -566,11 +560,11 @@ function Orders() {
                                 </strong>
 
                                 <span>
-                                  {
-                                    item.quantity
-                                  }{" "}
+                                  {item.quantity}{" "}
                                   × ₹
-                                  {price}
+                                  {price.toLocaleString(
+                                    "en-IN"
+                                  )}
                                 </span>
 
                               </div>
@@ -589,18 +583,19 @@ function Orders() {
                     <div className="order-card-bottom">
 
                       <strong>
-                        ₹{totalAmount}
+                        ₹
+                        {totalAmount.toLocaleString(
+                          "en-IN"
+                        )}
                       </strong>
 
                       <div
                         style={{
-                          display:
-                            "flex",
+                          display: "flex",
                           gap: "10px",
                           alignItems:
                             "center",
-                          flexWrap:
-                            "wrap",
+                          flexWrap: "wrap",
                         }}
                       >
 

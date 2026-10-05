@@ -1,20 +1,25 @@
-import { useState } from "react";
 import { useLanguage } from "../LanguageContext";
 
 function Contact() {
   const { language } = useLanguage();
 
-  const [submitted, setSubmitted] = useState(false);
+  const supportEmail =
+    "support@shopsphere.com";
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    setSubmitted(true);
+  const handleEmailContact = () => {
+    window.location.href =
+      `mailto:${supportEmail}`;
   };
 
   return (
     <main className="contact-page">
 
+      {/* =========================
+          HERO
+      ========================= */}
+
       <section className="contact-hero">
+
         <p className="contact-label">
           {language === "Hindi"
             ? "हमसे जुड़ें"
@@ -24,145 +29,120 @@ function Contact() {
         <h1>
           {language === "Hindi"
             ? "हम आपकी मदद के लिए यहाँ हैं"
-            : "We'd love to hear from you"}
+            : "We're here to help"}
         </h1>
 
         <p>
           {language === "Hindi"
-            ? "किसी भी सवाल या सहायता के लिए हमसे संपर्क करें।"
-            : "Have a question or need help? Our team is here for you."}
+            ? "किसी सवाल या सहायता के लिए हमसे संपर्क करें।"
+            : "Have a question or need help? Get in touch with the ShopSphere team."}
         </p>
+
       </section>
+
+      {/* =========================
+          CONTACT CONTENT
+      ========================= */}
 
       <section className="contact-content">
 
         <div className="contact-info">
 
+          {/* EMAIL */}
+
           <div className="contact-info-card">
+
             <span>📧</span>
 
             <div>
-              <h3>Email Us</h3>
-              <p>support@shopsphere.com</p>
+
+              <h3>
+                {language === "Hindi"
+                  ? "ईमेल"
+                  : "Email Us"}
+              </h3>
+
+              <p>
+                {supportEmail}
+              </p>
+
             </div>
+
           </div>
 
-          <div className="contact-info-card">
-            <span>📞</span>
-
-            <div>
-              <h3>Call Us</h3>
-              <p>+91 98765 43210</p>
-            </div>
-          </div>
+          {/* SUPPORT */}
 
           <div className="contact-info-card">
-            <span>📍</span>
+
+            <span>💬</span>
 
             <div>
-              <h3>Visit Us</h3>
-              <p>New Delhi, India</p>
-            </div>
-          </div>
 
-          <div className="contact-info-card">
-            <span>🕐</span>
+              <h3>
+                {language === "Hindi"
+                  ? "सहायता"
+                  : "Customer Support"}
+              </h3>
 
-            <div>
-              <h3>Working Hours</h3>
-              <p>Mon – Sat, 10 AM – 7 PM</p>
+              <p>
+                {language === "Hindi"
+                  ? "ऑर्डर और प्रोडक्ट से जुड़े सवालों के लिए हमसे संपर्क करें।"
+                  : "Contact us for help with products and orders."}
+              </p>
+
             </div>
+
           </div>
 
         </div>
 
+        {/* =========================
+            CONTACT CARD
+        ========================= */}
+
         <div className="contact-form-card">
 
-          {submitted ? (
-            <div className="contact-success">
-              <div className="success-icon">✓</div>
+          <div className="contact-success">
 
-              <h2>
-                {language === "Hindi"
-                  ? "मैसेज भेज दिया गया!"
-                  : "Message Sent!"}
-              </h2>
-
-              <p>
-                {language === "Hindi"
-                  ? "हम जल्द ही आपसे संपर्क करेंगे।"
-                  : "Thank you for contacting us. We'll get back to you soon."}
-              </p>
-
-              <button
-                onClick={() => setSubmitted(false)}
-                className="contact-reset-btn"
-              >
-                Send Another Message
-              </button>
+            <div className="success-icon">
+              ✉
             </div>
-          ) : (
-            <>
-              <h2>
-                {language === "Hindi"
-                  ? "मैसेज भेजें"
-                  : "Send us a message"}
-              </h2>
 
-              <form onSubmit={handleSubmit}>
+            <h2>
+              {language === "Hindi"
+                ? "हमें ईमेल करें"
+                : "Send us an email"}
+            </h2>
 
-                <div className="contact-form-row">
+            <p>
+              {language === "Hindi"
+                ? "हमारे support email पर अपना सवाल या समस्या भेजें।"
+                : "Send your question or concern directly to our support email."}
+            </p>
 
-                  <div className="contact-field">
-                    <label>Name</label>
-                    <input
-                      type="text"
-                      placeholder="Your name"
-                      required
-                    />
-                  </div>
+            <button
+              type="button"
+              onClick={
+                handleEmailContact
+              }
+              className="contact-submit-btn"
+            >
+              {language === "Hindi"
+                ? "ईमेल भेजें →"
+                : "EMAIL US →"}
+            </button>
 
-                  <div className="contact-field">
-                    <label>Email</label>
-                    <input
-                      type="email"
-                      placeholder="Your email"
-                      required
-                    />
-                  </div>
+            <p
+              style={{
+                marginTop: "15px",
+                fontSize: "11px",
+                color: "#81776e",
+              }}
+            >
+              {supportEmail}
+            </p>
 
-                </div>
-
-                <div className="contact-field">
-                  <label>Subject</label>
-
-                  <input
-                    type="text"
-                    placeholder="How can we help?"
-                    required
-                  />
-                </div>
-
-                <div className="contact-field">
-                  <label>Message</label>
-
-                  <textarea
-                    rows="5"
-                    placeholder="Write your message..."
-                    required
-                  ></textarea>
-                </div>
-
-                <button
-                  type="submit"
-                  className="contact-submit-btn"
-                >
-                  Send Message →
-                </button>
-
-              </form>
-            </>
-          )}
+          </div>
 
         </div>
 
