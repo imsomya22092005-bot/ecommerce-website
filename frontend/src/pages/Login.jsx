@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useLanguage } from "../LanguageContext";
 import API_URL from "../api";
@@ -86,6 +86,165 @@ function Login() {
       new Event("cartUpdated")
     );
   };
+
+  // =========================
+  // GOOGLE SIGN-IN
+  // =========================
+
+  const handleGoogleCredential = async (credentialResponse) => {
+    setError("");
+    setLoading(true);
+
+    try {
+      const response = await fetch(
+        `${API_URL}/api/auth/google/login`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            credential: credentialResponse.credential,
+          }),
+        }
+      );
+
+      const data = await getResponseData(response);
+
+      if (!response.ok) {
+        throw new Error(
+          data.message ||
+            "Google sign-in failed"
+        );
+      }
+
+      const token = data.token;
+      const user = data.user || {};
+      const email = user.email || "";
+
+      if (!token || !email) {
+        throw new Error(
+          "Google sign-in succeeded but the session data is incomplete."
+        );
+      }
+
+      saveUserSession({
+        token,
+        username:
+          user.username ||
+          email.split("@")[0],
+        email,
+        role: user.role || "user",
+      });
+
+      setWelcomeName(
+        user.username ||
+          email.split("@")[0]
+      );
+      setShowWelcome(true);
+    } catch (error) {
+      console.error(
+        "Google authentication error:",
+        error
+      );
+
+      setError(
+        error.message ||
+          "Google sign-in failed. Please try again."
+      );
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (isRegister) {
+      return;
+    }
+
+    const clientId =
+      import.meta.env.VITE_GOOGLE_CLIENT_ID;
+
+    if (!clientId) {
+      return;
+    }
+
+    const renderGoogleButton = () => {
+      if (
+        !window.google?.accounts?.id
+      ) {
+        return;
+      }
+
+      const container =
+        document.getElementById(
+          "google-signin-button"
+        );
+
+      if (!container) {
+        return;
+      }
+
+      container.innerHTML = "";
+
+      window.google.accounts.id.initialize({
+        client_id: clientId,
+        callback: handleGoogleCredential,
+      });
+
+      window.google.accounts.id.renderButton(
+        container,
+        {
+          theme: "outline",
+          size: "large",
+          text: "signin_with",
+          shape: "rectangular",
+          width: 360,
+        }
+      );
+    };
+
+    if (
+      window.google?.accounts?.id
+    ) {
+      renderGoogleButton();
+      return;
+    }
+
+    let script =
+      document.querySelector(
+        'script[data-google-gsi="true"]'
+      );
+
+    if (!script) {
+      script =
+        document.createElement("script");
+
+      script.src =
+        "https://accounts.google.com/gsi/client";
+      script.async = true;
+      script.defer = true;
+      script.dataset.googleGsi =
+        "true";
+
+      document.head.appendChild(
+        script
+      );
+    }
+
+    script.addEventListener(
+      "load",
+      renderGoogleButton,
+      { once: true }
+    );
+
+    return () => {
+      script?.removeEventListener(
+        "load",
+        renderGoogleButton
+      );
+    };
+  }, [isRegister]);
 
   // =========================
   // SUBMIT
@@ -637,6 +796,51 @@ function Login() {
             </button>
 
           </form>
+
+          {/* GOOGLE SIGN-IN */}
+
+          {!isRegister &&
+            import.meta.env
+              .VITE_GOOGLE_CLIENT_ID && (
+              <>
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "12px",
+                    margin: "22px 0 16px",
+                    color: "#9a8e82",
+                    fontSize: "11px",
+                    letterSpacing: "1px",
+                  }}
+                >
+                  <span
+                    style={{
+                      flex: 1,
+                      height: "1px",
+                      background: "#ded5c9",
+                    }}
+                  />
+                  <span>OR</span>
+                  <span
+                    style={{
+                      flex: 1,
+                      height: "1px",
+                      background: "#ded5c9",
+                    }}
+                  />
+                </div>
+
+                <div
+                  id="google-signin-button"
+                  style={{
+                    display: "flex",
+                    justifyContent: "center",
+                    minHeight: "44px",
+                  }}
+                />
+              </>
+            )}
 
           {/* SWITCH */}
 
