@@ -241,21 +241,17 @@ function Home() {
             ? data
             : data.products || [];
 
-        /* ONLY ALLOWED CATEGORIES */
+        /* USE THE CATEGORIES ACTUALLY PRESENT IN THE BACKEND */
 
-        const allowedProducts =
+        const backendProducts =
           productList.filter((product) =>
-            ALLOWED_CATEGORIES.has(
-              String(
-                product.category || ""
-              ).trim()
-            )
+            String(product.category || "").trim()
           );
 
         /* SORT NEWEST FIRST */
 
         const sortedProducts =
-          [...allowedProducts].sort(
+          [...backendProducts].sort(
             (a, b) => {
               const dateA =
                 new Date(
