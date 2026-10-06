@@ -8,11 +8,55 @@ import API_URL from "../api";
 const PRODUCTS_PER_PAGE = 8;
 
 /* =========================================================
+   ONLY THESE CATEGORIES WILL BE SHOWN
+========================================================= */
+
+const ALLOWED_CATEGORIES = new Set([
+  // Fashion
+  "mens-shirts",
+  "womens-dresses",
+  "tops",
+
+  // Beauty
+  "beauty",
+  "skin-care",
+  "fragrances",
+
+  // Footwear
+  "mens-shoes",
+  "womens-shoes",
+
+  // Gadgets
+  "smartphones",
+  "laptops",
+  "tablets",
+  "mobile-accessories",
+
+  // Sports
+  "sports-accessories",
+
+  // Furniture
+  "furniture",
+
+  // Home Accessories
+  "home-decoration",
+  "kitchen-accessories",
+
+  // Accessories
+  "mens-watches",
+  "womens-watches",
+  "sunglasses",
+  "womens-bags",
+  "womens-jewellery",
+]);
+
+/* =========================================================
    CATEGORY GROUP TITLES
 ========================================================= */
 
 const GROUP_TITLES = {
-  "mens-shoes||womens-shoes": "Footwear",
+  "mens-shoes||womens-shoes":
+    "Footwear",
 
   "smartphones||laptops||tablets||mobile-accessories":
     "Gadgets",
@@ -23,20 +67,14 @@ const GROUP_TITLES = {
   "mens-shirts||womens-dresses||tops":
     "Fashion",
 
-  "motorcycle||vehicle":
-    "Vehicles",
-
   "sports-accessories":
     "Sports",
 
   furniture:
     "Furniture",
 
-  groceries:
-    "Food",
-
   "home-decoration||kitchen-accessories":
-    "Home",
+    "Home Accessories",
 
   "mens-watches||womens-watches||sunglasses||womens-bags||womens-jewellery":
     "Accessories",
@@ -51,7 +89,8 @@ function getGroupTitle(categories) {
     return null;
   }
 
-  const key = categories.join("||");
+  const key =
+    categories.join("||");
 
   return GROUP_TITLES[key] || null;
 }
@@ -61,7 +100,8 @@ function getGroupTitle(categories) {
 ========================================================= */
 
 function Products() {
-  const { language } = useLanguage();
+  const { language } =
+    useLanguage();
 
   const [
     searchParams,
@@ -89,11 +129,18 @@ function Products() {
     return value
       .split("||")
       .map((item) => item.trim())
-      .filter(Boolean);
+      .filter(
+        (item) =>
+          item &&
+          ALLOWED_CATEGORIES.has(
+            item
+          )
+      );
   };
 
   const getSortFromURL = () =>
-    searchParams.get("sort") || "default";
+    searchParams.get("sort") ||
+    "default";
 
   const getPageFromURL = () =>
     Math.max(
@@ -123,30 +170,36 @@ function Products() {
       getCategoryFromURL()
     );
 
-  const [groupedCategories, setGroupedCategories] =
-    useState(
-      getGroupedCategoriesFromURL()
-    );
+  const [
+    groupedCategories,
+    setGroupedCategories,
+  ] = useState(
+    getGroupedCategoriesFromURL()
+  );
 
   const [sort, setSort] =
     useState(
       getSortFromURL()
     );
 
-  const [currentPage, setCurrentPage] =
-    useState(
-      getPageFromURL()
-    );
+  const [
+    currentPage,
+    setCurrentPage,
+  ] = useState(
+    getPageFromURL()
+  );
 
-  const [pagination, setPagination] =
-    useState({
-      currentPage:
-        getPageFromURL(),
-      totalPages: 1,
-      totalProducts: 0,
-      limit:
-        PRODUCTS_PER_PAGE,
-    });
+  const [
+    pagination,
+    setPagination,
+  ] = useState({
+    currentPage:
+      getPageFromURL(),
+    totalPages: 1,
+    totalProducts: 0,
+    limit:
+      PRODUCTS_PER_PAGE,
+  });
 
   const [loading, setLoading] =
     useState(true);
@@ -163,8 +216,15 @@ function Products() {
       getSearchFromURL()
     );
 
+    const urlCategory =
+      getCategoryFromURL();
+
     setCategory(
-      getCategoryFromURL()
+      ALLOWED_CATEGORIES.has(
+        urlCategory
+      )
+        ? urlCategory
+        : "All"
     );
 
     setGroupedCategories(
@@ -181,7 +241,7 @@ function Products() {
   }, [searchParams]);
 
   /* =========================================================
-     LOAD ALL REAL CATEGORIES
+     LOAD ONLY ALLOWED CATEGORIES
   ========================================================= */
 
   useEffect(() => {
@@ -217,7 +277,12 @@ function Products() {
                       ""
                   ).trim()
                 )
-                .filter(Boolean)
+                .filter(
+                  (item) =>
+                    ALLOWED_CATEGORIES.has(
+                      item
+                    )
+                )
             ),
           ].sort((a, b) =>
             a.localeCompare(b)
@@ -244,7 +309,8 @@ function Products() {
   const updateURL = ({
     searchValue = search,
     categoryValue = category,
-    groupedValue = groupedCategories,
+    groupedValue =
+      groupedCategories,
     sortValue = sort,
     pageValue = currentPage,
   }) => {
@@ -262,10 +328,19 @@ function Products() {
       groupedValue.length > 0
     ) {
       params.categories =
-        groupedValue.join("||");
+        groupedValue
+          .filter((item) =>
+            ALLOWED_CATEGORIES.has(
+              item
+            )
+          )
+          .join("||");
     } else if (
       categoryValue &&
-      categoryValue !== "All"
+      categoryValue !== "All" &&
+      ALLOWED_CATEGORIES.has(
+        categoryValue
+      )
     ) {
       params.category =
         categoryValue;
@@ -300,19 +375,23 @@ function Products() {
 
           /* =================================================
              GROUPED CATEGORY
-             
-             Example:
-             Footwear
-             = mens-shoes + womens-shoes
           ================================================= */
 
           if (
             groupedCategories.length >
             0
           ) {
+            const safeGroupedCategories =
+              groupedCategories.filter(
+                (item) =>
+                  ALLOWED_CATEGORIES.has(
+                    item
+                  )
+              );
+
             const responses =
               await Promise.all(
-                groupedCategories.map(
+                safeGroupedCategories.map(
                   async (
                     backendCategory
                   ) => {
@@ -343,16 +422,12 @@ function Products() {
                 )
               );
 
-            /* ---------------------------------------------
-               MERGE ALL CATEGORY RESULTS
-            --------------------------------------------- */
+            /* MERGE */
 
             const mergedProducts =
               responses.flat();
 
-            /* ---------------------------------------------
-               REMOVE DUPLICATES
-            --------------------------------------------- */
+            /* REMOVE DUPLICATES */
 
             const uniqueProducts =
               Array.from(
@@ -367,12 +442,17 @@ function Products() {
                 ).values()
               );
 
-            let filteredProducts =
-              [...uniqueProducts];
+            /* ALLOWED ONLY */
 
-            /* ---------------------------------------------
-               SEARCH
-            --------------------------------------------- */
+            let filteredProducts =
+              uniqueProducts.filter(
+                (product) =>
+                  ALLOWED_CATEGORIES.has(
+                    product.category
+                  )
+              );
+
+            /* SEARCH */
 
             if (search.trim()) {
               const searchValue =
@@ -394,9 +474,7 @@ function Products() {
                 );
             }
 
-            /* ---------------------------------------------
-               SORT
-            --------------------------------------------- */
+            /* SORT */
 
             if (
               sort ===
@@ -460,9 +538,7 @@ function Products() {
               );
             }
 
-            /* ---------------------------------------------
-               PAGINATION
-            --------------------------------------------- */
+            /* PAGINATION */
 
             const totalProducts =
               filteredProducts.length;
@@ -521,7 +597,7 @@ function Products() {
           }
 
           /* =================================================
-             NORMAL SINGLE CATEGORY
+             NORMAL PRODUCTS
           ================================================= */
 
           const params =
@@ -536,7 +612,10 @@ function Products() {
 
           if (
             category &&
-            category !== "All"
+            category !== "All" &&
+            ALLOWED_CATEGORIES.has(
+              category
+            )
           ) {
             params.set(
               "category",
@@ -556,9 +635,7 @@ function Products() {
 
           params.set(
             "page",
-            String(
-              currentPage
-            )
+            String(currentPage)
           );
 
           params.set(
@@ -588,8 +665,18 @@ function Products() {
               ? data
               : data.products || [];
 
+          /* FILTER OUT UNWANTED PRODUCTS */
+
+          const allowedProducts =
+            productList.filter(
+              (product) =>
+                ALLOWED_CATEGORIES.has(
+                  product.category
+                )
+            );
+
           setProducts(
-            productList
+            allowedProducts
           );
 
           setPagination(
@@ -597,7 +684,7 @@ function Products() {
               currentPage,
               totalPages: 1,
               totalProducts:
-                productList.length,
+                allowedProducts.length,
               limit:
                 PRODUCTS_PER_PAGE,
             }
@@ -867,8 +954,7 @@ function Products() {
         id="new-arrivals"
       >
         <p className="section-label">
-          {language ===
-          "Hindi"
+          {language === "Hindi"
             ? "SHOPSPHERE कलेक्शन"
             : "SHOPSPHERE COLLECTION"}
         </p>
@@ -879,12 +965,10 @@ function Products() {
 
         <p>
           {groupTitle
-            ? language ===
-              "Hindi"
+            ? language === "Hindi"
               ? `${pageTitle} के सभी प्रोडक्ट्स देखें।`
               : `Explore all products in ${pageTitle}.`
-            : language ===
-              "Hindi"
+            : language === "Hindi"
             ? "हमारे खास चुने गए प्रोडक्ट्स का कलेक्शन देखें।"
             : "Explore our carefully selected collection of products."}
         </p>
@@ -897,8 +981,7 @@ function Products() {
         <input
           type="text"
           placeholder={
-            language ===
-            "Hindi"
+            language === "Hindi"
               ? "प्रोडक्ट खोजें..."
               : "Search products..."
           }
@@ -920,8 +1003,7 @@ function Products() {
           }
         >
           <option value="All">
-            {language ===
-            "Hindi"
+            {language === "Hindi"
               ? "सभी कैटेगरी"
               : "All Categories"}
           </option>
@@ -945,43 +1027,37 @@ function Products() {
           }
         >
           <option value="default">
-            {language ===
-            "Hindi"
+            {language === "Hindi"
               ? "क्रम से देखें"
               : "Sort By"}
           </option>
 
           <option value="price_asc">
-            {language ===
-            "Hindi"
+            {language === "Hindi"
               ? "कीमत: कम से अधिक"
               : "Price: Low to High"}
           </option>
 
           <option value="price_desc">
-            {language ===
-            "Hindi"
+            {language === "Hindi"
               ? "कीमत: अधिक से कम"
               : "Price: High to Low"}
           </option>
 
           <option value="name_asc">
-            {language ===
-            "Hindi"
+            {language === "Hindi"
               ? "नाम: A से Z"
               : "Name: A to Z"}
           </option>
 
           <option value="name_desc">
-            {language ===
-            "Hindi"
+            {language === "Hindi"
               ? "नाम: Z से A"
               : "Name: Z to A"}
           </option>
         </select>
 
-        {activeFilterCount >
-          0 && (
+        {activeFilterCount > 0 && (
           <button
             type="button"
             className="clear-filters-btn"
@@ -989,8 +1065,7 @@ function Products() {
               clearFilters
             }
           >
-            {language ===
-            "Hindi"
+            {language === "Hindi"
               ? "फ़िल्टर साफ़ करें"
               : "Clear Filters"}
           </button>
@@ -1009,23 +1084,18 @@ function Products() {
             justifyContent:
               "space-between",
             gap: "15px",
-            flexWrap:
-              "wrap",
-            margin:
-              "0 0 22px",
+            flexWrap: "wrap",
+            margin: "0 0 22px",
           }}
         >
           <p
             style={{
               margin: 0,
-              color:
-                "#81776e",
-              fontSize:
-                "11px",
+              color: "#81776e",
+              fontSize: "11px",
             }}
           >
-            {language ===
-            "Hindi"
+            {language === "Hindi"
               ? `${pagination.totalProducts || 0} प्रोडक्ट मिले`
               : `${pagination.totalProducts || 0} products found`}
           </p>
@@ -1033,13 +1103,10 @@ function Products() {
           {groupTitle && (
             <span
               style={{
-                color:
-                  "#8a6245",
-                fontSize:
-                  "10px",
+                color: "#8a6245",
+                fontSize: "10px",
                 fontWeight: 700,
-                letterSpacing:
-                  "0.7px",
+                letterSpacing: "0.7px",
               }}
             >
               {groupTitle.toUpperCase()}
@@ -1053,8 +1120,7 @@ function Products() {
       {loading && (
         <div className="no-products">
           <h2>
-            {language ===
-            "Hindi"
+            {language === "Hindi"
               ? "प्रोडक्ट्स लोड हो रहे हैं..."
               : "Loading products..."}
           </h2>
@@ -1075,8 +1141,7 @@ function Products() {
           </h2>
 
           <p>
-            {language ===
-            "Hindi"
+            {language === "Hindi"
               ? "कृपया बाद में दोबारा कोशिश करें।"
               : "Please try again later."}
           </p>
@@ -1088,8 +1153,7 @@ function Products() {
               clearFilters
             }
           >
-            {language ===
-            "Hindi"
+            {language === "Hindi"
               ? "फ़िल्टर साफ़ करें"
               : "Clear Filters"}
           </button>
@@ -1101,8 +1165,7 @@ function Products() {
 
       {!loading &&
         !error &&
-        products.length >
-          0 && (
+        products.length > 0 && (
           <section className="products-grid">
 
             {products.map(
@@ -1126,8 +1189,7 @@ function Products() {
 
       {!loading &&
         !error &&
-        products.length ===
-          0 && (
+        products.length === 0 && (
           <div className="no-products">
 
             <div className="no-products-icon">
@@ -1135,20 +1197,17 @@ function Products() {
             </div>
 
             <h2>
-              {language ===
-              "Hindi"
+              {language === "Hindi"
                 ? "कोई प्रोडक्ट नहीं मिला"
                 : "No products found"}
             </h2>
 
             <p>
               {groupTitle
-                ? language ===
-                  "Hindi"
+                ? language === "Hindi"
                   ? `${groupTitle} में कोई प्रोडक्ट नहीं मिला।`
                   : `No products found in ${groupTitle}.`
-                : language ===
-                  "Hindi"
+                : language === "Hindi"
                 ? "कोई दूसरा search या category try करें।"
                 : "Try another search or category."}
             </p>
@@ -1160,8 +1219,7 @@ function Products() {
                 clearFilters
               }
             >
-              {language ===
-              "Hindi"
+              {language === "Hindi"
                 ? "फ़िल्टर साफ़ करें"
                 : "Clear Filters"}
             </button>
@@ -1173,35 +1231,28 @@ function Products() {
 
       {!loading &&
         !error &&
-        products.length >
-          0 &&
+        products.length > 0 &&
         totalPages > 1 && (
           <div
             className="products-pagination"
             style={{
               display: "flex",
-              alignItems:
-                "center",
-              justifyContent:
-                "center",
+              alignItems: "center",
+              justifyContent: "center",
               gap: "7px",
-              flexWrap:
-                "wrap",
-              marginTop:
-                "35px",
+              flexWrap: "wrap",
+              marginTop: "35px",
             }}
           >
 
             <button
               type="button"
               disabled={
-                currentPage ===
-                1
+                currentPage === 1
               }
               onClick={() =>
                 handlePageChange(
-                  currentPage -
-                    1
+                  currentPage - 1
                 )
               }
             >
@@ -1214,8 +1265,7 @@ function Products() {
                 index
               ) => {
                 if (
-                  page ===
-                  "..."
+                  page === "..."
                 ) {
                   return (
                     <span
@@ -1250,8 +1300,7 @@ function Products() {
               }
               onClick={() =>
                 handlePageChange(
-                  currentPage +
-                    1
+                  currentPage + 1
                 )
               }
             >
@@ -1265,27 +1314,95 @@ function Products() {
 
       {!loading &&
         !error &&
-        products.length >
-          0 &&
+        products.length > 0 &&
         totalPages > 1 && (
           <p
             style={{
-              margin:
-                "14px 0 0",
-              textAlign:
-                "center",
-              color:
-                "#95897e",
-              fontSize:
-                "10px",
+              margin: "14px 0 0",
+              textAlign: "center",
+              color: "#95897e",
+              fontSize: "10px",
             }}
           >
-            {language ===
-            "Hindi"
+            {language === "Hindi"
               ? `पेज ${currentPage} / ${totalPages}`
               : `Page ${currentPage} / ${totalPages}`}
           </p>
         )}
+
+        {/* =====================================================
+    BRAND STORY
+===================================================== */}
+
+<section className="brand-story-section">
+
+  <div className="brand-story-inner">
+
+    <div className="brand-story-label">
+      <span className="brand-story-line"></span>
+
+      <p className="section-label">
+        {language === "Hindi"
+          ? "हमारा नज़रिया"
+          : "OUR PHILOSOPHY"}
+      </p>
+    </div>
+
+    <div className="brand-story-content">
+
+      <div className="brand-story-heading">
+        <h2>
+          {language === "Hindi"
+            ? "शॉपिंग सिर्फ खरीदना नहीं है।"
+            : "Shopping should feel"}
+          <em>
+            {language === "Hindi"
+              ? " महसूस करना है।"
+              : " effortless."}
+          </em>
+        </h2>
+      </div>
+
+      <div className="brand-story-copy">
+
+        <p>
+          {language === "Hindi"
+            ? "ShopSphere को इस सोच के साथ बनाया गया है कि हर खरीदारी आसान, सुंदर और आपके लिए हो।"
+            : "ShopSphere was created with a simple idea — shopping should be easy, inspiring and made to feel like you."}
+        </p>
+
+        <p>
+          {language === "Hindi"
+            ? "फैशन से लेकर रोज़मर्रा की essentials तक, हम ऐसी चीज़ें चुनते हैं जो आपकी lifestyle को बेहतर बनाएं।"
+            : "From fashion to everyday essentials, we bring together products that fit naturally into modern everyday life."}
+        </p>
+
+        <Link
+          to="/about"
+          className="brand-story-link"
+        >
+          {language === "Hindi"
+            ? "SHOPSPHERE के बारे में →"
+            : "DISCOVER SHOPSPHERE →"}
+        </Link>
+
+      </div>
+
+    </div>
+
+    <div className="brand-story-signature">
+      <span>01</span>
+
+      <div className="brand-story-signature-line"></div>
+
+      <span>
+        SHOPSPHERE
+      </span>
+    </div>
+
+  </div>
+
+</section>
 
     </main>
   );

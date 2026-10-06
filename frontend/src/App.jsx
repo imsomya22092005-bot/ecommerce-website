@@ -1,6 +1,12 @@
 import "./App.css";
 
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import {
+  BrowserRouter,
+  Routes,
+  Route,
+  Link,
+  useLocation,
+} from "react-router-dom";
 
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
@@ -21,39 +27,95 @@ import NewArrivals from "./pages/NewArrivals";
 import AdminDashboard from "./pages/AdminDashboard";
 import Profile from "./pages/Profile";
 
+/* =========================================================
+   HOME SHORTCUT
+========================================================= */
+
+function HomeShortcut() {
+  const location = useLocation();
+
+  // Home page par button hide rahega
+  if (location.pathname === "/") {
+    return null;
+  }
+
+  return (
+    <Link
+      to="/"
+      className="home-shortcut"
+      aria-label="Go to Home"
+      title="Go to Home"
+    >
+      <span>←</span>
+      <strong>HOME</strong>
+    </Link>
+  );
+}
+
+/* =========================================================
+   APP
+========================================================= */
+
 function App() {
   return (
     <BrowserRouter>
       <Navbar />
 
       <Routes>
-        <Route path="/" element={<Home />} />
+        <Route
+          path="/"
+          element={<Home />}
+        />
 
-        <Route path="/products" element={<Products />} />
+        <Route
+          path="/products"
+          element={<Products />}
+        />
 
         <Route
           path="/product/:id"
           element={<ProductDetails />}
         />
 
-        <Route path="/cart" element={<Cart />} />
+        <Route
+          path="/cart"
+          element={<Cart />}
+        />
 
-        <Route path="/login" element={<Login />} />
+        <Route
+          path="/login"
+          element={<Login />}
+        />
 
-        <Route path="/checkout" element={<Checkout />} />
+        <Route
+          path="/checkout"
+          element={<Checkout />}
+        />
 
         <Route
           path="/order-success"
           element={<OrderSuccess />}
         />
 
-        <Route path="/about" element={<About />} />
+        <Route
+          path="/about"
+          element={<About />}
+        />
 
-        <Route path="/contact" element={<Contact />} />
+        <Route
+          path="/contact"
+          element={<Contact />}
+        />
 
-        <Route path="/help" element={<Help />} />
+        <Route
+          path="/help"
+          element={<Help />}
+        />
 
-        <Route path="/orders" element={<Orders />} />
+        <Route
+          path="/orders"
+          element={<Orders />}
+        />
 
         <Route
           path="/track-order"
@@ -77,6 +139,9 @@ function App() {
       </Routes>
 
       <Footer />
+
+      {/* Home shortcut on every page except Home */}
+      <HomeShortcut />
     </BrowserRouter>
   );
 }

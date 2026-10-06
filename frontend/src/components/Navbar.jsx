@@ -29,10 +29,13 @@ const translations = {
     home: "Home",
     shop: "Shop",
     newArrivals: "New Arrivals",
+    bestSellers: "Best Sellers",
+    collections: "Collections",
     about: "About Us",
 
     search:
       "Search for Products, Brands and More",
+
     searchButton: "Search",
 
     login: "Login",
@@ -62,12 +65,21 @@ const translations = {
   Hindi: {
     home: "होम",
     shop: "शॉप",
+
     newArrivals:
       "नए प्रोडक्ट्स",
+
+    bestSellers:
+      "बेस्ट सेलर्स",
+
+    collections:
+      "कलेक्शन्स",
+
     about: "हमारे बारे में",
 
     search:
       "प्रोडक्ट, ब्रांड और बहुत कुछ खोजें",
+
     searchButton: "खोजें",
 
     login: "लॉगिन",
@@ -77,10 +89,14 @@ const translations = {
     more: "और",
 
     contact: "संपर्क करें",
+
     help: "मदद और सहायता",
+
     orders: "मेरे ऑर्डर्स",
+
     trackOrder:
       "ऑर्डर ट्रैक करें",
+
     profile: "मेरी प्रोफाइल",
 
     adminDashboard:
@@ -446,7 +462,6 @@ function Navbar() {
             handleSearch
           }
         >
-
           <span className="search-symbol">
             ⌕
           </span>
@@ -465,7 +480,6 @@ function Navbar() {
           <button type="submit">
             {t.searchButton}
           </button>
-
         </form>
 
         {/* ACTIONS */}
@@ -473,15 +487,19 @@ function Navbar() {
         <div className="shop-actions">
 
           {/* =================================================
-              LOGIN / ACCOUNT
+              ACCOUNT
           ================================================= */}
 
           {userName ? (
-            <div className="shop-account">
-
+            <Link
+              to="/profile"
+              className="shop-account"
+              aria-label={t.profile}
+              title={t.profile}
+            >
               <span className="account-icon">
                 <UserRound
-                  size={18}
+                  size={20}
                   strokeWidth={1.6}
                 />
               </span>
@@ -490,27 +508,15 @@ function Navbar() {
                 {t.hello},{" "}
                 {userName}
               </span>
-
-              <button
-                className="logout-small"
-                onClick={
-                  handleLogout
-                }
-                type="button"
-              >
-                {t.logout}
-              </button>
-
-            </div>
+            </Link>
           ) : (
             <Link
               to="/login"
               className="shop-account"
             >
-
               <span className="account-icon">
                 <UserRound
-                  size={18}
+                  size={20}
                   strokeWidth={1.6}
                 />
               </span>
@@ -518,7 +524,6 @@ function Navbar() {
               <span className="account-text">
                 {t.login}
               </span>
-
             </Link>
           )}
 
@@ -588,8 +593,7 @@ function Navbar() {
                     closeMore
                   }
                 >
-                  🚚{" "}
-                  {t.trackOrder}
+                  🚚 {t.trackOrder}
                 </Link>
 
                 <Link
@@ -614,9 +618,7 @@ function Navbar() {
                       strokeWidth={1.8}
                     />
 
-                    {
-                      t.adminDashboard
-                    }
+                    {t.adminDashboard}
                   </Link>
                 )}
 
@@ -687,7 +689,7 @@ function Navbar() {
       </div>
 
       {/* =====================================================
-          DYNAMIC CATEGORY BAR
+          CATEGORY BAR
       ===================================================== */}
 
       <CategoryBar />

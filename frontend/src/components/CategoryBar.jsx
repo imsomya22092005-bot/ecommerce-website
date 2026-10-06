@@ -6,12 +6,8 @@ import {
   Footprints,
   Sparkles,
   Smartphone,
-  Car,
   Dumbbell,
   Sofa,
-  Utensils,
-  Laptop,
-  Gem,
   Watch,
   ShoppingBag,
   Heart,
@@ -21,14 +17,19 @@ import {
 import { useLanguage } from "../LanguageContext";
 
 /* =========================================================
-   EXACT DUMMYJSON CATEGORY GROUPS
+   SHOPSPHERE CATEGORY GROUPS
 ========================================================= */
 
 const categoryGroups = [
   {
     name: "Fashion",
     hindi: "फैशन",
-    icon: <Shirt size={20} strokeWidth={1.7} />,
+    icon: (
+      <Shirt
+        size={20}
+        strokeWidth={1.7}
+      />
+    ),
     categories: [
       "mens-shirts",
       "womens-dresses",
@@ -85,21 +86,6 @@ const categoryGroups = [
   },
 
   {
-    name: "Vehicles",
-    hindi: "व्हीकल्स",
-    icon: (
-      <Car
-        size={20}
-        strokeWidth={1.7}
-      />
-    ),
-    categories: [
-      "motorcycle",
-      "vehicle",
-    ],
-  },
-
-  {
     name: "Sports",
     hindi: "स्पोर्ट्स",
     icon: (
@@ -128,22 +114,8 @@ const categoryGroups = [
   },
 
   {
-    name: "Food",
-    hindi: "फूड",
-    icon: (
-      <Utensils
-        size={20}
-        strokeWidth={1.7}
-      />
-    ),
-    categories: [
-      "groceries",
-    ],
-  },
-
-  {
     name: "Home Accessories",
-    hindi: "होम",
+    hindi: "होम एक्सेसरीज़",
     icon: (
       <House
         size={20}
@@ -190,7 +162,8 @@ function createGroupUrl(categories) {
 ========================================================= */
 
 function CategoryBar() {
-  const { language } = useLanguage();
+  const { language } =
+    useLanguage();
 
   return (
     <div className="shop-categorybar">
@@ -215,7 +188,7 @@ function CategoryBar() {
         </small>
       </Link>
 
-      {/* ALL MAIN GROUPS */}
+      {/* MAIN CATEGORIES */}
 
       {categoryGroups.map(
         (group) => (
