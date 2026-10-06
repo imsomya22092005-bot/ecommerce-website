@@ -29,12 +29,14 @@ const registerUser = async (req, res) => {
             password: hashedPassword
         });
 
-        sendRegistrationEmail(user).catch(error => {
-            console.error('Registration email failed:', error.message);
-        });
+        const registrationEmailSent =
+            await sendRegistrationEmail(user);
 
         res.status(201).json({
-            message: 'User registered successfully',
+            message: registrationEmailSent
+                ? 'User registered successfully'
+                : 'User registered successfully, but the welcome email could not be sent',
+            emailSent: registrationEmailSent,
             user: {
                 id: user._id,
                 username: user.username,
