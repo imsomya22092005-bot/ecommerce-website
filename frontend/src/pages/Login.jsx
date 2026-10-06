@@ -263,6 +263,7 @@ function Login() {
       try {
         let response;
         let data;
+        let registrationEmailSent = null;
 
         // =========================
         // REGISTER
@@ -335,6 +336,8 @@ function Login() {
                 "Registration failed"
             );
           }
+
+          registrationEmailSent = data.emailSent !== false;
 
           // =========================
           // LOGIN AFTER REGISTER
@@ -510,6 +513,17 @@ function Login() {
         setWelcomeName(
           username
         );
+
+        if (
+          isRegister &&
+          registrationEmailSent === false
+        ) {
+          setError(
+            language === "Hindi"
+              ? "अकाउंट बन गया है, लेकिन welcome email नहीं भेजी जा सकी। Render की email settings check करें।"
+              : "Account created, but the welcome email could not be sent. Please check the backend email settings."
+          );
+        }
 
         setShowWelcome(true);
       } catch (error) {
