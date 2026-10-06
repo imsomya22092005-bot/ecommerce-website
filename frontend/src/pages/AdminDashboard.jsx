@@ -422,28 +422,28 @@ function AdminDashboard() {
         setSaving(true);
 
         const payload = {
-          name:
-            productForm.name.trim(),
-
-          description:
-            productForm.description.trim(),
-
-          price:
-            Number(
-              productForm.price
-            ),
-
-          category:
-            productForm.category.trim(),
-
-          image:
-            productForm.image.trim(),
-
-          stock:
-            Number(
-              productForm.stock
-            ),
+          name: productForm.name.trim(),
+          description: productForm.description.trim() || "ShopSphere product",
+          price: Number(productForm.price),
+          category: productForm.category.trim() || "General",
+          image: productForm.image.trim(),
+          stock: Number(productForm.stock),
         };
+
+        if (!editingProductId) {
+          payload.brand = "ShopSphere";
+          payload.subcategory = payload.category;
+          payload.gender = "Unisex";
+          payload.sizes = ["Free Size"];
+          payload.colors = ["Default"];
+          payload.variants = [
+            {
+              size: "Free Size",
+              color: "Default",
+              stock: Number(productForm.stock),
+            },
+          ];
+        }
 
         if (
           editingProductId
