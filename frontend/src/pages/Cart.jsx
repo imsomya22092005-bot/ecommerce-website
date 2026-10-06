@@ -286,6 +286,12 @@ function Cart() {
               Authorization:
                 `Bearer ${token}`,
             },
+
+            body: JSON.stringify({
+              productId,
+              size,
+              color,
+            }),
           }
         );
 
