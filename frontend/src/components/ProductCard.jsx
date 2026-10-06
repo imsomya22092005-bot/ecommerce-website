@@ -31,6 +31,8 @@ function ProductCard({ product }) {
         },
         body: JSON.stringify({
           productId,
+          size: product.variants?.[0]?.size || product.sizes?.[0],
+          color: product.variants?.[0]?.color || product.colors?.[0],
           quantity: 1,
         }),
       });
