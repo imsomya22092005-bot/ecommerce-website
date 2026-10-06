@@ -59,6 +59,7 @@ function Home() {
   const { language } = useLanguage();
 
   const [products, setProducts] = useState([]);
+  const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
 
   /* =======================================================
@@ -273,6 +274,18 @@ function Home() {
         setProducts(
           sortedProducts
         );
+
+        const backendCategories = [
+          ...new Set(
+            sortedProducts
+              .map((product) =>
+                String(product.category || "").trim()
+              )
+              .filter(Boolean)
+          ),
+        ];
+
+        setCategories(backendCategories);
       } catch (error) {
         console.error(
           "Failed to load products:",
@@ -454,340 +467,83 @@ function Home() {
 
         <div className="categories-grid">
 
-          {/* 01 FASHION */}
-
-          <Link
-            to={createCategoryUrl([
-              "Men",
-              "Women",
-            ])}
-            className="category-card category-fashion"
-          >
-
-            <img
-              src="https://images.unsplash.com/photo-1490481651871-ab68de25d43d?auto=format&fit=crop&w=900&q=85"
-              alt="Fashion collection"
-            />
-
-            <div className="category-overlay"></div>
-
-            <div className="category-card-content">
-
-              <span className="category-number">
-                01
-              </span>
-
-              <div>
-                <h3>
-                  {t.fashion}
-                </h3>
-
-                <p>
-                  {t.fashionText}
-                </p>
-              </div>
-
-              <span className="category-arrow">
-                ↗
-              </span>
-
-            </div>
-
-          </Link>
-
-
-          {/* 02 BEAUTY */}
-
-          <Link
-            to={createCategoryUrl([
-              "beauty",
-              "skin-care",
-              "fragrances",
-            ])}
-            className="category-card category-beauty"
-          >
-
-            <img
-              src="https://images.unsplash.com/photo-1596462502278-27bfdc403348?auto=format&fit=crop&w=900&q=85"
-              alt="Beauty collection"
-            />
-
-            <div className="category-overlay"></div>
-
-            <div className="category-card-content">
-
-              <span className="category-number">
-                02
-              </span>
-
-              <div>
-                <h3>
-                  {t.beauty}
-                </h3>
-
-                <p>
-                  {t.beautyText}
-                </p>
-              </div>
-
-              <span className="category-arrow">
-                ↗
-              </span>
-
-            </div>
-
-          </Link>
-
-
-          {/* 03 FOOTWEAR */}
-
-          <Link
-            to={createCategoryUrl([
-              "Footwear",
-            ])}
-            className="category-card category-footwear"
-          >
-
-            <img
-              src="https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&w=900&q=85"
-              alt="Footwear collection"
-            />
-
-            <div className="category-overlay"></div>
-
-            <div className="category-card-content">
-
-              <span className="category-number">
-                03
-              </span>
-
-              <div>
-                <h3>
-                  {t.footwear}
-                </h3>
-
-                <p>
-                  {t.footwearText}
-                </p>
-              </div>
-
-              <span className="category-arrow">
-                ↗
-              </span>
-
-            </div>
-
-          </Link>
-
-
-          {/* 04 GADGETS */}
-
-          <Link
-            to={createCategoryUrl([
-              "smartphones",
-              "laptops",
-              "tablets",
-              "mobile-accessories",
-            ])}
-            className="category-card category-gadgets"
-          >
-
-            <img
-              src="https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?auto=format&fit=crop&w=900&q=85"
-              alt="Gadgets collection"
-            />
-
-            <div className="category-overlay"></div>
-
-            <div className="category-card-content">
-
-              <span className="category-number">
-                04
-              </span>
-
-              <div>
-                <h3>
-                  {t.gadgets}
-                </h3>
-
-                <p>
-                  {t.gadgetsText}
-                </p>
-              </div>
-
-              <span className="category-arrow">
-                ↗
-              </span>
-
-            </div>
-
-          </Link>
-
-
-          {/* 05 SPORTS */}
-
-          <Link
-            to={createCategoryUrl([
-              "sports-accessories",
-            ])}
-            className="category-card category-sports"
-          >
-
-            <img
-              src="https://images.unsplash.com/photo-1517649763962-0c623066013b?auto=format&fit=crop&w=900&q=85"
-              alt="Sports collection"
-            />
-
-            <div className="category-overlay"></div>
-
-            <div className="category-card-content">
-
-              <span className="category-number">
-                05
-              </span>
-
-              <div>
-                <h3>
-                  {t.sports}
-                </h3>
-
-                <p>
-                  {t.sportsText}
-                </p>
-              </div>
-
-              <span className="category-arrow">
-                ↗
-              </span>
-
-            </div>
-
-          </Link>
-
-
-          {/* 06 FURNITURE */}
-
-          <Link
-            to={createCategoryUrl([
-              "furniture",
-            ])}
-            className="category-card category-furniture"
-          >
-
-            <img
-              src="https://images.unsplash.com/photo-1555041469-a586c61ea9bc?auto=format&fit=crop&w=900&q=85"
-              alt="Furniture collection"
-            />
-
-            <div className="category-overlay"></div>
-
-            <div className="category-card-content">
-
-              <span className="category-number">
-                06
-              </span>
-
-              <div>
-                <h3>
-                  {t.furniture}
-                </h3>
-
-                <p>
-                  {t.furnitureText}
-                </p>
-              </div>
-
-              <span className="category-arrow">
-                ↗
-              </span>
-
-            </div>
-
-          </Link>
-
-
-          {/* 07 HOME ACCESSORIES */}
-
-          <Link
-            to={createCategoryUrl([
-              "home-decoration",
-              "kitchen-accessories",
-            ])}
-            className="category-card category-home"
-          >
-
-            <img
-              src="https://images.unsplash.com/photo-1616486338812-3dadae4b4ace?auto=format&fit=crop&w=900&q=85"
-              alt="Home accessories collection"
-            />
-
-            <div className="category-overlay"></div>
-
-            <div className="category-card-content">
-
-              <span className="category-number">
-                07
-              </span>
-
-              <div>
-                <h3>
-                  {t.homeAccessories}
-                </h3>
-
-                <p>
-                  {t.homeAccessoriesText}
-                </p>
-              </div>
-
-              <span className="category-arrow">
-                ↗
-              </span>
-
-            </div>
-
-          </Link>
-
-
-          {/* 08 ACCESSORIES */}
-
-          <Link
-            to={createCategoryUrl([
-              "Accessories",
-            ])}
-            className="category-card category-accessories"
-          >
-
-            <img
-              src="https://images.unsplash.com/photo-1523779917675-b6ed3a42a561?auto=format&fit=crop&w=900&q=85"
-              alt="Accessories collection"
-            />
-
-            <div className="category-overlay"></div>
-
-            <div className="category-card-content">
-
-              <span className="category-number">
-                08
-              </span>
-
-              <div>
-                <h3>
-                  {t.accessories}
-                </h3>
-
-                <p>
-                  {t.accessoriesText}
-                </p>
-              </div>
-
-              <span className="category-arrow">
-                ↗
-              </span>
-
-            </div>
-
-          </Link>
-
+          {categories.map((category, index) => {
+
+            const categoryKey =
+              category.toLowerCase().replace(/[^a-z0-9]+/g, "-");
+
+            const categoryInfo = {
+              Men: {
+                text: language === "Hindi"
+                  ? "आधुनिक पुरुषों का स्टाइल"
+                  : "Modern styles for men",
+                image:
+                  "https://images.unsplash.com/photo-1617137968427-85924c800a22?auto=format&fit=crop&w=900&q=85",
+              },
+              Women: {
+                text: language === "Hindi"
+                  ? "हर दिन के लिए खूबसूरत स्टाइल"
+                  : "Beautiful styles for every day",
+                image:
+                  "https://images.unsplash.com/photo-1483985988355-763728e1935b?auto=format&fit=crop&w=900&q=85",
+              },
+              Footwear: {
+                text: language === "Hindi"
+                  ? "स्टाइल और आराम"
+                  : "Style meets comfort",
+                image:
+                  "https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&w=900&q=85",
+              },
+              Accessories: {
+                text: language === "Hindi"
+                  ? "अपने लुक को पूरा करें"
+                  : "Complete your look",
+                image:
+                  "https://images.unsplash.com/photo-1523779917675-b6ed3a42a561?auto=format&fit=crop&w=900&q=85",
+              },
+            };
+
+            const info = categoryInfo[category] || {
+              text:
+                language === "Hindi"
+                  ? `${category} के सभी प्रोडक्ट्स देखें`
+                  : `Explore all ${category} products`,
+              image:
+                "https://images.unsplash.com/photo-1445205170230-053b83016050?auto=format&fit=crop&w=900&q=85",
+            };
+
+            return (
+              <Link
+                key={category}
+                to={createCategoryUrl([category])}
+                className={`category-card category-${categoryKey}`}
+              >
+                <img
+                  src={info.image}
+                  alt={`${category} collection`}
+                />
+
+                <div className="category-overlay"></div>
+
+                <div className="category-card-content">
+
+                  <span className="category-number">
+                    {String(index + 1).padStart(2, "0")}
+                  </span>
+
+                  <div>
+                    <h3>{category.toUpperCase()}</h3>
+                    <p>{info.text}</p>
+                  </div>
+
+                  <span className="category-arrow">
+                    ↗
+                  </span>
+
+                </div>
+              </Link>
+            );
+          })}
 
           {/* 09 NEW ARRIVALS */}
 
