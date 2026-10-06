@@ -51,6 +51,17 @@ function Cart() {
           product._id ||
           product.id;
 
+        const selectedVariant =
+          Array.isArray(product.variants)
+            ? product.variants.find(
+                (variant) =>
+                  String(variant?.size || "").trim() ===
+                    String(item.size || "").trim() &&
+                  String(variant?.color || "").trim() ===
+                    String(item.color || "").trim()
+              )
+            : null;
+
         return {
           _id: productId,
           id: productId,
@@ -70,7 +81,9 @@ function Cart() {
             product.category || "",
 
           stock:
-            Number(product.stock) || 0,
+            selectedVariant
+              ? Number(selectedVariant.stock) || 0
+              : Number(product.stock) || 0,
 
           quantity:
             Number(item.quantity) || 1,
