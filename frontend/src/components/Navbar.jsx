@@ -202,8 +202,20 @@ function Navbar() {
             ? data.cart.items
             : [];
 
+/*
+ * Count only cart lines that have a populated product.
+ * This keeps the navbar badge from showing a ghost count
+ * when the backend cart contains an unusable/stale item.
+ */
+        const validItems =
+          items.filter(
+            (item) =>
+              item?.product?._id ||
+              item?.product?.id
+          );
+
         const count =
-          items.reduce(
+          validItems.reduce(
             (total, item) =>
               total +
               Number(
