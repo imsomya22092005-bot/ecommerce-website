@@ -1,297 +1,114 @@
 import { Link } from "react-router-dom";
-
+import { useEffect, useState } from "react";
 import {
   House,
   Shirt,
   Footprints,
   Sparkles,
-  Smartphone,
-  Dumbbell,
-  Sofa,
-  Watch,
   ShoppingBag,
+  Watch,
   Heart,
   Info,
 } from "lucide-react";
-
 import { useLanguage } from "../LanguageContext";
+import API_URL from "../api";
 
-/* =========================================================
-   SHOPSPHERE CATEGORY GROUPS
-========================================================= */
-
-const categoryGroups = [
-  {
-    name: "Fashion",
-    hindi: "फैशन",
-    icon: (
-      <Shirt
-        size={20}
-        strokeWidth={1.7}
-      />
-    ),
-    categories: [
-      "mens-shirts",
-      "womens-dresses",
-      "tops",
-    ],
-  },
-
-  {
-    name: "Beauty",
-    hindi: "ब्यूटी",
-    icon: (
-      <Sparkles
-        size={20}
-        strokeWidth={1.7}
-      />
-    ),
-    categories: [
-      "beauty",
-      "skin-care",
-      "fragrances",
-    ],
-  },
-
-  {
-    name: "Footwear",
-    hindi: "फुटवियर",
-    icon: (
-      <Footprints
-        size={20}
-        strokeWidth={1.7}
-      />
-    ),
-    categories: [
-      "mens-shoes",
-      "womens-shoes",
-    ],
-  },
-
-  {
-    name: "Gadgets",
-    hindi: "गैजेट्स",
-    icon: (
-      <Smartphone
-        size={20}
-        strokeWidth={1.7}
-      />
-    ),
-    categories: [
-      "smartphones",
-      "laptops",
-      "tablets",
-      "mobile-accessories",
-    ],
-  },
-
-  {
-    name: "Sports",
-    hindi: "स्पोर्ट्स",
-    icon: (
-      <Dumbbell
-        size={20}
-        strokeWidth={1.7}
-      />
-    ),
-    categories: [
-      "sports-accessories",
-    ],
-  },
-
-  {
-    name: "Furniture",
-    hindi: "फर्नीचर",
-    icon: (
-      <Sofa
-        size={20}
-        strokeWidth={1.7}
-      />
-    ),
-    categories: [
-      "furniture",
-    ],
-  },
-
-  {
-    name: "Home Accessories",
-    hindi: "होम एक्सेसरीज़",
-    icon: (
-      <House
-        size={20}
-        strokeWidth={1.7}
-      />
-    ),
-    categories: [
-      "home-decoration",
-      "kitchen-accessories",
-    ],
-  },
-
-  {
-    name: "Accessories",
-    hindi: "एक्सेसरीज़",
-    icon: (
-      <Watch
-        size={20}
-        strokeWidth={1.7}
-      />
-    ),
-    categories: [
-      "mens-watches",
-      "womens-watches",
-      "sunglasses",
-      "womens-bags",
-      "womens-jewellery",
-    ],
-  },
-];
-
-/* =========================================================
-   BUILD GROUP URL
-========================================================= */
-
-function createGroupUrl(categories) {
-  return `/products?categories=${encodeURIComponent(
-    categories.join("||")
-  )}`;
-}
-
-/* =========================================================
-   CATEGORY BAR
-========================================================= */
+const categoryIcons = {
+  Men: <Shirt size={20} strokeWidth={1.7} />,
+  Women: <Sparkles size={20} strokeWidth={1.7} />,
+  Footwear: <Footprints size={20} strokeWidth={1.7} />,
+  Accessories: <Watch size={20} strokeWidth={1.7} />,
+};
 
 function CategoryBar() {
-  const { language } =
-    useLanguage();
+  const { language } = useLanguage();
+  const [categories, setCategories] = useState([]);
+
+  useEffect(() => {
+    const loadCategories = async () => {
+      try {
+        const response = await fetch(
+          API_URL + "/api/products?limit=1000"
+        );
+        const data = await response.json();
+
+        if (!response.ok) {
+          throw new Error(data.message || "Unable to load categories");
+        }
+
+        const productList = Array.isArray(data)
+          ? data
+          : data.products || [];
+
+        const backendCategories = [
+          ...new Set(
+            productList
+              .map((product) => String(product.category || "").trim())
+              .filter(Boolean)
+          ),
+        ].sort((a, b) => a.localeCompare(b));
+
+        setCategories(backendCategories);
+      } catch (error) {
+        console.error("Navbar category loading error:", error);
+        setCategories([]);
+      }
+    };
+
+    loadCategories();
+  }, []);
 
   return (
     <div className="shop-categorybar">
-
-      {/* HOME */}
-
-      <Link
-        to="/"
-        className="shop-category"
-      >
+      <Link to="/" className="shop-category">
         <span className="category-icon">
-          <House
-            size={20}
-            strokeWidth={1.7}
-          />
+          <House size={20} strokeWidth={1.7} />
         </span>
-
-        <small>
-          {language === "Hindi"
-            ? "होम"
-            : "Home"}
-        </small>
+        <small>{language === "Hindi" ? "होम" : "Home"}</small>
       </Link>
 
-      {/* MAIN CATEGORIES */}
-
-      {categoryGroups.map(
-        (group) => (
-          <Link
-            key={group.name}
-            to={createGroupUrl(
-              group.categories
+      {categories.map((category) => (
+        <Link
+          key={category}
+          to={"/products?category=" + encodeURIComponent(category)}
+          className="shop-category"
+        >
+          <span className="category-icon">
+            {categoryIcons[category] || (
+              <ShoppingBag size={20} strokeWidth={1.7} />
             )}
-            className="shop-category"
-          >
-            <span className="category-icon">
-              {group.icon}
-            </span>
+          </span>
+          <small>{category}</small>
+        </Link>
+      ))}
 
-            <small>
-              {language === "Hindi"
-                ? group.hindi
-                : group.name}
-            </small>
-          </Link>
-        )
-      )}
-
-      {/* NEW ARRIVALS */}
-
-      <Link
-        to="/new-arrivals"
-        className="shop-category"
-      >
+      <Link to="/new-arrivals" className="shop-category">
         <span className="category-icon">
-          <Sparkles
-            size={20}
-            strokeWidth={1.7}
-          />
+          <Sparkles size={20} strokeWidth={1.7} />
         </span>
-
-        <small>
-          {language === "Hindi"
-            ? "नए प्रोडक्ट्स"
-            : "New Arrivals"}
-        </small>
+        <small>{language === "Hindi" ? "नए प्रोडक्ट्स" : "New Arrivals"}</small>
       </Link>
 
-      {/* BEST SELLERS */}
-
-      <Link
-        to="/products?sort=price_desc"
-        className="shop-category"
-      >
+      <Link to="/products?sort=price_desc" className="shop-category">
         <span className="category-icon">
-          <ShoppingBag
-            size={20}
-            strokeWidth={1.7}
-          />
+          <ShoppingBag size={20} strokeWidth={1.7} />
         </span>
-
-        <small>
-          {language === "Hindi"
-            ? "बेस्ट सेलर्स"
-            : "Best Sellers"}
-        </small>
+        <small>{language === "Hindi" ? "बेस्ट सेलर्स" : "Best Sellers"}</small>
       </Link>
 
-      {/* COLLECTIONS */}
-
-      <Link
-        to="/products"
-        className="shop-category"
-      >
+      <Link to="/products" className="shop-category">
         <span className="category-icon">
-          <Heart
-            size={20}
-            strokeWidth={1.7}
-          />
+          <Heart size={20} strokeWidth={1.7} />
         </span>
-
-        <small>
-          {language === "Hindi"
-            ? "कलेक्शंस"
-            : "Collections"}
-        </small>
+        <small>{language === "Hindi" ? "कलेक्शंस" : "Collections"}</small>
       </Link>
 
-      {/* ABOUT */}
-
-      <Link
-        to="/about"
-        className="shop-category"
-      >
+      <Link to="/about" className="shop-category">
         <span className="category-icon">
-          <Info
-            size={20}
-            strokeWidth={1.7}
-          />
+          <Info size={20} strokeWidth={1.7} />
         </span>
-
-        <small>
-          {language === "Hindi"
-            ? "हमारे बारे में"
-            : "About Us"}
-        </small>
+        <small>{language === "Hindi" ? "हमारे बारे में" : "About Us"}</small>
       </Link>
-
     </div>
   );
 }
