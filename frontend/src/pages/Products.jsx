@@ -329,10 +329,7 @@ function Products() {
           .join("||");
     } else if (
       categoryValue &&
-      categoryValue !== "All" &&
-      ALLOWED_CATEGORIES.has(
-        categoryValue
-      )
+      categoryValue !== "All"
     ) {
       params.category =
         categoryValue;
@@ -604,10 +601,7 @@ function Products() {
 
           if (
             category &&
-            category !== "All" &&
-            ALLOWED_CATEGORIES.has(
-              category
-            )
+            category !== "All"
           ) {
             params.set(
               "category",
@@ -657,28 +651,14 @@ function Products() {
               ? data
               : data.products || [];
 
-          /* FILTER OUT UNWANTED PRODUCTS */
-
-          const allowedProducts =
-            productList.filter(
-              (product) =>
-                ALLOWED_CATEGORIES.has(
-                  product.category
-                )
-            );
-
-          setProducts(
-            allowedProducts
-          );
+          setProducts(productList);
 
           setPagination(
             data.pagination || {
               currentPage,
               totalPages: 1,
-              totalProducts:
-                allowedProducts.length,
-              limit:
-                PRODUCTS_PER_PAGE,
+              totalProducts: productList.length,
+              limit: PRODUCTS_PER_PAGE,
             }
           );
 
