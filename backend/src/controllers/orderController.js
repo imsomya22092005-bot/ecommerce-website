@@ -372,6 +372,12 @@ const updateOrderStatus = async (req, res) => {
         await order.populate('user', 'username email');
         await order.populate('items.product');
 
+        if (order.user) {
+            sendOrderStatusEmail(order.user, order, status).catch(error => {
+                console.error('Order status email failed:', error.message);
+            });
+        }
+
         res.status(200).json({
             message: 'Order status updated successfully',
             order
