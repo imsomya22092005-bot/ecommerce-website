@@ -142,7 +142,7 @@ function Cart() {
       }
 
       const backendItems =
-        normalizeBackendCart(data);
+        normalizeBackendCart(data.cart);
 
       saveCart(backendItems);
     } catch (error) {
