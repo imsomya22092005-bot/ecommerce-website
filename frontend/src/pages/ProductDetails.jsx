@@ -251,6 +251,19 @@ function ProductDetails() {
       return;
     }
 
+    if (
+      Array.isArray(product.variants) &&
+      product.variants.length > 0 &&
+      (!selectedSize || !selectedColor)
+    ) {
+      setActionError(
+        language === "Hindi"
+          ? "कृपया size और color चुनें।"
+          : "Please select a size and color."
+      );
+      return;
+    }
+
     try {
       const response =
         await fetch(
@@ -292,6 +305,10 @@ function ProductDetails() {
       // fetches the real cart from the API when the user is authenticated.
 
       setAdded(true);
+
+      window.dispatchEvent(
+        new Event("cartUpdated")
+      );
 
       setTimeout(() => {
         setAdded(false);
@@ -375,6 +392,21 @@ function ProductDetails() {
   const productStock =
     Number(product.stock) || 0;
 
+  const selectedVariant = Array.isArray(product.variants)
+    ? product.variants.find(
+        (variant) =>
+          String(variant?.size || "").trim() ===
+            String(selectedSize || "").trim() &&
+          String(variant?.color || "").trim() ===
+            String(selectedColor || "").trim()
+      )
+    : null;
+
+  const selectedVariantStock =
+    selectedVariant
+      ? Number(selectedVariant.stock) || 0
+      : productStock;
+
   const productImage =
     product.image || "";
 
@@ -413,7 +445,16 @@ function ProductDetails() {
   // =========================
 
   const isOutOfStock =
-    productStock <= 0;
+    Array.isArray(product.variants) &&
+    product.variants.length > 0
+      ? !selectedVariant || selectedVariantStock <= 0
+      : productStock <= 0;
+
+  const displayStock =
+    Array.isArray(product.variants) &&
+    product.variants.length > 0
+      ? selectedVariantStock
+      : productStock;
 
   const stockMessage =
     isOutOfStock
@@ -421,8 +462,8 @@ function ProductDetails() {
         ? "स्टॉक में उपलब्ध नहीं"
         : "Out of Stock"
       : language === "Hindi"
-      ? `${productStock} उपलब्ध`
-      : `${productStock} in stock`;
+      ? `${displayStock} उपलब्ध`
+      : `${displayStock} in stock`;
 
   return (
     <main className="product-details-page">
