@@ -14,6 +14,9 @@ function ProductDetails() {
   const [added, setAdded] =
     useState(false);
 
+  const [toastMessage, setToastMessage] =
+    useState("");
+
   const [loading, setLoading] =
     useState(true);
 
@@ -305,6 +308,11 @@ function ProductDetails() {
       // fetches the real cart from the API when the user is authenticated.
 
       setAdded(true);
+      setToastMessage(
+        language === "Hindi"
+          ? "Product cart में add हो गया ✨"
+          : "Product added to cart ✨"
+      );
 
       window.dispatchEvent(
         new Event("cartUpdated")
@@ -312,6 +320,7 @@ function ProductDetails() {
 
       setTimeout(() => {
         setAdded(false);
+        setToastMessage("");
       }, 2500);
 
     } catch (err) {
@@ -816,6 +825,13 @@ function ProductDetails() {
             : "← VIEW ALL PRODUCTS"}
         </Link>
       </section>
+
+      {toastMessage && (
+        <div className="cart-toast" role="status">
+          <span className="cart-toast-icon">✓</span>
+          <span>{toastMessage}</span>
+        </div>
+      )}
 
     </main>
   );
