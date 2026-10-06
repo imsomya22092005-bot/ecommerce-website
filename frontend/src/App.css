@@ -11706,3 +11706,17 @@ color: #211e1b !important;
     aspect-ratio: 1 / 1 !important;
   }
 }
+
+
+/* FINAL OVERRIDE: 4 equal square Shop by Category cards */
+.home .categories-section .categories-grid .category-card,
+.home .categories-section .categories-grid .category-card:nth-child(1),
+.home .categories-section .categories-grid .category-card:nth-child(2),
+.home .categories-section .categories-grid .category-card:nth-child(3),
+.home .categories-section .categories-grid .category-card:nth-child(4) {
+  grid-column: span 1 !important;
+  width: 100% !important;
+  min-width: 0 !important;
+  min-height: 0 !important;
+  aspect-ratio: 1 / 1 !important;
+}
