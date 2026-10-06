@@ -4453,7 +4453,12 @@
   }
 
   .more-button {
-    display: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    padding: 8px 4px;
+    color: #211e1b;
   }
 }
 
