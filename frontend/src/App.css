@@ -1746,6 +1746,12 @@
     grid-template-columns: 1fr;
   }
 
+  .categories-grid .category-card,
+  .categories-grid .category-card:nth-child(4),
+  .categories-grid .category-card:nth-child(5) {
+    grid-column: span 1;
+  }
+
   .category-card {
     min-height: 210px;
   }
