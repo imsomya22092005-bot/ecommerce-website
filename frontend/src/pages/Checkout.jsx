@@ -156,7 +156,7 @@ function Checkout() {
 
           setCart(
             normalizeBackendCart(
-              data
+              data.cart
             )
           );
         } catch (err) {
