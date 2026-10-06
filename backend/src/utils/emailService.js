@@ -1,16 +1,22 @@
 const transporter = require('../config/email');
 
 const sendEmail = async ({ to, subject, html }) => {
-    if (!process.env.EMAIL_USER || !process.env.EMAIL_PASSWORD) {
+    const emailUser = String(process.env.EMAIL_USER || '').trim();
+    const emailPassword = String(
+        process.env.EMAIL_PASSWORD || process.env.EMAIL_PASS || ''
+    ).replace(/\s/g, '');
+
+    if (!emailUser || !emailPassword) {
         console.error(
-            'Email sending skipped: EMAIL_USER or EMAIL_PASSWORD is missing.'
+            'Email sending skipped: EMAIL_USER or EMAIL_PASSWORD is missing on the deployed backend.'
         );
         return false;
     }
 
     try {
         await transporter.sendMail({
-            from: `"ShopSphere" <${process.env.EMAIL_USER}>`,
+            from: `"ShopSphere" <${emailUser}>`,
+            replyTo: emailUser,
             to,
             subject,
             html
