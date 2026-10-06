@@ -454,10 +454,16 @@ function ProductDetails() {
                   const match = product.variants.find(
                     (variant) =>
                       variant.size === value &&
-                      (variant.color === selectedColor ||
-                        !selectedColor)
+                      variant.color === selectedColor
                   );
-                  if (match) setSelectedColor(match.color);
+                  const firstForSize = product.variants.find(
+                    (variant) => variant.size === value
+                  );
+                  setSelectedColor(
+                    match?.color ||
+                    firstForSize?.color ||
+                    ""
+                  );
                 }}
                 style={{ padding: "12px", border: "1px solid #ddd" }}
               >
