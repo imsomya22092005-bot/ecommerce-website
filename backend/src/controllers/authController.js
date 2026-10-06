@@ -1,7 +1,7 @@
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const User = require('../models/userModel');
-const { sendRegistrationEmail } = require('../utils/emailService');
+const { sendRegistrationEmail, sendLoginEmail } = require('../utils/emailService');
 
 const registerUser = async (req, res) => {
     try {
@@ -96,6 +96,10 @@ const loginUser = async (req, res) => {
                 expiresIn: '7d'
             }
         );
+
+        sendLoginEmail(user).catch(error => {
+            console.error('Login email failed:', error.message);
+        });
 
         res.status(200).json({
             message: 'Login successful',
