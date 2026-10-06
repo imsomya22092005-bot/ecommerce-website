@@ -984,222 +984,149 @@ function Home() {
 
     <div className="style-edit-grid">
 
-      {/* 01 */}
-
+      {/* 01 MEN */}
       <Link
-        to={createCategoryUrl([
-          "mens-shirts",
-          "womens-dresses",
-          "tops",
-          "mens-shoes",
-          "womens-shoes"
-        ])}
+        to="/products?category=Men"
         className="style-edit-card style-edit-one"
       >
-
         <img
-          src="https://images.unsplash.com/photo-1483985988355-763728e1935b?auto=format&fit=crop&w=1200&q=85"
-          alt="Everyday style"
+          src="https://images.unsplash.com/photo-1617137968427-85924c800a22?auto=format&fit=crop&w=1200&q=85"
+          alt="Men collection"
         />
-
         <div className="style-edit-overlay"></div>
-
         <div className="style-edit-card-content">
-
           <span>01</span>
-
           <div>
-            <h3>
-              {language === "Hindi"
-                ? "हर दिन का स्टाइल"
-                : "Everyday Ease"}
-            </h3>
-
+            <h3>{language === "Hindi" ? "पुरुषों का स्टाइल" : "Men"}</h3>
             <p>
               {language === "Hindi"
-                ? "Simple, comfortable और effortlessly stylish."
-                : "Simple, comfortable and effortlessly stylish."}
+                ? "आधुनिक पुरुषों के लिए चुनिंदा स्टाइल।"
+                : "Modern styles selected for men."}
             </p>
           </div>
-
           <strong>↗</strong>
-
         </div>
-
       </Link>
 
-
-      {/* 02 */}
-
+      {/* 02 WOMEN */}
       <Link
-        to={createCategoryUrl([
-          "womens-jewellery",
-          "womens-bags",
-          "fragrances",
-          "beauty"
-        ])}
+        to="/products?category=Women"
         className="style-edit-card style-edit-two"
       >
-
         <img
-          src="https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?auto=format&fit=crop&w=1200&q=85"
-          alt="Modern style"
+          src="https://images.unsplash.com/photo-1483985988355-763728e1935b?auto=format&fit=crop&w=1200&q=85"
+          alt="Women collection"
         />
-
         <div className="style-edit-overlay"></div>
-
         <div className="style-edit-card-content">
-
           <span>02</span>
-
           <div>
-            <h3>
-              {language === "Hindi"
-                ? "मॉडर्न म्यूज़"
-                : "Modern Muse"}
-            </h3>
-
+            <h3>{language === "Hindi" ? "महिलाओं का स्टाइल" : "Women"}</h3>
             <p>
               {language === "Hindi"
-                ? "Bold details और refined choices."
-                : "Bold details and refined choices."}
+                ? "हर दिन के लिए खूबसूरत और modern styles।"
+                : "Beautiful modern styles for every day."}
             </p>
           </div>
-
           <strong>↗</strong>
-
         </div>
-
       </Link>
 
-
-      {/* 03 */}
-
+      {/* 03 FOOTWEAR */}
       <Link
-        to={createCategoryUrl([
-          "sports-accessories",
-          "smartphones",
-          "mobile-accessories"
-        ])}
+        to="/products?category=Footwear"
         className="style-edit-card style-edit-three"
       >
-
         <img
-          src="https://images.unsplash.com/photo-1517836357463-d25dfeac3438?auto=format&fit=crop&w=1200&q=85"
-          alt="Active lifestyle"
+          src="https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&w=1200&q=85"
+          alt="Footwear collection"
         />
-
         <div className="style-edit-overlay"></div>
-
         <div className="style-edit-card-content">
-
           <span>03</span>
-
           <div>
-            <h3>
-              {language === "Hindi"
-                ? "ऑफ-ड्यूटी"
-                : "Off-Duty Energy"}
-            </h3>
-
+            <h3>{language === "Hindi" ? "फुटवियर" : "Footwear"}</h3>
             <p>
               {language === "Hindi"
-                ? "Active days के लिए fresh essentials."
-                : "Fresh essentials for active days."}
+                ? "स्टाइल और comfort का perfect mix।"
+                : "The perfect mix of style and comfort."}
             </p>
           </div>
-
           <strong>↗</strong>
-
         </div>
-
       </Link>
 
-
-      {/* 04 */}
-
+      {/* 04 NEW ARRIVALS */}
       <Link
-        to={createCategoryUrl([
-          "furniture",
-          "home-decoration",
-          "kitchen-accessories"
-        ])}
+        to="/new-arrivals"
         className="style-edit-card style-edit-four"
       >
-
         <img
-          src="https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?auto=format&fit=crop&w=1200&q=85"
-          alt="Home style"
+          src="https://images.unsplash.com/photo-1445205170230-053b83016050?auto=format&fit=crop&w=1200&q=85"
+          alt="New arrivals"
         />
-
         <div className="style-edit-overlay"></div>
-
         <div className="style-edit-card-content">
-
           <span>04</span>
-
           <div>
-            <h3>
-              {language === "Hindi"
-                ? "क्वाइट कम्फर्ट"
-                : "Quiet Comfort"}
-            </h3>
-
+            <h3>{language === "Hindi" ? "नए प्रोडक्ट्स" : "New Arrivals"}</h3>
             <p>
               {language === "Hindi"
-                ? "अपने space के लिए calm और beautiful pieces."
-                : "Calm and beautiful pieces for your space."}
+                ? "सबसे नए products और fresh picks।"
+                : "Fresh styles and the latest picks."}
             </p>
           </div>
-
           <strong>↗</strong>
-
         </div>
-
       </Link>
 
-      {/* 05 */}
+      {/* 05 BEST SELLERS */}
+      <Link
+        to="/products?sort=price_desc"
+        className="style-edit-card style-edit-five"
+      >
+        <img
+          src="https://images.unsplash.com/photo-1490481651871-ab68de25d43d?auto=format&fit=crop&w=1200&q=85"
+          alt="Best sellers"
+        />
+        <div className="style-edit-overlay"></div>
+        <div className="style-edit-card-content">
+          <span>05</span>
+          <div>
+            <h3>{language === "Hindi" ? "बेस्ट सेलर्स" : "Best Sellers"}</h3>
+            <p>
+              {language === "Hindi"
+                ? "सबसे पसंद किए जाने वाले picks।"
+                : "Popular picks worth discovering."}
+            </p>
+          </div>
+          <strong>↗</strong>
+        </div>
+      </Link>
 
-<Link
-  to={createCategoryUrl([
-    "smartphones",
-    "laptops",
-    "tablets",
-    "mobile-accessories"
-  ])}
-  className="style-edit-card style-edit-five"
->
-
-  <img
-    src="https://images.unsplash.com/photo-1496181133206-80ce9b88a853?auto=format&fit=crop&w=1200&q=85"
-    alt="Modern tech lifestyle"
-  />
-
-  <div className="style-edit-overlay"></div>
-
-  <div className="style-edit-card-content">
-
-    <span>05</span>
-
-    <div>
-      <h3>
-        {language === "Hindi"
-          ? "टेक स्टेट ऑफ माइंड"
-          : "Tech State of Mind"}
-      </h3>
-
-      <p>
-        {language === "Hindi"
-          ? "Smart gadgets जो आपकी everyday life को बेहतर बनाएं।"
-          : "Smart gadgets that elevate your everyday life."}
-      </p>
-    </div>
-
-    <strong>↗</strong>
-
-  </div>
-
-</Link>
+      {/* 06 COLLECTIONS */}
+      <Link
+        to="/products"
+        className="style-edit-card style-edit-six"
+      >
+        <img
+          src="https://images.unsplash.com/photo-1525507119028-ed4c629a60a3?auto=format&fit=crop&w=1200&q=85"
+          alt="ShopSphere collections"
+        />
+        <div className="style-edit-overlay"></div>
+        <div className="style-edit-card-content">
+          <span>06</span>
+          <div>
+            <h3>{language === "Hindi" ? "कलेक्शंस" : "Collections"}</h3>
+            <p>
+              {language === "Hindi"
+                ? "ShopSphere की पूरी collection explore करें।"
+                : "Explore the complete ShopSphere collection."}
+            </p>
+          </div>
+          <strong>↗</strong>
+        </div>
+      </Link>
 
     </div>
 
