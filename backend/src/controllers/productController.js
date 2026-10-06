@@ -1,10 +1,18 @@
 const Product = require('../models/productModel');
+const Subscriber = require('../models/subscriberModel');
+const { sendNewProductEmails } = require('../utils/emailService');
 
 // CREATE PRODUCT
 
 const createProduct = async (req, res) => {
     try {
         const product = await Product.create(req.body);
+
+        // Notify newsletter subscribers without delaying the product response.
+        Subscriber.find({})
+            .lean()
+            .then((subscribers) => sendNewProductEmails(subscribers, product))
+            .catch((error) => console.error('New product email notification error:', error));
 
         res.status(201).json({
             success: true,
