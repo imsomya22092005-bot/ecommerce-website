@@ -4307,24 +4307,18 @@
 .shop-categorybar {
   width: 100%;
   min-height: 78px;
-
   padding: 0 3%;
-
   display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
   align-items: stretch;
   justify-content: space-between;
-
   gap: 8px;
-
   border-top: 1px solid #eee7de;
   background: #fffdf9;
-
   overflow-x: auto;
+  overflow-y: hidden;
   scrollbar-width: none;
-}
-
-.shop-categorybar::-webkit-scrollbar {
-  display: none;
 }
 
 .shop-category {
