@@ -47,7 +47,7 @@ const ALLOWED_CATEGORIES = new Set([
 ========================================================= */
 
 const GROUP_TITLES = {
-  "mens-shoes||womens-shoes":
+  "Footwear":
     "Footwear",
 
   "smartphones||laptops||tablets||mobile-accessories":
@@ -56,7 +56,7 @@ const GROUP_TITLES = {
   "beauty||skin-care||fragrances":
     "Beauty",
 
-  "mens-shirts||womens-dresses||tops":
+  "Men||Women":
     "Fashion",
 
   "sports-accessories":
@@ -68,7 +68,7 @@ const GROUP_TITLES = {
   "home-decoration||kitchen-accessories":
     "Home Accessories",
 
-  "mens-watches||womens-watches||sunglasses||womens-bags||womens-jewellery":
+  "Accessories":
     "Accessories",
 };
 
