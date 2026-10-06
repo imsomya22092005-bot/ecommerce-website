@@ -9,6 +9,8 @@ const productRoutes = require('./routes/productRoutes');
 const cartRoutes = require('./routes/cartRoutes');
 const orderRoutes = require('./routes/orderRoutes');
 const userRoutes = require('./routes/userRoutes');
+const wishlistRoutes = require('./routes/wishlistRoutes');
+const googleAuthRoutes = require('./routes/googleAuthRoutes');
 
 app.use(express.json());
 
@@ -18,6 +20,8 @@ app.use('/api/orders', orderRoutes);
 app.use('/api/cart', cartRoutes);
 app.use('/api/products', productRoutes);
 app.use('/api/users', userRoutes);
+app.use('/api/wishlist', wishlistRoutes);
+app.use('/api/auth/google', googleAuthRoutes);
 
 app.get('/', (req, res) => {
     res.json({
