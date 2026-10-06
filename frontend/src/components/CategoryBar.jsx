@@ -20,6 +20,23 @@ const categoryIcons = {
   Accessories: <Watch size={20} strokeWidth={1.7} />,
 };
 
+const categoryTranslations = {
+  Hindi: {
+    Men: "मेन्स",
+    Women: "विमेन्स",
+    Accessories: "एक्सेसरीज़",
+    Footwear: "फुटवियर",
+    Fashion: "फैशन",
+    Electronics: "इलेक्ट्रॉनिक्स",
+    Smartphones: "स्मार्टफोन",
+    Laptops: "लैपटॉप",
+    Audio: "ऑडियो",
+    Beauty: "ब्यूटी",
+    Home: "होम",
+  },
+  English: {},
+};
+
 function CategoryBar() {
   const { language } = useLanguage();
   const [categories, setCategories] = useState([]);
@@ -78,7 +95,7 @@ function CategoryBar() {
               <ShoppingBag size={20} strokeWidth={1.7} />
             )}
           </span>
-          <small>{category}</small>
+          <small>{categoryTranslations[language]?.[category] || category}</small>
         </Link>
       ))}
 
