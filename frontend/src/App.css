@@ -11376,11 +11376,15 @@ color: #211e1b !important;
 
 .style-edit-grid {
   display: grid;
-
-  grid-template-columns: 1.2fr 0.9fr 0.9fr;
-  grid-template-rows: 330px 330px;
-
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-rows: repeat(2, minmax(300px, 1fr));
   gap: 18px;
+  width: 100%;
+}
+
+.style-edit-card {
+  min-width: 0;
+  min-height: 300px;
 }
 
 /* =========================================================
