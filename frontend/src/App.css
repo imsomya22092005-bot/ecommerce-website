@@ -4430,6 +4430,26 @@
   display: none;
 }
 
+/* Balanced desktop card grid */
+.style-edit-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-rows: repeat(2, 300px);
+  gap: 18px;
+}
+
+/* Shop by Category: use all available width */
+.shop-categorybar {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+  overflow-x: hidden;
+}
+
+.shop-category {
+  min-width: 0;
+  width: 100%;
+}
+
 /* =====================================================
    TABLET
    ===================================================== */
@@ -11410,7 +11430,7 @@ color: #211e1b !important;
 }
 
 .style-edit-one {
-  grid-row: span 2;
+  grid-row: auto;
 }
 
 .style-edit-card img {
@@ -11579,7 +11599,7 @@ color: #211e1b !important;
 }
 
 .style-edit-one {
-  grid-row: span 2;
+  grid-row: auto;
 }
 
 }
