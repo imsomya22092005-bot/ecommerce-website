@@ -184,7 +184,6 @@ const createOrder = async (req, res) => {
     }
 };
 
-
 const getMyOrders = async (req, res) => {
     try {
         const orders = await Order.find({
