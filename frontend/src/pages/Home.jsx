@@ -61,6 +61,8 @@ function Home() {
   const [products, setProducts] = useState([]);
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [newsletterSubmitting, setNewsletterSubmitting] = useState(false);
+  const [newsletterMessage, setNewsletterMessage] = useState("");
 
   /* =======================================================
      TRANSLATIONS
@@ -881,13 +883,66 @@ function Home() {
 
       <form
         className="newsletter-form"
-        onSubmit={(e) => {
+        onSubmit={async (e) => {
           e.preventDefault();
-          e.target.reset();
+
+          const email = e.currentTarget.email.value.trim();
+
+          if (!email || newsletterSubmitting) {
+            return;
+          }
+
+          try {
+            setNewsletterSubmitting(true);
+            setNewsletterMessage("");
+
+            const response = await fetch(
+              `${API_URL}/api/newsletter/subscribe`,
+              {
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ email }),
+              }
+            );
+
+            const data = await response.json();
+
+            if (!response.ok) {
+              throw new Error(
+                data.message || "Unable to subscribe"
+              );
+            }
+
+            setNewsletterMessage(
+              data.message ||
+                (language === "Hindi"
+                  ? "आप अब ShopSphere updates के लिए subscribed हैं।"
+                  : "You're now subscribed to ShopSphere updates.")
+            );
+
+            e.currentTarget.reset();
+          } catch (error) {
+            console.error(
+              "Newsletter subscription error:",
+              error
+            );
+
+            setNewsletterMessage(
+              error.message ||
+                (language === "Hindi"
+                  ? "अभी subscribe नहीं हो पाया।"
+                  : "Unable to subscribe right now.")
+            );
+          } finally {
+            setNewsletterSubmitting(false);
+          }
         }}
       >
 
         <input
+          name="email"
           type="email"
           placeholder={
             language === "Hindi"
@@ -897,13 +952,26 @@ function Home() {
           required
         />
 
-        <button type="submit">
-          {language === "Hindi"
-            ? "सब्सक्राइब करें"
-            : "SUBSCRIBE"}
+        <button
+          type="submit"
+          disabled={newsletterSubmitting}
+        >
+          {newsletterSubmitting
+            ? language === "Hindi"
+              ? "SUBSCRIBING..."
+              : "SUBSCRIBING..."
+            : language === "Hindi"
+              ? "सब्सक्राइब करें"
+              : "SUBSCRIBE"}
         </button>
 
       </form>
+
+      {newsletterMessage && (
+        <p className="newsletter-message">
+          {newsletterMessage}
+        </p>
+      )}
 
       <p className="newsletter-note">
         {language === "Hindi"
