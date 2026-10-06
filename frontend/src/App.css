@@ -4447,17 +4447,23 @@
   gap: 18px;
 }
 
-/* Shop by Category: use all available width */
+/* Shop category navigation — keep every item on one horizontal line */
 .shop-categorybar {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 10px;
-  overflow-x: hidden;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  align-items: stretch;
+  justify-content: space-between;
+  gap: 4px;
+  overflow-x: auto;
+  overflow-y: hidden;
 }
 
 .shop-category {
   min-width: 0;
-  width: 100%;
+  width: auto;
+  flex: 1 1 0;
+  flex-shrink: 1;
 }
 
 /* =====================================================
