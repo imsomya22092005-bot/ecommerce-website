@@ -86,6 +86,9 @@ function Home() {
           support: "कस्टमर सपोर्ट",
           supportText: "हम आपकी मदद के लिए हैं",
 
+          trusted: "1,000+ ग्राहकों का भरोसा",
+          trustedText: "हम पर भरोसा करने वाले ग्राहक",
+
           categoryLabel: "कैटेगरी के अनुसार खरीदें",
           categoryTitle: "अपनी पसंद खोजें।",
           viewAll: "सभी देखें →",
@@ -157,6 +160,9 @@ function Home() {
 
           support: "CUSTOMER SUPPORT",
           supportText: "We're here to help",
+
+          trusted: "TRUSTED BY 1,000+ CUSTOMERS",
+          trustedText: "Loved and trusted by our customers",
 
           categoryLabel: "SHOP BY CATEGORY",
           categoryTitle:
@@ -430,6 +436,20 @@ function Home() {
           </div>
         </div>
 
+        <div className="feature">
+          <span>♡</span>
+
+          <div>
+            <strong>
+              {t.trusted}
+            </strong>
+
+            <p>
+              {t.trustedText}
+            </p>
+          </div>
+        </div>
+
       </section>
 
       {/* =====================================================
@@ -540,44 +560,6 @@ function Home() {
               </Link>
             );
           })}
-
-          {/* 09 NEW ARRIVALS */}
-
-          <Link
-            to="/new-arrivals"
-            className="category-card category-new"
-          >
-
-            <img
-              src="https://images.unsplash.com/photo-1445205170230-053b83016050?auto=format&fit=crop&w=900&q=85"
-              alt="New arrivals collection"
-            />
-
-            <div className="category-overlay"></div>
-
-            <div className="category-card-content">
-
-              <span className="category-number">
-                09
-              </span>
-
-              <div>
-                <h3>
-                  NEW ARRIVALS
-                </h3>
-
-                <p>
-                  Fresh styles and latest picks
-                </p>
-              </div>
-
-              <span className="category-arrow">
-                ↗
-              </span>
-
-            </div>
-
-          </Link>
 
         </div>
 
