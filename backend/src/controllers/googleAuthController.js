@@ -4,8 +4,12 @@ const jwt = require('jsonwebtoken');
 const User = require('../models/userModel');
 const { sendLoginEmail } = require('../utils/emailService');
 
+const GOOGLE_CLIENT_ID =
+    process.env.GOOGLE_CLIENT_ID ||
+    '744043508753-234rcf5jmkfcfc4aijvuoee1dq9mda0r.apps.googleusercontent.com';
+
 const googleClient = new OAuth2Client(
-    process.env.GOOGLE_CLIENT_ID
+    GOOGLE_CLIENT_ID
 );
 
 const googleLogin = async (req, res) => {
@@ -21,7 +25,7 @@ const googleLogin = async (req, res) => {
 
         const ticket = await googleClient.verifyIdToken({
             idToken: credential,
-            audience: process.env.GOOGLE_CLIENT_ID
+            audience: GOOGLE_CLIENT_ID
         });
 
         const payload = ticket.getPayload();
