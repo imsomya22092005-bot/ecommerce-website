@@ -197,9 +197,9 @@ function Navbar() {
 
         const items =
           Array.isArray(
-            data?.items
+            data?.cart?.items
           )
-            ? data.items
+            ? data.cart.items
             : [];
 
         const count =
