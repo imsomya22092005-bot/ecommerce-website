@@ -148,77 +148,9 @@ function ProductDetails() {
         );
       }
 
-      // =========================
-      // SAVE BACKEND CART LOCALLY
-      // =========================
-
-      const backendItems =
-        data?.cart?.items || [];
-
-      const normalizedCart =
-        backendItems
-          .filter(
-            (item) =>
-              item?.product
-          )
-          .map((item) => {
-            const backendProduct =
-              item.product;
-
-            const backendProductId =
-              backendProduct._id ||
-              backendProduct.id;
-
-            return {
-              _id:
-                backendProductId,
-
-              id:
-                backendProductId,
-
-              name:
-                backendProduct.name ||
-                "",
-
-              description:
-                backendProduct.description ||
-                "",
-
-              price:
-                Number(
-                  backendProduct.price
-                ) || 0,
-
-              category:
-                backendProduct.category ||
-                "",
-
-              image:
-                backendProduct.image ||
-                "",
-
-              stock:
-                Number(
-                  backendProduct.stock
-                ) || 0,
-
-              quantity:
-                Number(
-                  item.quantity
-                ) || 1,
-            };
-          });
-
-      localStorage.setItem(
-        "cart",
-        JSON.stringify(
-          normalizedCart
-        )
-      );
-
-      window.dispatchEvent(
-        new Event("cartUpdated")
-      );
+      // Backend cart is the source of truth for logged-in users.
+      // Keep a lightweight local cache only for UI events; Cart.jsx
+      // fetches the real cart from the API when the user is authenticated.
 
       setAdded(true);
 
