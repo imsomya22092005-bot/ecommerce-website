@@ -12525,3 +12525,66 @@ color: #211e1b !important;
     bottom: 16px !important;
   }
 }
+
+
+/* =========================================================
+   SHOPSPHERE — CART SUCCESS TOAST
+========================================================= */
+
+.cart-toast {
+  position: fixed;
+  left: 50%;
+  bottom: 34px;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 235px;
+  max-width: calc(100vw - 32px);
+  padding: 12px 17px 12px 12px;
+  border: 1px solid #e5d7ca;
+  border-radius: 999px;
+  background: rgba(255, 253, 249, 0.97);
+  color: #3d342d;
+  box-shadow: 0 14px 38px rgba(57, 42, 31, 0.16);
+  backdrop-filter: blur(12px);
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.1px;
+  animation: cartToastIn 0.35s ease-out both;
+  transform: translateX(-50%);
+}
+
+.cart-toast-icon {
+  width: 26px;
+  height: 26px;
+  flex: 0 0 26px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: #8a6245;
+  color: #fff;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+@keyframes cartToastIn {
+  from {
+    opacity: 0;
+    transform: translate(-50%, 14px) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, 0) scale(1);
+  }
+}
+
+@media (max-width: 600px) {
+  .cart-toast {
+    bottom: 20px;
+    min-width: 0;
+    width: max-content;
+    max-width: calc(100vw - 28px);
+    padding-right: 15px;
+  }
+}
