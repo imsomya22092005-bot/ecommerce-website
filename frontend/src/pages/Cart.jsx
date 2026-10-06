@@ -74,6 +74,9 @@ function Cart() {
 
           quantity:
             Number(item.quantity) || 1,
+
+          size: item.size || product.sizes?.[0] || "",
+          color: item.color || product.colors?.[0] || "",
         };
       });
   };
@@ -123,6 +126,12 @@ function Cart() {
               Authorization:
                 `Bearer ${token}`,
             },
+
+            body: JSON.stringify({
+              productId,
+              size,
+              color,
+            }),
           }
         );
 
@@ -175,7 +184,9 @@ function Cart() {
 
   const updateQuantity = async (
     productId,
-    newQuantity
+    newQuantity,
+    size = "",
+    color = ""
   ) => {
     const token = getToken();
 
@@ -185,7 +196,7 @@ function Cart() {
 
     // Remove item when quantity becomes 0
     if (newQuantity <= 0) {
-      await removeItem(productId);
+      await removeItem(productId, size, color);
       return;
     }
 
@@ -209,8 +220,9 @@ function Cart() {
 
             body: JSON.stringify({
               productId,
-              quantity:
-                newQuantity,
+              size,
+              color,
+              quantity: newQuantity,
             }),
           }
         );
@@ -255,7 +267,9 @@ function Cart() {
   // =========================
 
   const removeItem = async (
-    productId
+    productId,
+    size = "",
+    color = ""
   ) => {
     const token = getToken();
 
@@ -269,11 +283,12 @@ function Cart() {
 
       const response =
         await fetch(
-          `${API_URL}/api/cart/remove/${productId}`,
+          `${API_URL}/api/cart/remove`,
           {
             method: "DELETE",
 
             headers: {
+              "Content-Type": "application/json",
               Authorization:
                 `Bearer ${token}`,
             },
