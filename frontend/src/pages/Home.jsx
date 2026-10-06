@@ -458,9 +458,8 @@ function Home() {
 
           <Link
             to={createCategoryUrl([
-              "mens-shirts",
-              "womens-dresses",
-              "tops",
+              "Men",
+              "Women",
             ])}
             className="category-card category-fashion"
           >
@@ -544,8 +543,7 @@ function Home() {
 
           <Link
             to={createCategoryUrl([
-              "mens-shoes",
-              "womens-shoes",
+              "Footwear",
             ])}
             className="category-card category-footwear"
           >
@@ -754,11 +752,7 @@ function Home() {
 
           <Link
             to={createCategoryUrl([
-              "mens-watches",
-              "womens-watches",
-              "sunglasses",
-              "womens-bags",
-              "womens-jewellery",
+              "Accessories",
             ])}
             className="category-card category-accessories"
           >
