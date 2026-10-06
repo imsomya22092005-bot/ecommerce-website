@@ -3,7 +3,7 @@ const transporter = require('../config/email');
 const sendEmail = async ({ to, subject, html }) => {
     try {
         await transporter.sendMail({
-            from: `"Fashion Store" <${process.env.EMAIL_USER}>`,
+            from: `"ShopSphere" <${process.env.EMAIL_USER}>`,
             to,
             subject,
             html
@@ -22,18 +22,33 @@ const sendEmail = async ({ to, subject, html }) => {
 const sendRegistrationEmail = async (user) => {
     return sendEmail({
         to: user.email,
-        subject: 'Welcome to Fashion Store',
+        subject: 'Welcome to ShopSphere',
         html: `
             <h2>Welcome, ${user.username}!</h2>
 
-            <p>Your Fashion Store account has been created successfully.</p>
+            <p>Your ShopSphere account has been created successfully.</p>
 
             <p>You can now browse products, save items to your wishlist,
             manage your cart and place orders.</p>
 
             <p>Happy shopping!</p>
 
-            <p>— Fashion Store Team</p>
+            <p>— ShopSphere Team</p>
+        `
+    });
+};
+
+const sendLoginEmail = async (user) => {
+    return sendEmail({
+        to: user.email,
+        subject: 'New Login to Your ShopSphere Account',
+        html: `
+            <h2>Welcome back, ${user.username}! 👋</h2>
+            <p>We noticed a successful login to your ShopSphere account.</p>
+            <p><strong>Email:</strong> ${user.email}</p>
+            <p>If this was you, no action is needed.</p>
+            <p>If you did not log in, please secure your account.</p>
+            <p>— ShopSphere Team</p>
         `
     });
 };
@@ -70,7 +85,7 @@ const sendOrderConfirmationEmail = async (user, order) => {
 
             <p>We'll keep you updated when your order status changes.</p>
 
-            <p>— Fashion Store Team</p>
+            <p>— ShopSphere Team</p>
         `
     });
 };
@@ -115,7 +130,7 @@ const sendOrderStatusEmail = async (user, order, status) => {
 
             <p>Thank you for shopping with us.</p>
 
-            <p>— Fashion Store Team</p>
+            <p>— ShopSphere Team</p>
         `
     });
 };
@@ -123,5 +138,6 @@ const sendOrderStatusEmail = async (user, order, status) => {
 module.exports = {
     sendRegistrationEmail,
     sendOrderConfirmationEmail,
-    sendOrderStatusEmail
+    sendOrderStatusEmail,
+    sendLoginEmail
 };
