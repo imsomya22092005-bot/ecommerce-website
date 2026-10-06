@@ -135,9 +135,53 @@ const sendOrderStatusEmail = async (user, order, status) => {
     });
 };
 
+
+const sendNewProductEmail = async (subscriber, product) => {
+    const productUrl = process.env.FRONTEND_URL
+        ? `${process.env.FRONTEND_URL}/product/${product._id}`
+        : null;
+
+    return sendEmail({
+        to: subscriber.email,
+        subject: `New on ShopSphere: ${product.name}`,
+        html: `
+            <h2>A new ShopSphere favourite just arrived ✨</h2>
+
+            <p>We have added a new product to the collection.</p>
+
+            <h3>${product.name}</h3>
+
+            <p><strong>Category:</strong> ${product.category || 'ShopSphere Collection'}</p>
+            <p><strong>Price:</strong> ₹${product.discountPrice || product.price}</p>
+
+            ${productUrl
+                ? `<p><a href="${productUrl}">View this product on ShopSphere →</a></p>`
+                : ''}
+
+            <p>Thank you for staying in the loop.</p>
+
+            <p>— ShopSphere Team</p>
+        `
+    });
+};
+
+const sendNewProductEmails = async (subscribers, product) => {
+    if (!Array.isArray(subscribers) || subscribers.length === 0) {
+        return;
+    }
+
+    await Promise.allSettled(
+        subscribers.map((subscriber) =>
+            sendNewProductEmail(subscriber, product)
+        )
+    );
+};
+
 module.exports = {
     sendRegistrationEmail,
     sendOrderConfirmationEmail,
     sendOrderStatusEmail,
-    sendLoginEmail
+    sendLoginEmail,
+    sendNewProductEmail,
+    sendNewProductEmails
 };
