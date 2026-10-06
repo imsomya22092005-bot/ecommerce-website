@@ -28,6 +28,7 @@ import TrackOrder from "./pages/TrackOrder";
 import NewArrivals from "./pages/NewArrivals";
 import AdminDashboard from "./pages/AdminDashboard";
 import Profile from "./pages/Profile";
+import Wishlist from "./pages/Wishlist";
 
 function ScrollToTop() {
   const { pathname, search } = useLocation();
@@ -150,6 +151,11 @@ function App() {
         <Route
           path="/profile"
           element={<Profile />}
+        />
+
+        <Route
+          path="/wishlist"
+          element={<Wishlist />}
         />
       </Routes>
 
