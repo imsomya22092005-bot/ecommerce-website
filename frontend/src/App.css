@@ -1661,10 +1661,20 @@
 
 .categories-grid {
   max-width: 1250px;
+  width: 100%;
   margin: 0 auto;
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(6, minmax(0, 1fr));
   gap: 18px;
+}
+
+.categories-grid .category-card {
+  grid-column: span 2;
+}
+
+.categories-grid .category-card:nth-child(4),
+.categories-grid .category-card:nth-child(5) {
+  grid-column: span 3;
 }
 
 .category-card {
