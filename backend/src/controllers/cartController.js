@@ -45,30 +45,38 @@ const addToCart = async (req, res) => {
             quantity = 1
         } = req.body;
 
-
-        
-        // Validate request
-
+        // If checkout sends no product details,
+        // simply return the user's existing cart.
         if (!productId || !size || !color) {
-            return res.status(400).json({
-                success: false,
-                message: 'Product ID, size and color are required'
+            const cart = await Cart.findOne({
+                user: req.user.userId
+            }).populate('items.product');
+
+            if (!cart || cart.items.length === 0) {
+                return res.status(400).json({
+                    success: false,
+                    message: 'Cart is empty'
+                });
+            }
+
+            return res.status(200).json({
+                success: true,
+                message: 'Cart ready for checkout',
+                cart
             });
         }
 
-
         const requestedQuantity = Number(quantity);
 
-        if (!Number.isInteger(requestedQuantity) || requestedQuantity < 1) {
+        if (
+            !Number.isInteger(requestedQuantity) ||
+            requestedQuantity < 1
+        ) {
             return res.status(400).json({
                 success: false,
                 message: 'Quantity must be at least 1'
             });
         }
-
-
-        
-        // Find product
 
         const product = await Product.findOne({
             _id: productId,
@@ -82,15 +90,11 @@ const addToCart = async (req, res) => {
             });
         }
 
-
-        // Find selected variant
-
         const variant = product.variants.find(
             item =>
                 item.size === size &&
                 item.color === color
         );
-
 
         if (!variant) {
             return res.status(400).json({
@@ -99,10 +103,6 @@ const addToCart = async (req, res) => {
             });
         }
 
-
-        
-        // Check stock
-
         if (requestedQuantity > variant.stock) {
             return res.status(400).json({
                 success: false,
@@ -110,14 +110,9 @@ const addToCart = async (req, res) => {
             });
         }
 
-
-        
-        // Find user's cart
-
         let cart = await Cart.findOne({
             user: req.user.userId
         });
-
 
         if (!cart) {
             cart = new Cart({
@@ -126,9 +121,6 @@ const addToCart = async (req, res) => {
             });
         }
 
-      
-        // Find same variant in cart
-
         const existingItem = cart.items.find(
             item =>
                 item.product.toString() === productId &&
@@ -136,12 +128,9 @@ const addToCart = async (req, res) => {
                 item.color === color
         );
 
-
         if (existingItem) {
-
             const newQuantity =
                 existingItem.quantity + requestedQuantity;
-
 
             if (newQuantity > variant.stock) {
                 return res.status(400).json({
@@ -150,11 +139,8 @@ const addToCart = async (req, res) => {
                 });
             }
 
-
             existingItem.quantity = newQuantity;
-
         } else {
-
             cart.items.push({
                 product: productId,
                 size,
@@ -163,11 +149,8 @@ const addToCart = async (req, res) => {
             });
         }
 
-
         await cart.save();
-
         await cart.populate('items.product');
-
 
         res.status(200).json({
             success: true,
@@ -176,7 +159,6 @@ const addToCart = async (req, res) => {
         });
 
     } catch (error) {
-
         res.status(500).json({
             success: false,
             message: 'Failed to add product to cart',
