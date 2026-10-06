@@ -163,11 +163,8 @@ function Login() {
     }
 
     const clientId =
-      import.meta.env.VITE_GOOGLE_CLIENT_ID;
-
-    if (!clientId) {
-      return;
-    }
+      import.meta.env.VITE_GOOGLE_CLIENT_ID ||
+      "744043508753-234rcf5jmkfcfc4aijvuoee1dq9mda0r.apps.googleusercontent.com";
 
     const renderGoogleButton = () => {
       if (
@@ -799,9 +796,7 @@ function Login() {
 
           {/* GOOGLE SIGN-IN */}
 
-          {!isRegister &&
-            import.meta.env
-              .VITE_GOOGLE_CLIENT_ID && (
+          {!isRegister && (
               <>
                 <div
                   style={{
