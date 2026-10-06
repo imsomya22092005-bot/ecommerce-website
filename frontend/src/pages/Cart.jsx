@@ -126,12 +126,6 @@ function Cart() {
               Authorization:
                 `Bearer ${token}`,
             },
-
-            body: JSON.stringify({
-              productId,
-              size,
-              color,
-            }),
           }
         );
 
@@ -611,7 +605,9 @@ function Cart() {
                       onClick={() =>
                         updateQuantity(
                           productId,
-                          quantity - 1
+                          quantity - 1,
+                          item.size,
+                          item.color
                         )
                       }
                     >
@@ -633,7 +629,9 @@ function Cart() {
                       onClick={() =>
                         updateQuantity(
                           productId,
-                          quantity + 1
+                          quantity + 1,
+                          item.size,
+                          item.color
                         )
                       }
                     >
@@ -674,7 +672,9 @@ function Cart() {
                     }
                     onClick={() =>
                       removeItem(
-                        productId
+                        productId,
+                        item.size,
+                        item.color
                       )
                     }
                   >
