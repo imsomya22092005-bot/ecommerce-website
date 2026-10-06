@@ -45,9 +45,8 @@ const addToCart = async (req, res) => {
             quantity = 1
         } = req.body;
 
-        // If checkout sends no product details,
-        // simply return the user's existing cart.
-        if (!productId || !size || !color) {
+        // Checkout may call this endpoint without product details.
+        if (!productId) {
             const cart = await Cart.findOne({
                 user: req.user.userId
             }).populate('items.product');
@@ -90,23 +89,48 @@ const addToCart = async (req, res) => {
             });
         }
 
-        const variant = product.variants.find(
-            item =>
-                item.size === size &&
-                item.color === color
-        );
+        const hasVariants =
+            Array.isArray(product.variants) &&
+            product.variants.length > 0;
 
-        if (!variant) {
-            return res.status(400).json({
-                success: false,
-                message: 'Selected size and color combination is not available'
-            });
+        let selectedSize = String(size || "").trim();
+        let selectedColor = String(color || "").trim();
+        let availableStock = Number(product.stock) || 0;
+        let variantKey = "";
+
+        if (hasVariants) {
+            if (!selectedSize || !selectedColor) {
+                return res.status(400).json({
+                    success: false,
+                    message: 'Please select a size and color'
+                });
+            }
+
+            const variant = product.variants.find(
+                item =>
+                    item.size === selectedSize &&
+                    item.color === selectedColor
+            );
+
+            if (!variant) {
+                return res.status(400).json({
+                    success: false,
+                    message: 'Selected size and color combination is not available'
+                });
+            }
+
+            availableStock = Number(variant.stock) || 0;
+            variantKey = `${selectedSize}::${selectedColor}`;
+        } else {
+            selectedSize = selectedSize || "Default";
+            selectedColor = selectedColor || "Default";
+            variantKey = "Default::Default";
         }
 
-        if (requestedQuantity > variant.stock) {
+        if (requestedQuantity > availableStock) {
             return res.status(400).json({
                 success: false,
-                message: `Only ${variant.stock} item(s) available`
+                message: `Only ${availableStock} item(s) available`
             });
         }
 
@@ -124,18 +148,18 @@ const addToCart = async (req, res) => {
         const existingItem = cart.items.find(
             item =>
                 item.product.toString() === productId &&
-                item.size === size &&
-                item.color === color
+                item.size === selectedSize &&
+                item.color === selectedColor
         );
 
         if (existingItem) {
             const newQuantity =
                 existingItem.quantity + requestedQuantity;
 
-            if (newQuantity > variant.stock) {
+            if (newQuantity > availableStock) {
                 return res.status(400).json({
                     success: false,
-                    message: `Only ${variant.stock} item(s) available`
+                    message: `Only ${availableStock} item(s) available`
                 });
             }
 
@@ -143,8 +167,8 @@ const addToCart = async (req, res) => {
         } else {
             cart.items.push({
                 product: productId,
-                size,
-                color,
+                size: selectedSize,
+                color: selectedColor,
                 quantity: requestedQuantity
             });
         }
@@ -182,10 +206,10 @@ const updateCartItem = async (req, res) => {
         } = req.body;
 
 
-        if (!productId || !size || !color || quantity === undefined) {
+        if (!productId || quantity === undefined) {
             return res.status(400).json({
                 success: false,
-                message: 'Product ID, size, color and quantity are required'
+                message: 'Product ID and quantity are required'
             });
         }
 
@@ -214,25 +238,48 @@ const updateCartItem = async (req, res) => {
         }
 
 
-        const variant = product.variants.find(
-            item =>
-                item.size === size &&
-                item.color === color
-        );
+        const hasVariants =
+            Array.isArray(product.variants) &&
+            product.variants.length > 0;
 
+        const selectedSize = String(
+            size || (hasVariants ? "" : "Default")
+        ).trim();
 
-        if (!variant) {
-            return res.status(400).json({
-                success: false,
-                message: 'Selected variant is not available'
-            });
+        const selectedColor = String(
+            color || (hasVariants ? "" : "Default")
+        ).trim();
+
+        let availableStock = Number(product.stock) || 0;
+
+        if (hasVariants) {
+            if (!selectedSize || !selectedColor) {
+                return res.status(400).json({
+                    success: false,
+                    message: 'Size and color are required for this product'
+                });
+            }
+
+            const variant = product.variants.find(
+                item =>
+                    item.size === selectedSize &&
+                    item.color === selectedColor
+            );
+
+            if (!variant) {
+                return res.status(400).json({
+                    success: false,
+                    message: 'Selected variant is not available'
+                });
+            }
+
+            availableStock = Number(variant.stock) || 0;
         }
 
-
-        if (requestedQuantity > variant.stock) {
+        if (requestedQuantity > availableStock) {
             return res.status(400).json({
                 success: false,
-                message: `Only ${variant.stock} item(s) available`
+                message: `Only ${availableStock} item(s) available`
             });
         }
 
@@ -253,8 +300,8 @@ const updateCartItem = async (req, res) => {
         const item = cart.items.find(
             item =>
                 item.product.toString() === productId &&
-                item.size === size &&
-                item.color === color
+                item.size === selectedSize &&
+                item.color === selectedColor
         );
 
 
@@ -303,10 +350,10 @@ const removeFromCart = async (req, res) => {
         } = req.body;
 
 
-        if (!productId || !size || !color) {
+        if (!productId) {
             return res.status(400).json({
                 success: false,
-                message: 'Product ID, size and color are required'
+                message: 'Product ID is required'
             });
         }
 
@@ -331,8 +378,8 @@ const removeFromCart = async (req, res) => {
             item =>
                 !(
                     item.product.toString() === productId &&
-                    item.size === size &&
-                    item.color === color
+                    item.size === (size || "Default") &&
+                    item.color === (color || "Default")
                 )
         );
 
