@@ -11,37 +11,29 @@ import heroModel from "../assets/hero-model.png";
 ========================================================= */
 
 const ALLOWED_CATEGORIES = new Set([
-  // Fashion
+  // Current backend categories
+  "Men",
+  "Women",
+  "Footwear",
+  "Accessories",
+
+  // Future detailed categories
   "mens-shirts",
   "womens-dresses",
   "tops",
-
-  // Beauty
   "beauty",
   "skin-care",
   "fragrances",
-
-  // Footwear
   "mens-shoes",
   "womens-shoes",
-
-  // Gadgets
   "smartphones",
   "laptops",
   "tablets",
   "mobile-accessories",
-
-  // Sports
   "sports-accessories",
-
-  // Furniture
   "furniture",
-
-  // Home Accessories
   "home-decoration",
   "kitchen-accessories",
-
-  // Accessories
   "mens-watches",
   "womens-watches",
   "sunglasses",
