@@ -99,18 +99,21 @@ const addToCart = async (req, res) => {
         let variantKey = "";
 
         if (hasVariants) {
-            if (!selectedSize || !selectedColor) {
-                return res.status(400).json({
-                    success: false,
-                    message: 'Please select a size and color'
-                });
-            }
+            const normalizedSize = String(selectedSize || "").trim().toLowerCase();
+            const normalizedColor = String(selectedColor || "").trim().toLowerCase();
 
-            const variant = product.variants.find(
+            let variant = product.variants.find(
                 item =>
-                    item.size === selectedSize &&
-                    item.color === selectedColor
+                    String(item.size || "").trim().toLowerCase() === normalizedSize &&
+                    String(item.color || "").trim().toLowerCase() === normalizedColor
             );
+
+            if (!variant && (!selectedSize || !selectedColor)) {
+                variant =
+                    product.variants.find(
+                        item => Number(item.stock) > 0
+                    ) || product.variants[0];
+            }
 
             if (!variant) {
                 return res.status(400).json({
@@ -119,8 +122,10 @@ const addToCart = async (req, res) => {
                 });
             }
 
+            selectedSize = String(variant.size || "Default").trim();
+            selectedColor = String(variant.color || "Default").trim();
             availableStock = Number(variant.stock) || 0;
-            variantKey = `${selectedSize}::${selectedColor}`;
+            variantKey = selectedSize + "::" + selectedColor;
         } else {
             selectedSize = selectedSize || "Default";
             selectedColor = selectedColor || "Default";
