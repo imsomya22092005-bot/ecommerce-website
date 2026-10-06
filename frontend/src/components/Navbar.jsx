@@ -7,6 +7,7 @@ import {
   LayoutDashboard,
   UserRound,
   ShoppingCart,
+  Heart,
   Menu,
   X,
 } from "lucide-react";
@@ -49,6 +50,7 @@ const translations = {
     orders: "My Orders",
     trackOrder: "Track Order",
     profile: "My Profile",
+    wishlist: "Wishlist",
 
     adminDashboard:
       "Admin Dashboard",
@@ -98,6 +100,7 @@ const translations = {
       "ऑर्डर ट्रैक करें",
 
     profile: "मेरी प्रोफाइल",
+    wishlist: "मेरी विशलिस्ट",
 
     adminDashboard:
       "एडमिन डैशबोर्ड",
@@ -617,6 +620,18 @@ function Navbar() {
                   👤 {t.profile}
                 </Link>
 
+                <Link
+                  to="/wishlist"
+                  onClick={closeMore}
+                  className="wishlist-nav-link"
+                >
+                  <Heart
+                    size={15}
+                    strokeWidth={1.8}
+                  />
+                  {t.wishlist}
+                </Link>
+
                 {isAdmin && (
                   <Link
                     to="/admin"
@@ -795,6 +810,13 @@ function Navbar() {
             onClick={closeMenu}
           >
             👤 {t.profile}
+          </Link>
+
+          <Link
+            to="/wishlist"
+            onClick={closeMenu}
+          >
+            ♡ {t.wishlist}
           </Link>
 
           {isAdmin && (
