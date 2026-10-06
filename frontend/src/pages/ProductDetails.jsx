@@ -2,6 +2,7 @@ import { Link, useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { useLanguage } from "../LanguageContext";
 import API_URL from "../api";
+import { Heart } from "lucide-react";
 
 function ProductDetails() {
   const { id } = useParams();
@@ -21,6 +22,12 @@ function ProductDetails() {
 
   const [actionError, setActionError] =
     useState("");
+
+  const [wishlisted, setWishlisted] =
+    useState(false);
+
+  const [wishlistLoading, setWishlistLoading] =
+    useState(false);
 
   const [selectedSize, setSelectedSize] = useState("");
   const [selectedColor, setSelectedColor] = useState("");
@@ -83,6 +90,138 @@ function ProductDetails() {
       fetchProduct();
     }
   }, [id, language]);
+
+  // =========================
+  // WISHLIST
+  // =========================
+
+  useEffect(() => {
+    const loadWishlistStatus = async () => {
+      const token = localStorage.getItem("authToken");
+
+      if (!token || !id) {
+        setWishlisted(false);
+        return;
+      }
+
+      try {
+        const response = await fetch(
+          `${API_URL}/api/wishlist`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+
+        if (!response.ok) {
+          return;
+        }
+
+        const data = await response.json();
+        const products =
+          data?.wishlist?.products || [];
+
+        setWishlisted(
+          products.some(
+            (item) =>
+              String(item?._id || item?.id) === String(id)
+          )
+        );
+      } catch (error) {
+        console.error(
+          "Wishlist status error:",
+          error
+        );
+      }
+    };
+
+    loadWishlistStatus();
+  }, [id]);
+
+  const handleWishlistToggle = async () => {
+    const token =
+      localStorage.getItem("authToken");
+
+    if (!token) {
+      alert(
+        language === "Hindi"
+          ? "Wishlist में product जोड़ने के लिए पहले login करें।"
+          : "Please login before using your wishlist."
+      );
+      return;
+    }
+
+    const productId =
+      product?._id || product?.id;
+
+    if (!productId) {
+      return;
+    }
+
+    setWishlistLoading(true);
+    setActionError("");
+
+    try {
+      const response = wishlisted
+        ? await fetch(
+            `${API_URL}/api/wishlist/remove/${productId}`,
+            {
+              method: "DELETE",
+              headers: {
+                Authorization:
+                  `Bearer ${token}`,
+              },
+            }
+          )
+        : await fetch(
+            `${API_URL}/api/wishlist/add`,
+            {
+              method: "POST",
+              headers: {
+                "Content-Type":
+                  "application/json",
+                Authorization:
+                  `Bearer ${token}`,
+              },
+              body: JSON.stringify({
+                productId,
+              }),
+            }
+          );
+
+      const data =
+        await response.json();
+
+      if (!response.ok) {
+        throw new Error(
+          data.message ||
+            (language === "Hindi"
+              ? "Wishlist update नहीं हो सकी।"
+              : "Could not update wishlist.")
+        );
+      }
+
+      setWishlisted(!wishlisted);
+      window.dispatchEvent(
+        new Event("wishlistUpdated")
+      );
+    } catch (error) {
+      console.error(
+        "Wishlist update error:",
+        error
+      );
+
+      setActionError(
+        error.message ||
+          (language === "Hindi"
+            ? "Wishlist update नहीं हो सकी।"
+            : "Could not update wishlist.")
+      );
+    } finally {
+      setWishlistLoading(false);
+    }
+  };
 
   // =========================
   // ADD TO CART
@@ -342,9 +481,38 @@ function ProductDetails() {
 
           {/* NAME */}
 
-          <h1>
-            {productName}
-          </h1>
+          <div className="product-title-row">
+            <h1>
+              {productName}
+            </h1>
+
+            <button
+              type="button"
+              className={`product-wishlist-btn ${wishlisted ? "is-wishlisted" : ""}`}
+              onClick={handleWishlistToggle}
+              disabled={wishlistLoading}
+              aria-label={
+                wishlisted
+                  ? "Remove from wishlist"
+                  : "Add to wishlist"
+              }
+              title={
+                wishlisted
+                  ? "Remove from wishlist"
+                  : "Add to wishlist"
+              }
+            >
+              <Heart
+                size={24}
+                strokeWidth={1.7}
+                fill={
+                  wishlisted
+                    ? "currentColor"
+                    : "none"
+                }
+              />
+            </button>
+          </div>
 
           {/* PRICE */}
 
