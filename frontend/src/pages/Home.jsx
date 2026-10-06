@@ -1201,6 +1201,426 @@ function Home() {
 
 </section>
 
+
+{/* =====================================================
+    SHOP BY STYLE
+===================================================== */}
+
+<section className="style-edit-section">
+
+  <div className="style-edit-inner">
+
+    {/* HEADING */}
+
+    <div className="style-edit-heading">
+
+      <div>
+        <p className="section-label">
+          {language === "Hindi"
+            ? "स्टाइल एडिट"
+            : "STYLE EDIT"}
+        </p>
+
+        <h2>
+          {language === "Hindi"
+            ? "अपने मूड के हिसाब से खोजें।"
+            : "Shop by"}
+          <em>
+            {language === "Hindi"
+              ? ""
+              : " style."}
+          </em>
+        </h2>
+      </div>
+
+      <p className="style-edit-intro">
+        {language === "Hindi"
+          ? "आज आप कैसा महसूस कर रहे हैं? उसी के हिसाब से अपना अगला favourite खोजें।"
+          : "What are you feeling today? Discover your next favourite by mood, taste and lifestyle."}
+      </p>
+
+    </div>
+
+
+    {/* STYLE CARDS */}
+
+    <div className="style-edit-grid">
+
+      {/* 01 */}
+
+      <Link
+        to={createCategoryUrl([
+          "mens-shirts",
+          "womens-dresses",
+          "tops",
+          "mens-shoes",
+          "womens-shoes"
+        ])}
+        className="style-edit-card style-edit-one"
+      >
+
+        <img
+          src="https://images.unsplash.com/photo-1483985988355-763728e1935b?auto=format&fit=crop&w=1200&q=85"
+          alt="Everyday style"
+        />
+
+        <div className="style-edit-overlay"></div>
+
+        <div className="style-edit-card-content">
+
+          <span>01</span>
+
+          <div>
+            <h3>
+              {language === "Hindi"
+                ? "हर दिन का स्टाइल"
+                : "Everyday Ease"}
+            </h3>
+
+            <p>
+              {language === "Hindi"
+                ? "Simple, comfortable और effortlessly stylish."
+                : "Simple, comfortable and effortlessly stylish."}
+            </p>
+          </div>
+
+          <strong>↗</strong>
+
+        </div>
+
+      </Link>
+
+
+      {/* 02 */}
+
+      <Link
+        to={createCategoryUrl([
+          "womens-jewellery",
+          "womens-bags",
+          "fragrances",
+          "beauty"
+        ])}
+        className="style-edit-card style-edit-two"
+      >
+
+        <img
+          src="https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?auto=format&fit=crop&w=1200&q=85"
+          alt="Modern style"
+        />
+
+        <div className="style-edit-overlay"></div>
+
+        <div className="style-edit-card-content">
+
+          <span>02</span>
+
+          <div>
+            <h3>
+              {language === "Hindi"
+                ? "मॉडर्न म्यूज़"
+                : "Modern Muse"}
+            </h3>
+
+            <p>
+              {language === "Hindi"
+                ? "Bold details और refined choices."
+                : "Bold details and refined choices."}
+            </p>
+          </div>
+
+          <strong>↗</strong>
+
+        </div>
+
+      </Link>
+
+
+      {/* 03 */}
+
+      <Link
+        to={createCategoryUrl([
+          "sports-accessories",
+          "smartphones",
+          "mobile-accessories"
+        ])}
+        className="style-edit-card style-edit-three"
+      >
+
+        <img
+          src="https://images.unsplash.com/photo-1517836357463-d25dfeac3438?auto=format&fit=crop&w=1200&q=85"
+          alt="Active lifestyle"
+        />
+
+        <div className="style-edit-overlay"></div>
+
+        <div className="style-edit-card-content">
+
+          <span>03</span>
+
+          <div>
+            <h3>
+              {language === "Hindi"
+                ? "ऑफ-ड्यूटी"
+                : "Off-Duty Energy"}
+            </h3>
+
+            <p>
+              {language === "Hindi"
+                ? "Active days के लिए fresh essentials."
+                : "Fresh essentials for active days."}
+            </p>
+          </div>
+
+          <strong>↗</strong>
+
+        </div>
+
+      </Link>
+
+
+      {/* 04 */}
+
+      <Link
+        to={createCategoryUrl([
+          "furniture",
+          "home-decoration",
+          "kitchen-accessories"
+        ])}
+        className="style-edit-card style-edit-four"
+      >
+
+        <img
+          src="https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?auto=format&fit=crop&w=1200&q=85"
+          alt="Home style"
+        />
+
+        <div className="style-edit-overlay"></div>
+
+        <div className="style-edit-card-content">
+
+          <span>04</span>
+
+          <div>
+            <h3>
+              {language === "Hindi"
+                ? "क्वाइट कम्फर्ट"
+                : "Quiet Comfort"}
+            </h3>
+
+            <p>
+              {language === "Hindi"
+                ? "अपने space के लिए calm और beautiful pieces."
+                : "Calm and beautiful pieces for your space."}
+            </p>
+          </div>
+
+          <strong>↗</strong>
+
+        </div>
+
+      </Link>
+
+      {/* 05 */}
+
+<Link
+  to={createCategoryUrl([
+    "smartphones",
+    "laptops",
+    "tablets",
+    "mobile-accessories"
+  ])}
+  className="style-edit-card style-edit-five"
+>
+
+  <img
+    src="https://images.unsplash.com/photo-1496181133206-80ce9b88a853?auto=format&fit=crop&w=1200&q=85"
+    alt="Modern tech lifestyle"
+  />
+
+  <div className="style-edit-overlay"></div>
+
+  <div className="style-edit-card-content">
+
+    <span>05</span>
+
+    <div>
+      <h3>
+        {language === "Hindi"
+          ? "टेक स्टेट ऑफ माइंड"
+          : "Tech State of Mind"}
+      </h3>
+
+      <p>
+        {language === "Hindi"
+          ? "Smart gadgets जो आपकी everyday life को बेहतर बनाएं।"
+          : "Smart gadgets that elevate your everyday life."}
+      </p>
+    </div>
+
+    <strong>↗</strong>
+
+  </div>
+
+</Link>
+
+    </div>
+
+  </div>
+
+</section>
+
+{/* =====================================================
+    WHY SHOPSPHERE
+===================================================== */}
+
+<section className="why-shopsphere-section">
+
+  <div className="why-shopsphere-inner">
+
+    <div className="why-shopsphere-heading">
+
+      <p className="section-label">
+        {language === "Hindi"
+          ? "SHOPSPHERE क्यों?"
+          : "WHY SHOPSPHERE"}
+      </p>
+
+      <h2>
+        {language === "Hindi"
+          ? "सिर्फ एक"
+          : "More than a"}
+
+        <em>
+          {language === "Hindi"
+            ? " मार्केटप्लेस नहीं।"
+            : " marketplace."}
+        </em>
+      </h2>
+
+      <p className="why-shopsphere-intro">
+        {language === "Hindi"
+          ? "हम सोच-समझकर चुने गए प्रोडक्ट्स, आसान शॉपिंग और ऐसा स्टाइल साथ लाते हैं जो आपके लिए सही महसूस हो।"
+          : "We bring together thoughtfully selected products, simple shopping and a style that feels truly yours."}
+      </p>
+
+    </div>
+
+
+    <div className="why-shopsphere-grid">
+
+      {/* 01 */}
+
+      <div className="why-shop-card">
+
+        <span className="why-shop-number">
+          01
+        </span>
+
+        <div className="why-shop-icon">
+          ✦
+        </div>
+
+        <h3>
+          {language === "Hindi"
+            ? "सोच-समझकर चुना गया"
+            : "Thoughtfully Selected"}
+        </h3>
+
+        <p>
+          {language === "Hindi"
+            ? "हर प्रोडक्ट को आपकी रोज़मर्रा की ज़िंदगी को आसान और बेहतर बनाने के लिए चुना गया है।"
+            : "Products chosen to make everyday shopping more useful, beautiful and effortless."}
+        </p>
+
+      </div>
+
+
+      {/* 02 */}
+
+      <div className="why-shop-card">
+
+        <span className="why-shop-number">
+          02
+        </span>
+
+        <div className="why-shop-icon">
+          ◇
+        </div>
+
+        <h3>
+          {language === "Hindi"
+            ? "आपकी स्टाइल के लिए"
+            : "Made for Your Style"}
+        </h3>
+
+        <p>
+          {language === "Hindi"
+            ? "फैशन से लेकर रोज़मर्रा की essentials तक, अपनी lifestyle के हिसाब से चीज़ें खोजें।"
+            : "From fashion to everyday essentials, find pieces that naturally fit your lifestyle."}
+        </p>
+
+      </div>
+
+
+      {/* 03 */}
+
+      <div className="why-shop-card">
+
+        <span className="why-shop-number">
+          03
+        </span>
+
+        <div className="why-shop-icon">
+          ◈
+        </div>
+
+        <h3>
+          {language === "Hindi"
+            ? "आसान शॉपिंग"
+            : "Simple Experience"}
+        </h3>
+
+        <p>
+          {language === "Hindi"
+            ? "आसान browsing, साफ choices और आपके लिए बनाई गई एक simple shopping experience।"
+            : "Easy browsing, clear choices and a shopping experience designed around you."}
+        </p>
+
+      </div>
+
+
+      {/* 04 */}
+
+      <div className="why-shop-card">
+
+        <span className="why-shop-number">
+          04
+        </span>
+
+        <div className="why-shop-icon">
+          ○
+        </div>
+
+        <h3>
+          {language === "Hindi"
+            ? "हमेशा कुछ नया"
+            : "Always Evolving"}
+        </h3>
+
+        <p>
+          {language === "Hindi"
+            ? "नए collections और fresh discoveries के साथ हमेशा कुछ नया explore करने के लिए।"
+            : "New collections and fresh discoveries, so there is always something new to explore."}
+        </p>
+
+      </div>
+
+    </div>
+
+  </div>
+
+</section>
+
     </main>
   );
 }

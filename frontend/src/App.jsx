@@ -8,6 +8,8 @@ import {
   useLocation,
 } from "react-router-dom";
 
+import { useEffect } from "react";
+
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
 
@@ -26,6 +28,16 @@ import TrackOrder from "./pages/TrackOrder";
 import NewArrivals from "./pages/NewArrivals";
 import AdminDashboard from "./pages/AdminDashboard";
 import Profile from "./pages/Profile";
+
+function ScrollToTop() {
+  const { pathname, search } = useLocation();
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [pathname, search]);
+
+  return null;
+}
 
 /* =========================================================
    HOME SHORTCUT
@@ -59,6 +71,9 @@ function HomeShortcut() {
 function App() {
   return (
     <BrowserRouter>
+
+    <ScrollToTop />
+    
       <Navbar />
 
       <Routes>

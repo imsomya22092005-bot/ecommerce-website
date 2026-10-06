@@ -1866,7 +1866,7 @@
   align-items: center !important;
   gap: 35px !important;
 
-  background: #f6f1e9 !important;
+  background: #2a241f !important;
   border-top: 1px solid #ded5c9 !important;
   border-bottom: 1px solid #ded5c9 !important;
 
@@ -5202,7 +5202,7 @@
   outline: none !important;
 
   background: transparent !important;
-  color: #211e1b !important;
+  color: #fffdf9 !important;
 
   font-family: "DM Sans", sans-serif !important;
   font-size: 13px !important;
@@ -5856,7 +5856,7 @@
 }
 
 .home .hero-label {
-  color: #c96f5b !important;
+  color: #d4a24c !important;
 }
 
 .home .hero h1 em {
@@ -10551,7 +10551,7 @@
 
   color: #a09387;
 
-  font-size: 10px;
+  font-size: 13px;
 
   font-weight: 800;
 
@@ -10730,4 +10730,892 @@
   .brand-story-signature-line {
     width: 45px;
   }
+}
+/* =========================================================
+   SHOPSPHERE — NEWSLETTER FINAL
+========================================================= */
+
+.home .newsletter-section {
+  position: relative !important;
+  width: 100% !important;
+  min-height: 520px !important;
+
+  padding: 105px 7% !important;
+
+  display: block !important;
+
+  background: #f6f1e9 !important;
+  color: #211e1b !important;
+
+  border-top: 1px solid #ded5c9 !important;
+  border-bottom: 1px solid #ded5c9 !important;
+
+  overflow: hidden !important;
+  box-sizing: border-box !important;
+}
+
+.home .newsletter-inner {
+  position: relative !important;
+  z-index: 2 !important;
+
+  width: 100% !important;
+  max-width: 1350px !important;
+
+  margin: 0 auto !important;
+
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) 190px !important;
+
+  gap: 90px !important;
+
+  align-items: center !important;
+
+  box-sizing: border-box !important;
+}
+
+.home .newsletter-content {
+  width: 100% !important;
+  max-width: 760px !important;
+}
+
+.home .newsletter-label {
+  display: block !important;
+
+  margin: 0 0 20px !important;
+
+  color: #c96f5b !important;
+
+  font-size: 11px !important;
+  font-weight: 800 !important;
+
+  letter-spacing: 2.5px !important;
+  line-height: 1.4 !important;
+}
+
+.home .newsletter-content h2 {
+  display: block !important;
+
+  max-width: 760px !important;
+
+  margin: 0 !important;
+  padding: 0 !important;
+
+  color: #211e1b !important;
+
+  font-family: "Playfair Display", serif !important;
+
+  font-size: clamp(48px, 6vw, 82px) !important;
+  font-weight: 500 !important;
+
+  line-height: 0.98 !important;
+  letter-spacing: -2px !important;
+}
+
+.home .newsletter-content h2 em {
+  display: inline !important;
+
+  color: #c96f5b !important;
+
+  font-family: "Playfair Display", serif !important;
+
+  font-style: italic !important;
+}
+
+.home .newsletter-description {
+  display: block !important;
+
+  max-width: 610px !important;
+
+  margin: 28px 0 32px !important;
+  padding: 0 !important;
+
+ color: #6f665e !important;
+
+  font-size: 15px !important;
+  font-weight: 400 !important;
+
+  line-height: 1.8 !important;
+}
+
+.home .newsletter-form {
+  width: 100% !important;
+  max-width: 650px !important;
+
+  margin: 0 !important;
+  padding: 0 !important;
+
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: stretch !important;
+
+  border: 1px solid #cdbba7 !important;
+
+ background: #fffaf3 !important;
+
+  overflow: hidden !important;
+
+  box-sizing: border-box !important;
+}
+
+.home .newsletter-form input {
+  flex: 1 1 auto !important;
+
+  width: auto !important;
+  min-width: 0 !important;
+
+  height: 58px !important;
+
+  margin: 0 !important;
+  padding: 0 18px !important;
+
+  border: none !important;
+  outline: none !important;
+
+  background: #fffaf3 !important;
+
+  color: #211e1b !important;
+
+  font-family: "DM Sans", sans-serif !important;
+  font-size: 14px !important;
+
+  box-sizing: border-box !important;
+}
+
+.home .newsletter-form input::placeholder {
+  color: #a08f80 !important;
+  opacity: 1 !important;
+}
+
+.home .newsletter-form button {
+  flex: 0 0 145px !important;
+
+  width: 145px !important;
+  height: 58px !important;
+
+  margin: 0 !important;
+  padding: 0 18px !important;
+
+  border: none !important;
+  border-radius: 0 !important;
+
+ background: #d4a24c !important;
+color: #211e1b !important;
+
+  font-family: "DM Sans", sans-serif !important;
+
+  font-size: 10px !important;
+  font-weight: 800 !important;
+
+  letter-spacing: 1.4px !important;
+
+  cursor: pointer !important;
+
+  box-sizing: border-box !important;
+
+  transition:
+    background 0.25s ease,
+    transform 0.25s ease !important;
+}
+
+.home .newsletter-form button:hover {
+ background: #e0b86a !important;
+}
+
+.home .newsletter-note {
+  display: block !important;
+
+  margin: 12px 0 0 !important;
+  padding: 0 !important;
+
+  color: #8f8174 !important;
+
+  font-size: 10px !important;
+  line-height: 1.5 !important;
+}
+
+.home .newsletter-mark {
+  width: 175px !important;
+  height: 175px !important;
+
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+
+  margin: 0 auto !important;
+
+ border: 1px solid rgba(212, 162, 76, 0.30) !important;
+  border-radius: 50% !important;
+
+  background: transparent !important;
+
+ color: #d4a24c !important;
+
+  font-size: 58px !important;
+  font-weight: 300 !important;
+
+  transform: rotate(12deg) !important;
+
+  box-sizing: border-box !important;
+}
+
+
+/* =========================================================
+   TABLET
+========================================================= */
+
+@media (max-width: 900px) {
+
+  .home .newsletter-section {
+    min-height: auto !important;
+
+    padding: 85px 6% !important;
+  }
+
+  .home .newsletter-inner {
+    grid-template-columns: 1fr !important;
+
+    gap: 50px !important;
+  }
+
+  .home .newsletter-mark {
+    width: 135px !important;
+    height: 135px !important;
+
+    margin: 0 !important;
+
+    font-size: 42px !important;
+  }
+}
+
+
+/* =========================================================
+   MOBILE
+========================================================= */
+
+@media (max-width: 600px) {
+
+  .home .newsletter-section {
+    padding: 70px 24px 80px !important;
+  }
+
+  .home .newsletter-inner {
+    gap: 38px !important;
+  }
+
+  .home .newsletter-content h2 {
+    font-size: 44px !important;
+    line-height: 1 !important;
+    letter-spacing: -1.2px !important;
+  }
+
+  .home .newsletter-description {
+    margin: 24px 0 28px !important;
+
+    font-size: 14px !important;
+    line-height: 1.8 !important;
+  }
+
+  .home .newsletter-form {
+    display: flex !important;
+    flex-direction: column !important;
+
+    border: none !important;
+    background: transparent !important;
+
+    gap: 10px !important;
+    overflow: visible !important;
+  }
+
+  .home .newsletter-form input {
+    width: 100% !important;
+    height: 52px !important;
+
+    border: 1px solid #cdbba7 !important;
+
+    padding: 0 16px !important;
+  }
+
+  .home .newsletter-form button {
+    width: 100% !important;
+    flex: 0 0 52px !important;
+
+    height: 52px !important;
+  }
+
+  .home .newsletter-mark {
+    width: 105px !important;
+    height: 105px !important;
+
+    font-size: 32px !important;
+  }
+}
+/* =========================================================
+   SHOPSPHERE — WHY SHOPSPHERE
+========================================================= */
+
+.why-shopsphere-section {
+  position: relative;
+
+  width: 100%;
+
+  padding: 120px 7% 125px;
+
+  background: #fffdf9;
+
+  border-bottom: 1px solid #e6ddd3;
+
+  overflow: hidden;
+}
+
+.why-shopsphere-inner {
+  width: 100%;
+  max-width: 1350px;
+
+  margin: 0 auto;
+}
+
+.why-shopsphere-heading {
+  max-width: 760px;
+
+  margin-bottom: 70px;
+}
+
+.why-shopsphere-heading .section-label {
+  margin: 0 0 28px;
+
+  color: #8a6245;
+
+  font-family: "DM Sans", sans-serif;
+
+  font-size: clamp(28px, 3.5vw, 52px) !important;
+  font-weight: 800;
+
+  letter-spacing: 2px;
+  line-height: 1;
+}
+
+.why-shopsphere-heading h2 {
+  margin: 0;
+
+  color: #211e1b;
+
+  font-family: "Playfair Display", serif;
+
+  font-size: clamp(38px, 4.5vw, 64px) !important;
+  font-weight: 500;
+
+  line-height: 1;
+  letter-spacing: -1.8px;
+}
+
+.why-shopsphere-heading h2 em {
+  color: #c96f5b;
+
+  font-style: italic;
+}
+
+.why-shopsphere-intro {
+  max-width: 600px;
+
+  margin: 28px 0 0;
+
+  color: #756b62;
+
+  font-size: 15px;
+
+  line-height: 1.8;
+}
+
+
+/* =========================================================
+   CARDS
+========================================================= */
+
+.why-shopsphere-grid {
+  display: grid;
+
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+
+  gap: 1px;
+
+  background: #ded5c9;
+
+  border: 1px solid #ded5c9;
+}
+
+.why-shop-card {
+  position: relative;
+
+  min-height: 290px;
+
+  padding: 30px 28px 32px;
+
+  background: #f6f1e9;
+
+  transition:
+    transform 0.3s ease,
+    background 0.3s ease;
+}
+
+.why-shop-card:hover {
+  transform: translateY(-5px);
+
+  background: #fffdf9;
+}
+
+.why-shop-number {
+  display: block;
+
+  margin-bottom: 32px;
+
+  color: #a09387;
+
+  font-size: 10px;
+  font-weight: 800;
+
+  letter-spacing: 1.5px;
+}
+
+.why-shop-icon {
+  width: 48px;
+  height: 48px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  margin-bottom: 28px;
+
+  border: 1px solid #d8cec2;
+
+  border-radius: 50%;
+
+  color: #c96f5b;
+
+  font-size: 20px;
+}
+
+.why-shop-card h3 {
+  margin: 0 0 12px;
+
+  color: #211e1b;
+
+  font-family: "Playfair Display", serif;
+
+  font-size: 23px;
+
+  font-weight: 500;
+}
+
+.why-shop-card p {
+  margin: 0;
+
+  color: #756b62;
+
+  font-size: 12px;
+
+  line-height: 1.8;
+}
+
+
+/* =========================================================
+   TABLET
+========================================================= */
+
+@media (max-width: 900px) {
+
+  .why-shopsphere-section {
+    padding: 90px 6% 95px;
+  }
+
+  .why-shopsphere-heading {
+    margin-bottom: 50px;
+  }
+
+  .why-shopsphere-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+}
+
+
+/* =========================================================
+   MOBILE
+========================================================= */
+
+@media (max-width: 600px) {
+
+  .why-shopsphere-section {
+    padding: 75px 24px 80px;
+  }
+
+  .why-shopsphere-heading {
+    margin-bottom: 38px;
+  }
+
+  .why-shopsphere-heading h2 {
+    font-size: 45px;
+
+    line-height: 1;
+
+    letter-spacing: -1.2px;
+  }
+
+  .why-shopsphere-intro {
+    font-size: 14px;
+
+    line-height: 1.8;
+  }
+
+  .why-shopsphere-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .why-shop-card {
+    min-height: auto;
+
+    padding: 25px 23px 28px;
+  }
+
+}
+/* =========================================================
+   SHOPSPHERE — SHOP BY STYLE
+========================================================= */
+
+.style-edit-section {
+  position: relative;
+
+  width: 100%;
+
+  padding: 125px 7% 130px;
+
+  background: #f6f1e9;
+
+  border-bottom: 1px solid #ded5c9;
+
+  overflow: hidden;
+}
+
+.style-edit-inner {
+  width: 100%;
+  max-width: 1350px;
+
+  margin: 0 auto;
+}
+
+
+/* =========================================================
+   HEADING
+========================================================= */
+
+.style-edit-heading {
+  display: flex;
+
+  align-items: flex-end;
+  justify-content: space-between;
+
+  gap: 60px;
+
+  margin-bottom: 65px;
+}
+
+.style-edit-heading .section-label {
+  margin: 0 0 20px;
+
+  color: #8a6245;
+
+  font-size: 11px;
+  font-weight: 800;
+
+  letter-spacing: 2.5px;
+}
+
+.style-edit-heading h2 {
+  margin: 0;
+
+  color: #211e1b;
+
+  font-family: "Playfair Display", serif;
+
+  font-size: clamp(52px, 6vw, 82px);
+
+  font-weight: 500;
+
+  line-height: 0.98;
+
+  letter-spacing: -2.2px;
+}
+
+.style-edit-heading h2 em {
+  color: #c96f5b;
+
+  font-style: italic;
+}
+
+.style-edit-intro {
+  max-width: 360px;
+
+  margin: 0 0 8px;
+
+  color: #756b62;
+
+  font-size: 14px;
+
+  line-height: 1.8;
+}
+
+
+/* =========================================================
+   GRID
+========================================================= */
+
+.style-edit-grid {
+  display: grid;
+
+  grid-template-columns: 1.2fr 0.9fr 0.9fr;
+  grid-template-rows: 330px 330px;
+
+  gap: 18px;
+}
+
+/* =========================================================
+   CARD
+========================================================= */
+
+.style-edit-card {
+  position: relative;
+
+  display: block;
+
+  overflow: hidden;
+
+  min-height: 300px;
+
+  border-radius: 16px;
+
+  color: #fff;
+
+  text-decoration: none;
+
+  isolation: isolate;
+}
+
+.style-edit-one {
+  grid-row: span 2;
+}
+
+.style-edit-card img {
+  position: absolute;
+
+  inset: 0;
+
+  width: 100%;
+  height: 100%;
+
+  object-fit: cover;
+
+  z-index: -2;
+
+  transition: transform 0.65s ease;
+}
+
+.style-edit-overlay {
+  position: absolute;
+
+  inset: 0;
+
+  z-index: -1;
+
+  background:
+    linear-gradient(
+      to top,
+      rgba(24, 19, 16, 0.84),
+      rgba(24, 19, 16, 0.28),
+      rgba(24, 19, 16, 0.06)
+    );
+}
+
+.style-edit-card-content {
+  position: absolute;
+
+  inset: 0;
+
+  padding: 28px;
+
+  display: flex;
+
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.style-edit-card-content > span {
+  font-size: 10px;
+
+  font-weight: 800;
+
+  letter-spacing: 1.5px;
+
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.style-edit-card-content h3 {
+  margin: 0 0 7px;
+
+  font-family: "Playfair Display", serif;
+
+  font-size: 30px;
+
+  font-weight: 500;
+
+  line-height: 1;
+}
+
+.style-edit-card-content p {
+  margin: 0;
+
+  max-width: 260px;
+
+  color: rgba(255, 255, 255, 0.82);
+
+  font-size: 11px;
+
+  line-height: 1.6;
+}
+
+.style-edit-card-content strong {
+  align-self: flex-end;
+
+  width: 42px;
+  height: 42px;
+
+  display: flex;
+
+  align-items: center;
+  justify-content: center;
+
+  border: 1px solid rgba(255, 255, 255, 0.7);
+
+  border-radius: 50%;
+
+  background: rgba(255, 255, 255, 0.88);
+
+  color: #211e1b;
+
+  font-size: 18px;
+
+  font-weight: 500;
+
+  transition:
+    transform 0.25s ease,
+    background 0.25s ease;
+}
+
+.style-edit-card:hover img {
+  transform: scale(1.06);
+}
+
+.style-edit-card:hover strong {
+  transform: translate(2px, -2px);
+
+  background: #d4a24c;
+}
+
+
+/* =========================================================
+   CARD ACCENTS
+========================================================= */
+
+.style-edit-one {
+  border-top: 5px solid #c96f5b;
+}
+
+.style-edit-two {
+  border-top: 5px solid #b77b8d;
+}
+
+.style-edit-three {
+  border-top: 5px solid #7d9473;
+}
+
+.style-edit-four {
+  border-top: 5px solid #a47d5b;
+}
+.style-edit-five {
+  border-top: 5px solid #5f8fa3;
+}
+
+/* =========================================================
+   TABLET
+========================================================= */
+
+@media (max-width: 900px) {
+
+  .style-edit-section {
+    padding: 90px 6% 95px;
+  }
+
+  .style-edit-heading {
+    align-items: flex-start;
+
+    flex-direction: column;
+
+    gap: 22px;
+
+    margin-bottom: 45px;
+  }
+
+ .style-edit-grid {
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: repeat(3, 300px);
+}
+
+.style-edit-one {
+  grid-row: span 2;
+}
+
+}
+
+
+/* =========================================================
+   MOBILE
+========================================================= */
+
+@media (max-width: 600px) {
+
+  .style-edit-section {
+    padding: 75px 24px 80px;
+  }
+
+  .style-edit-heading h2 {
+    font-size: 45px;
+
+    line-height: 1;
+
+    letter-spacing: -1.2px;
+  }
+
+  .style-edit-intro {
+    font-size: 13px;
+  }
+
+  .style-edit-grid {
+    grid-template-columns: 1fr;
+
+    grid-template-rows: repeat(4, 290px);
+
+    gap: 14px;
+  }
+
+  .style-edit-one {
+    grid-row: auto;
+  }
+
+  .style-edit-card-content {
+    padding: 23px;
+  }
+
+  .style-edit-card-content h3 {
+    font-size: 26px;
+  }
+
 }
