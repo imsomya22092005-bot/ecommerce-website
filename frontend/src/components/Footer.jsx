@@ -50,6 +50,12 @@ function Footer() {
               : "New Arrivals"}
           </Link>
 
+          <Link to="/wishlist">
+            {language === "Hindi"
+              ? "मेरी विशलिस्ट"
+              : "Wishlist"}
+          </Link>
+
           <Link to="/products">
             {language === "Hindi"
               ? "कलेक्शन"
