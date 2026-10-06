@@ -12,7 +12,15 @@ const createOrder = async (req, res) => {
         const userId = req.user.userId;
 
         const shippingAddress = req.body.shippingAddress || req.body;
-        const { fullName, address, city, state, pincode, phone } = shippingAddress;
+
+        const {
+            fullName,
+            address,
+            city,
+            state,
+            pincode,
+            phone
+        } = shippingAddress;
 
         if (
             !fullName ||
@@ -23,6 +31,7 @@ const createOrder = async (req, res) => {
             !phone
         ) {
             return res.status(400).json({
+                success: false,
                 message: 'Complete shipping address is required'
             });
         }
@@ -33,41 +42,67 @@ const createOrder = async (req, res) => {
 
         if (!cart || cart.items.length === 0) {
             return res.status(400).json({
+                success: false,
                 message: 'Cart is empty'
             });
         }
 
         let totalAmount = 0;
-
         const orderItems = [];
 
+        // Check every cart item
         for (const cartItem of cart.items) {
 
-            const product = await Product.findById(
-                cartItem.product
-            );
+            const product = await Product.findOne({
+                _id: cartItem.product,
+                isActive: true
+            });
 
             if (!product) {
                 return res.status(404).json({
+                    success: false,
                     message: 'One of the products no longer exists'
                 });
             }
 
-            if (product.stock < cartItem.quantity) {
+            // Find exact size + color variant
+            const variant = product.variants.find(
+                item =>
+                    item.size === cartItem.size &&
+                    item.color === cartItem.color
+            );
+
+            if (!variant) {
                 return res.status(400).json({
-                    message: `Not enough stock for ${product.name}`
+                    success: false,
+                    message: `${product.name} - selected size and color are no longer available`
                 });
             }
 
-            totalAmount += product.price * cartItem.quantity;
+            // Check variant stock
+            if (variant.stock < cartItem.quantity) {
+                return res.status(400).json({
+                    success: false,
+                    message: `Only ${variant.stock} item(s) available for ${product.name} (${cartItem.size}, ${cartItem.color})`
+                });
+            }
+
+            // Use discounted price if available
+            const sellingPrice =
+                product.discountPrice ?? product.price;
+
+            totalAmount += sellingPrice * cartItem.quantity;
 
             orderItems.push({
                 product: product._id,
+                size: cartItem.size,
+                color: cartItem.color,
                 quantity: cartItem.quantity,
-                price: product.price
+                price: sellingPrice
             });
         }
 
+        // Create order
         const order = await Order.create({
             user: userId,
 
@@ -87,38 +122,63 @@ const createOrder = async (req, res) => {
             status: 'confirmed'
         });
 
+        // Decrease stock for the exact variants
         for (const item of cart.items) {
 
-            await Product.findByIdAndUpdate(
-                item.product,
-                {
-                    $inc: {
-                        stock: -item.quantity
-                    }
-                }
+            const product = await Product.findById(item.product);
+
+            if (!product) {
+                continue;
+            }
+
+            const variant = product.variants.find(
+                variant =>
+                    variant.size === item.size &&
+                    variant.color === item.color
             );
+
+            if (variant) {
+                variant.stock -= item.quantity;
+            }
+
+            // Keep old stock field synchronized
+            product.stock = product.variants.reduce(
+                (total, variant) => total + variant.stock,
+                0
+            );
+
+            await product.save();
         }
 
+        // Clear cart
         cart.items = [];
-
         await cart.save();
 
         await order.populate('items.product');
 
-        const user = await User.findById(req.user.userId);
+        const user = await User.findById(userId);
 
-        sendOrderConfirmationEmail(user, order).catch(error => {
-            console.error('Order confirmation email failed:', error.message);
-        });
+        if (user) {
+            sendOrderConfirmationEmail(user, order).catch(error => {
+                console.error(
+                    'Order confirmation email failed:',
+                    error.message
+                );
+            });
+        }
 
         res.status(201).json({
+            success: true,
             message: 'Order placed successfully',
             order
         });
 
     } catch (error) {
+        console.error('Create order error:', error);
+
         res.status(500).json({
-            message: 'Server error',
+            success: false,
+            message: 'Failed to place order',
             error: error.message
         });
     }
