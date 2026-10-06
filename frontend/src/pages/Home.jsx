@@ -981,8 +981,24 @@ function Home() {
 
     </div>
 
-    <div className="newsletter-mark">
-      ✦
+    <div className="newsletter-visual" aria-hidden="true">
+      <div className="newsletter-orbit newsletter-orbit-one"></div>
+      <div className="newsletter-orbit newsletter-orbit-two"></div>
+      <div className="newsletter-orbit newsletter-orbit-three"></div>
+
+      <div className="newsletter-visual-core">
+        <span>✦</span>
+        <strong>SS</strong>
+        <small>NEW / 2026</small>
+      </div>
+
+      <span className="newsletter-float newsletter-float-one">
+        NEW
+      </span>
+
+      <span className="newsletter-float newsletter-float-two">
+        ✦
+      </span>
     </div>
 
   </div>
