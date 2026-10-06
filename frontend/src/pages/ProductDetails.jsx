@@ -22,6 +22,9 @@ function ProductDetails() {
   const [actionError, setActionError] =
     useState("");
 
+  const [selectedSize, setSelectedSize] = useState("");
+  const [selectedColor, setSelectedColor] = useState("");
+
   // =========================
   // FETCH PRODUCT
   // =========================
@@ -49,7 +52,16 @@ function ProductDetails() {
           );
         }
 
-        setProduct(data);
+        const loadedProduct = data?.product || data;
+        setProduct(loadedProduct);
+
+        if (loadedProduct?.variants?.length) {
+          setSelectedSize(loadedProduct.variants[0].size);
+          setSelectedColor(loadedProduct.variants[0].color);
+        } else {
+          setSelectedSize(loadedProduct?.sizes?.[0] || "");
+          setSelectedColor(loadedProduct?.colors?.[0] || "");
+        }
       } catch (err) {
         console.error(
           "Error fetching product:",
@@ -117,6 +129,8 @@ function ProductDetails() {
 
             body: JSON.stringify({
               productId,
+              size: selectedSize,
+              color: selectedColor,
               quantity: 1,
             }),
           }
@@ -418,6 +432,55 @@ function ProductDetails() {
               {productDescription}
             </p>
           </div>
+
+          {/* =========================
+              SIZE & COLOR
+          ========================= */}
+
+          {product.variants?.length > 0 && (
+            <div
+              style={{
+                display: "grid",
+                gridTemplateColumns: "1fr 1fr",
+                gap: "12px",
+                margin: "20px 0",
+              }}
+            >
+              <select
+                value={selectedSize}
+                onChange={(e) => {
+                  const value = e.target.value;
+                  setSelectedSize(value);
+                  const match = product.variants.find(
+                    (variant) =>
+                      variant.size === value &&
+                      (variant.color === selectedColor ||
+                        !selectedColor)
+                  );
+                  if (match) setSelectedColor(match.color);
+                }}
+                style={{ padding: "12px", border: "1px solid #ddd" }}
+              >
+                {[...new Set(product.variants.map((v) => v.size))].map((size) => (
+                  <option key={size} value={size}>{size}</option>
+                ))}
+              </select>
+
+              <select
+                value={selectedColor}
+                onChange={(e) => setSelectedColor(e.target.value)}
+                style={{ padding: "12px", border: "1px solid #ddd" }}
+              >
+                {[...new Set(
+                  product.variants
+                    .filter((v) => !selectedSize || v.size === selectedSize)
+                    .map((v) => v.color)
+                )].map((color) => (
+                  <option key={color} value={color}>{color}</option>
+                ))}
+              </select>
+            </div>
+          )}
 
           {/* =========================
               STOCK
