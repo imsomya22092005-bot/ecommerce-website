@@ -158,18 +158,18 @@ const createOrder = async (req, res) => {
 
         const user = await User.findById(userId);
 
+        let emailSent = false;
+
         if (user) {
-            sendOrderConfirmationEmail(user, order).catch(error => {
-                console.error(
-                    'Order confirmation email failed:',
-                    error.message
-                );
-            });
+            emailSent = await sendOrderConfirmationEmail(user, order);
         }
 
         res.status(201).json({
             success: true,
-            message: 'Order placed successfully',
+            message: emailSent
+                ? 'Order placed successfully'
+                : 'Order placed successfully, but the confirmation email could not be sent',
+            emailSent,
             order
         });
 
@@ -294,24 +294,24 @@ const cancelOrder = async (req, res) => {
 
         const user = await User.findById(req.user.userId);
 
+        let emailSent = false;
+
         if (user) {
-            sendOrderStatusEmail(
+            emailSent = await sendOrderStatusEmail(
                 user,
                 order,
                 'cancelled'
-            ).catch(error => {
-                console.error(
-                    'Cancellation email failed:',
-                    error.message
-                );
-            });
+            );
         }
 
         await order.populate('items.product');
 
         res.status(200).json({
             success: true,
-            message: 'Order cancelled successfully',
+            message: emailSent
+                ? 'Order cancelled successfully'
+                : 'Order cancelled successfully, but the cancellation email could not be sent',
+            emailSent,
             order
         });
 
@@ -372,14 +372,21 @@ const updateOrderStatus = async (req, res) => {
         await order.populate('user', 'username email');
         await order.populate('items.product');
 
+        let emailSent = false;
+
         if (order.user) {
-            sendOrderStatusEmail(order.user, order, status).catch(error => {
-                console.error('Order status email failed:', error.message);
-            });
+            emailSent = await sendOrderStatusEmail(
+                order.user,
+                order,
+                status
+            );
         }
 
         res.status(200).json({
-            message: 'Order status updated successfully',
+            message: emailSent
+                ? 'Order status updated successfully'
+                : 'Order status updated successfully, but the status email could not be sent',
+            emailSent,
             order
         });
 
