@@ -10,19 +10,19 @@ function Journal() {
       tag: "STYLE NOTE / 01",
       title: hindi ? "Everyday style को effortless कैसे रखें" : "How to keep everyday style effortless",
       text: hindi ? "Simple silhouettes, useful layers और एक detail जो पूरे look को बदल दे।" : "Simple silhouettes, useful layers and one detail that can change the entire look.",
-      image: "https://images.unsplash.com/photo-1496747611176-843222e1e57c?auto=format&fit=crop&w=1000&q=85",
+      image: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=1000&q=85",
     },
     {
       tag: "THE EDIT / 02",
       title: hindi ? "Accessories जो हर outfit को elevate करें" : "The accessories that elevate every outfit",
       text: hindi ? "कम pieces, सही pieces — और styling में थोड़ी personality." : "Fewer pieces, better pieces — with just enough personality.",
-      image: "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?auto=format&fit=crop&w=1000&q=85",
+      image: "https://images.unsplash.com/photo-1506629905607-d9d3b4e9b1cf?auto=format&fit=crop&w=1000&q=85",
     },
     {
       tag: "SHOPSPHERE / 03",
       title: hindi ? "हम products कैसे चुनते हैं" : "How we think about products",
       text: hindi ? "Useful, beautiful और everyday life में genuinely काम आने वाली चीज़ें." : "Useful, beautiful and genuinely worth making part of everyday life.",
-      image: "https://images.unsplash.com/photo-1496217590455-aa63a8350eea?auto=format&fit=crop&w=1000&q=85",
+      image: "https://images.unsplash.com/photo-1492707892479-7bc8d5a4ee93?auto=format&fit=crop&w=1000&q=85",
     },
   ];
 
@@ -40,7 +40,7 @@ function Journal() {
 
       <section className="journal-feature">
         <div className="journal-feature-image">
-          <img src="https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?auto=format&fit=crop&w=1500&q=90" alt="ShopSphere journal feature" />
+          <img src="https://images.unsplash.com/photo-1512436991641-6745cdb1723f?auto=format&fit=crop&w=1500&q=90" alt="ShopSphere journal feature" />
         </div>
         <div className="journal-feature-copy">
           <p className="editorial-kicker">{hindi ? "FEATURED STORY" : "FEATURED STORY"}</p>
