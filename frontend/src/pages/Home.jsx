@@ -358,7 +358,7 @@ function Home() {
         <div className="hero-image-wrapper">
 
           <img
-            src="https://images.unsplash.com/photo-1496747611176-843222e1e57c?auto=format&fit=crop&w=1400&q=90"
+            src="https://images.unsplash.com/photo-1441986300917-64674bd600d8?auto=format&fit=crop&w=1400&q=90"
             alt="ShopSphere fashion edit"
             className="hero-image"
           />
@@ -372,13 +372,13 @@ function Home() {
             />
 
             <img
-              src="https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?auto=format&fit=crop&w=300&q=80"
+              src="https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&w=300&q=80"
               alt="Accessories"
               className="mini-image mini-two"
             />
 
             <img
-            src="https://images.unsplash.com/photo-1543163521-1bf539c55dd2?auto=format&fit=crop&w=300&q=80"
+            src="https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=300&q=80"
               alt="Footwear"
               className="mini-image mini-three"
             />
@@ -495,28 +495,28 @@ function Home() {
                   ? "आधुनिक पुरुषों का स्टाइल"
                   : "Modern styles for men",
                 image:
-                  "https://images.unsplash.com/photo-1506629905607-d9d3b4e9b1cf?auto=format&fit=crop&w=900&q=85",
+                  "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&w=900&q=85",
               },
               Women: {
                 text: language === "Hindi"
                   ? "हर दिन के लिए खूबसूरत स्टाइल"
                   : "Beautiful styles for every day",
                 image:
-                  "https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&w=900&q=85",
+                  "https://images.unsplash.com/photo-1485968579580-b6d095142e6e?auto=format&fit=crop&w=900&q=85",
               },
               Footwear: {
                 text: language === "Hindi"
                   ? "स्टाइल और आराम"
                   : "Style meets comfort",
                 image:
-                  "https://images.unsplash.com/photo-1528701800489-20be3c7f3a3f?auto=format&fit=crop&w=900&q=85",
+                  "https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&w=900&q=85",
               },
               Accessories: {
                 text: language === "Hindi"
                   ? "अपने लुक को पूरा करें"
                   : "Complete your look",
                 image:
-                  "https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?auto=format&fit=crop&w=900&q=85",
+                  "https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=900&q=85",
               },
             };
 
@@ -526,7 +526,7 @@ function Home() {
                   ? `${category} के सभी प्रोडक्ट्स देखें`
                   : `Explore all ${category} products`,
               image:
-                  "https://images.unsplash.com/photo-1509631179647-0177331693ae?auto=format&fit=crop&w=900&q=85",
+                  "https://images.unsplash.com/photo-1525507119028-ed4c629a60a3?auto=format&fit=crop&w=900&q=85",
             };
 
             return (
@@ -744,8 +744,8 @@ function Home() {
         <div className="promo-visual">
 
           <img
-            src={heroModel}
-            alt="ShopSphere fashion model"
+            src="https://images.unsplash.com/photo-1525507119028-ed4c629a60a3?auto=format&fit=crop&w=1000&q=90"
+            alt="ShopSphere curated clothing collection"
           />
 
         </div>
@@ -927,7 +927,7 @@ function Home() {
         className="style-edit-card style-edit-six"
       >
         <img
-                src="https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?auto=format&fit=crop&w=1200&q=85"
+                src="https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=1200&q=85"
           alt="ShopSphere collections"
         />
         <div className="style-edit-overlay"></div>
