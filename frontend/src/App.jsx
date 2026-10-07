@@ -14,6 +14,7 @@ import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
 
 import Home from "./pages/Home";
+import Landing from "./pages/Landing";
 import Products from "./pages/Products";
 import ProductDetails from "./pages/ProductDetails";
 import Cart from "./pages/Cart";
@@ -48,7 +49,7 @@ function HomeShortcut() {
   const location = useLocation();
 
   // Home page par button hide rahega
-  if (location.pathname === "/") {
+  if (location.pathname === "/" || location.pathname === "/home") {
     return null;
   }
 
