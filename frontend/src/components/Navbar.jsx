@@ -33,6 +33,7 @@ const translations = {
     bestSellers: "Best Sellers",
     collections: "Collections",
     about: "About Us",
+    journal: "Journal",
 
     search:
       "Search for Products, Brands and More",
@@ -78,6 +79,7 @@ const translations = {
       "कलेक्शन्स",
 
     about: "हमारे बारे में",
+    journal: "जर्नल",
 
     search:
       "प्रोडक्ट, ब्रांड और बहुत कुछ खोजें",
@@ -422,6 +424,10 @@ function Navbar() {
 
           <Link to="/about">
             {t.about}
+          </Link>
+
+          <Link to="/journal">
+            {t.journal}
           </Link>
 
         </div>
