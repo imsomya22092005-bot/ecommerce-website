@@ -4,6 +4,7 @@ import { useLanguage } from "../LanguageContext";
 import API_URL from "../api";
 import heroImage from "../assets/hero.png";
 import heroModel from "../assets/hero-model.png";
+import "./Landing.css";
 
 function Landing() {
   const { language } = useLanguage();
