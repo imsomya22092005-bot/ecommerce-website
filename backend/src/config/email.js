@@ -1,37 +1,43 @@
-const nodemailer = require('nodemailer');
+const sendEmail = async ({ to, subject, html }) => {
+    try {
+        const response = await fetch('https://api.brevo.com/v3/smtp/email', {
+            method: 'POST',
+            headers: {
+                'accept': 'application/json',
+                'api-key': process.env.BREVO_API_KEY,
+                'content-type': 'application/json'
+            },
+            body: JSON.stringify({
+                sender: {
+                    name: 'Fashion Store',
+                    email: process.env.BREVO_SENDER_EMAIL
+                },
+                to: [
+                    {
+                        email: to
+                    }
+                ],
+                subject,
+                htmlContent: html
+            })
+        });
 
-const emailUser = String(process.env.EMAIL_USER || '').trim();
+        const data = await response.json();
 
-const emailPassword = String(
-  process.env.EMAIL_PASSWORD || process.env.EMAIL_PASS || ''
-).replace(/\s/g, '');
+        if (!response.ok) {
+            throw new Error(
+                data.message || 'Brevo email request failed'
+            );
+        }
 
-const transporter = nodemailer.createTransport({
-  service: 'gmail',
-  auth: {
-    user: emailUser,
-    pass: emailPassword
-  },
-  connectionTimeout: 30000,
-  greetingTimeout: 30000,
-  socketTimeout: 30000
-});
+        console.log(`Email sent successfully to ${to}`);
 
-if (emailUser && emailPassword) {
-  transporter.verify()
-    .then(() => {
-      console.log('Email transporter verified successfully.');
-    })
-    .catch((error) => {
-      console.error(
-        'Email transporter verification failed:',
-        error.message
-      );
-    });
-} else {
-  console.error(
-    'Email transporter is not configured. Set EMAIL_USER and EMAIL_PASSWORD on Render.'
-  );
-}
+        return true;
 
-module.exports = transporter;
+    } catch (error) {
+        console.error('Email sending failed:', error.message);
+        return false;
+    }
+};
+
+module.exports = sendEmail;
