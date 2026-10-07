@@ -30,6 +30,8 @@ import NewArrivals from "./pages/NewArrivals";
 import AdminDashboard from "./pages/AdminDashboard";
 import Profile from "./pages/Profile";
 import Wishlist from "./pages/Wishlist";
+import Collections from "./pages/Collections";
+import Journal from "./pages/Journal";
 
 function ScrollToTop() {
   const { pathname, search } = useLocation();
@@ -162,6 +164,16 @@ function App() {
         <Route
           path="/wishlist"
           element={<Wishlist />}
+        />
+
+        <Route
+          path="/collections"
+          element={<Collections />}
+        />
+
+        <Route
+          path="/journal"
+          element={<Journal />}
         />
       </Routes>
 
