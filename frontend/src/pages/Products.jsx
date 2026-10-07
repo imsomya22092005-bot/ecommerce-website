@@ -4,7 +4,6 @@ import { useEffect, useMemo, useState } from "react";
 import { useLanguage } from "../LanguageContext";
 import ProductCard from "../components/ProductCard";
 
-// const API_URL = "http://localhost:3000";
 const PRODUCTS_PER_PAGE = 8;
 
 function Products() {
