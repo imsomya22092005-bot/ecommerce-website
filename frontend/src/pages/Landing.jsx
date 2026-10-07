@@ -159,7 +159,7 @@ function Landing() {
 
       <section className="landing-editorial">
         <div className="landing-editorial-image">
-          <img src="https://images.unsplash.com/photo-1496747611176-843222e1e57c?auto=format&fit=crop&w=1200&q=90" alt="ShopSphere editorial fashion" />
+          <img src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=1200&q=90" alt="ShopSphere editorial fashion" />
         </div>
         <div className="landing-editorial-copy">
           <p className="section-label">{hindi ? "THE SHOPSPHERE EDIT" : "THE SHOPSPHERE EDIT"}</p>
