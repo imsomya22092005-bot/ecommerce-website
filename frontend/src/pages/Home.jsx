@@ -952,8 +952,6 @@ function Home() {
 
 </section>
 
-{
-
     </main>
   );
 }
