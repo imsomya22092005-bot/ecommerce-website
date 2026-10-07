@@ -377,7 +377,7 @@ function Home() {
             />
 
             <img
-              src="https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&w=300&q=80"
+            src="https://images.unsplash.com/photo-1543163521-1bf539c55dd2?auto=format&fit=crop&w=300&q=80"
               alt="Footwear"
               className="mini-image mini-three"
             />
@@ -501,7 +501,7 @@ function Home() {
                   ? "हर दिन के लिए खूबसूरत स्टाइल"
                   : "Beautiful styles for every day",
                 image:
-                  "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?auto=format&fit=crop&w=900&q=85",
+                  "https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&w=900&q=85",
               },
               Footwear: {
                 text: language === "Hindi"
@@ -525,7 +525,7 @@ function Home() {
                   ? `${category} के सभी प्रोडक्ट्स देखें`
                   : `Explore all ${category} products`,
               image:
-                "https://images.unsplash.com/photo-1445205170230-053b83016050?auto=format&fit=crop&w=900&q=85",
+                  "https://images.unsplash.com/photo-1509631179647-0177331693ae?auto=format&fit=crop&w=900&q=85",
             };
 
             return (
@@ -806,7 +806,7 @@ function Home() {
         className="style-edit-card style-edit-one"
       >
         <img
-          src="https://images.unsplash.com/photo-1617137968427-85924c800a22?auto=format&fit=crop&w=1200&q=85"
+                src="https://images.unsplash.com/photo-1529139574466-a303027c1d8b?auto=format&fit=crop&w=1200&q=85"
           alt="Men collection"
         />
         <div className="style-edit-overlay"></div>
@@ -830,7 +830,7 @@ function Home() {
         className="style-edit-card style-edit-two"
       >
         <img
-          src="https://images.unsplash.com/photo-1483985988355-763728e1935b?auto=format&fit=crop&w=1200&q=85"
+                src="https://images.unsplash.com/photo-1539109136881-3be0616acf4b?auto=format&fit=crop&w=1200&q=85"
           alt="Women collection"
         />
         <div className="style-edit-overlay"></div>
@@ -854,7 +854,7 @@ function Home() {
         className="style-edit-card style-edit-three"
       >
         <img
-          src="https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&w=1200&q=85"
+                src="https://images.unsplash.com/photo-1495555961986-6d4c1ecb7be3?auto=format&fit=crop&w=1200&q=85"
           alt="Footwear collection"
         />
         <div className="style-edit-overlay"></div>
@@ -878,7 +878,7 @@ function Home() {
         className="style-edit-card style-edit-four"
       >
         <img
-          src="https://images.unsplash.com/photo-1445205170230-053b83016050?auto=format&fit=crop&w=1200&q=85"
+                src="https://images.unsplash.com/photo-1512436991641-6745cdb1723f?auto=format&fit=crop&w=1200&q=85"
           alt="New arrivals"
         />
         <div className="style-edit-overlay"></div>
@@ -902,7 +902,7 @@ function Home() {
         className="style-edit-card style-edit-five"
       >
         <img
-          src="https://images.unsplash.com/photo-1490481651871-ab68de25d43d?auto=format&fit=crop&w=1200&q=85"
+                src="https://images.unsplash.com/photo-1511556820780-d912e42b4980?auto=format&fit=crop&w=1200&q=85"
           alt="Best sellers"
         />
         <div className="style-edit-overlay"></div>
@@ -926,7 +926,7 @@ function Home() {
         className="style-edit-card style-edit-six"
       >
         <img
-          src="https://images.unsplash.com/photo-1445205170230-053b83016050?auto=format&fit=crop&w=1200&q=85"
+                src="https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?auto=format&fit=crop&w=1200&q=85"
           alt="ShopSphere collections"
         />
         <div className="style-edit-overlay"></div>
@@ -979,7 +979,7 @@ function Home() {
         <div className="home-notes-grid">
           <Link to="/collections" className="home-note-card home-note-large">
             <img
-              src="https://images.unsplash.com/photo-1525507119028-ed4c629a60a3?auto=format&fit=crop&w=1200&q=85"
+              src="https://images.unsplash.com/photo-1492707892479-7bc8d5a4ee93?auto=format&fit=crop&w=1200&q=85"
               alt="ShopSphere collections"
             />
             <div className="home-note-overlay" />
@@ -992,7 +992,7 @@ function Home() {
 
           <Link to="/journal" className="home-note-card">
             <img
-              src="https://images.unsplash.com/photo-1490481651871-ab68de25d43d?auto=format&fit=crop&w=900&q=85"
+              src="https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?auto=format&fit=crop&w=900&q=85"
               alt="ShopSphere journal"
             />
             <div className="home-note-overlay" />
