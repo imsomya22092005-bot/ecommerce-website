@@ -1,36 +1,36 @@
-const transporter = require('../config/email');
+const sendEmail = require('../config/email');
 
-const sendEmail = async ({ to, subject, html }) => {
-    const emailUser = String(process.env.EMAIL_USER || '').trim();
-    const emailPassword = String(
-        process.env.EMAIL_PASSWORD || process.env.EMAIL_PASS || ''
-    ).replace(/\s/g, '');
+// const sendEmail = async ({ to, subject, html }) => {
+//     const emailUser = String(process.env.EMAIL_USER || '').trim();
+//     const emailPassword = String(
+//         process.env.EMAIL_PASSWORD || process.env.EMAIL_PASS || ''
+//     ).replace(/\s/g, '');
 
-    if (!emailUser || !emailPassword) {
-        console.error(
-            'Email sending skipped: EMAIL_USER or EMAIL_PASSWORD is missing on the deployed backend.'
-        );
-        return false;
-    }
+//     if (!emailUser || !emailPassword) {
+//         console.error(
+//             'Email sending skipped: EMAIL_USER or EMAIL_PASSWORD is missing on the deployed backend.'
+//         );
+//         return false;
+//     }
 
-    try {
-        await transporter.sendMail({
-            from: `"ShopSphere" <${emailUser}>`,
-            replyTo: emailUser,
-            to,
-            subject,
-            html
-        });
+//     try {
+//         await transporter.sendMail({
+//             from: `"ShopSphere" <${emailUser}>`,
+//             replyTo: emailUser,
+//             to,
+//             subject,
+//             html
+//         });
 
-        console.log(`Email sent successfully to ${to}`);
+//         console.log(`Email sent successfully to ${to}`);
 
-        return true;
-    } catch (error) {
-        console.error('Email sending failed:', error.message);
+//         return true;
+//     } catch (error) {
+//         console.error('Email sending failed:', error.message);
 
-        return false;
-    }
-};
+//         return false;
+//     }
+// };
 
 const sendRegistrationEmail = async (user) => {
     return sendEmail({
