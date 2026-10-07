@@ -83,12 +83,12 @@ function App() {
       <Routes>
         <Route
           path="/"
-          element={<Landing />}
+          element={<Home />}
         />
 
         <Route
           path="/home"
-          element={<Home />}
+          element={<Landing />}
         />
 
         <Route
