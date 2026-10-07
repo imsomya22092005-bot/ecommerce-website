@@ -3,8 +3,6 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { useLanguage } from "../LanguageContext";
 
-import heroImage from "../assets/hero.png";
-import heroModel from "../assets/hero-model.png";
 
 /* =========================================================
    ALLOWED SHOPSPHERE CATEGORIES
@@ -359,21 +357,21 @@ function Home() {
         <div className="hero-image-wrapper">
 
           <img
-            src={heroImage}
-            alt="ShopSphere collection"
+            src="https://images.unsplash.com/photo-1496747611176-843222e1e57c?auto=format&fit=crop&w=1400&q=90"
+            alt="ShopSphere fashion edit"
             className="hero-image"
           />
 
           <div className="hero-mini-images">
 
             <img
-              src="https://images.unsplash.com/photo-1529139574466-a303027c1d8b?auto=format&fit=crop&w=300&q=80"
+              src="https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?auto=format&fit=crop&w=300&q=80"
               alt="Fashion"
               className="mini-image mini-one"
             />
 
             <img
-              src="https://images.unsplash.com/photo-1492707892479-7bc8d5a4ee93?auto=format&fit=crop&w=300&q=80"
+              src="https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?auto=format&fit=crop&w=300&q=80"
               alt="Accessories"
               className="mini-image mini-two"
             />
@@ -496,28 +494,28 @@ function Home() {
                   ? "आधुनिक पुरुषों का स्टाइल"
                   : "Modern styles for men",
                 image:
-                  "https://images.unsplash.com/photo-1617137968427-85924c800a22?auto=format&fit=crop&w=900&q=85",
+                  "https://images.unsplash.com/photo-1506629905607-d9d3b4e9b1cf?auto=format&fit=crop&w=900&q=85",
               },
               Women: {
                 text: language === "Hindi"
                   ? "हर दिन के लिए खूबसूरत स्टाइल"
                   : "Beautiful styles for every day",
                 image:
-                  "https://images.unsplash.com/photo-1483985988355-763728e1935b?auto=format&fit=crop&w=900&q=85",
+                  "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?auto=format&fit=crop&w=900&q=85",
               },
               Footwear: {
                 text: language === "Hindi"
                   ? "स्टाइल और आराम"
                   : "Style meets comfort",
                 image:
-                  "https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&w=900&q=85",
+                  "https://images.unsplash.com/photo-1528701800489-20be3c7f3a3f?auto=format&fit=crop&w=900&q=85",
               },
               Accessories: {
                 text: language === "Hindi"
                   ? "अपने लुक को पूरा करें"
                   : "Complete your look",
                 image:
-                  "https://images.unsplash.com/photo-1523779917675-b6ed3a42a561?auto=format&fit=crop&w=900&q=85",
+                  "https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?auto=format&fit=crop&w=900&q=85",
               },
             };
 
@@ -928,7 +926,7 @@ function Home() {
         className="style-edit-card style-edit-six"
       >
         <img
-          src="https://images.unsplash.com/photo-1525507119028-ed4c629a60a3?auto=format&fit=crop&w=1200&q=85"
+          src="https://images.unsplash.com/photo-1445205170230-053b83016050?auto=format&fit=crop&w=1200&q=85"
           alt="ShopSphere collections"
         />
         <div className="style-edit-overlay"></div>
@@ -1007,7 +1005,7 @@ function Home() {
 
           <Link to="/about" className="home-note-card">
             <img
-              src="https://images.unsplash.com/photo-1441986300917-64674bd600d8?auto=format&fit=crop&w=900&q=85"
+              src="https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?auto=format&fit=crop&w=900&q=85"
               alt="About ShopSphere"
             />
             <div className="home-note-overlay" />
