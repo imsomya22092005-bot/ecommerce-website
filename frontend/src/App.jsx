@@ -55,7 +55,7 @@ function HomeShortcut() {
 
   return (
     <Link
-      to="/"
+      to="/home"
       className="home-shortcut"
       aria-label="Go to Home"
       title="Go to Home"
