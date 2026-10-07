@@ -5,23 +5,23 @@ import API_URL from "../api";
 
 const categoryVisuals = {
   Home:
-    "https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=180&q=80",
+    "https://images.unsplash.com/photo-1441986300917-64674bd600d8?auto=format&fit=crop&w=180&q=80",
   Men:
-    "https://images.unsplash.com/photo-1496217590455-aa63a8350eea?auto=format&fit=crop&w=180&q=80",
+    "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&w=180&q=80",
   Women:
-    "https://images.unsplash.com/photo-1543163521-1bf539c55dd2?auto=format&fit=crop&w=180&q=80",
+    "https://images.unsplash.com/photo-1485968579580-b6d095142e6e?auto=format&fit=crop&w=180&q=80",
   Footwear:
-    "https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?auto=format&fit=crop&w=180&q=80",
+    "https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&w=180&q=80",
   Accessories:
-    "https://images.unsplash.com/photo-1512436991641-6745cdb1723f?auto=format&fit=crop&w=180&q=80",
+    "https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=180&q=80",
   "New Arrivals":
-    "https://images.unsplash.com/photo-1445205170230-053b83016050?auto=format&fit=crop&w=180&q=80",
+    "https://images.unsplash.com/photo-1525507119028-ed4c629a60a3?auto=format&fit=crop&w=180&q=80",
   "Best Sellers":
-    "https://images.unsplash.com/photo-1529139574466-a303027c1d8b?auto=format&fit=crop&w=180&q=80",
+    "https://images.unsplash.com/photo-1490481651871-ab68de25d43d?auto=format&fit=crop&w=180&q=80",
   Collections:
-    "https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?auto=format&fit=crop&w=180&q=80",
+    "https://images.unsplash.com/photo-1483985988355-763728e1935b?auto=format&fit=crop&w=180&q=80",
   "About Us":
-    "https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=180&q=80",
+    "https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?auto=format&fit=crop&w=180&q=80",
 };
 
 const categoryTranslations = {
@@ -45,7 +45,7 @@ const categoryTranslations = {
 function CategoryIcon({ name }) {
   const image =
     categoryVisuals[name] ||
-    "https://images.unsplash.com/photo-1496217590455-aa63a8350eea?auto=format&fit=crop&w=180&q=80";
+    "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&w=180&q=80";
 
   return (
     <span className="category-icon category-image-icon">
