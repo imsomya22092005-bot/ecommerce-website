@@ -952,6 +952,74 @@ function Home() {
 
 </section>
 
+
+      {/* =====================================================
+          SHOPSPHERE NOTES
+      ===================================================== */}
+      <section className="home-notes-section">
+        <div className="home-notes-heading">
+          <div>
+            <p className="section-label">
+              {language === "Hindi" ? "SHOPSPHERE NOTES" : "SHOPSPHERE NOTES"}
+            </p>
+            <h2>
+              {language === "Hindi"
+                ? "Shopping के बीच"
+                : "A little more"}
+              <em>
+                {language === "Hindi" ? " थोड़ा और।" : " than shopping."}
+              </em>
+            </h2>
+          </div>
+          <p>
+            {language === "Hindi"
+              ? "Style inspiration, curated collections और ShopSphere की छोटी stories — सब एक जगह।"
+              : "Style inspiration, curated collections and small ShopSphere stories, all in one place."}
+          </p>
+        </div>
+
+        <div className="home-notes-grid">
+          <Link to="/collections" className="home-note-card home-note-large">
+            <img
+              src="https://images.unsplash.com/photo-1525507119028-ed4c629a60a3?auto=format&fit=crop&w=1200&q=85"
+              alt="ShopSphere collections"
+            />
+            <div className="home-note-overlay" />
+            <div className="home-note-copy">
+              <span>01 / COLLECTIONS</span>
+              <h3>{language === "Hindi" ? "अपना अगला edit चुनें।" : "Choose your next edit."}</h3>
+              <strong>EXPLORE →</strong>
+            </div>
+          </Link>
+
+          <Link to="/journal" className="home-note-card">
+            <img
+              src="https://images.unsplash.com/photo-1490481651871-ab68de25d43d?auto=format&fit=crop&w=900&q=85"
+              alt="ShopSphere journal"
+            />
+            <div className="home-note-overlay" />
+            <div className="home-note-copy">
+              <span>02 / JOURNAL</span>
+              <h3>{language === "Hindi" ? "थोड़ा inspiration." : "A little inspiration."}</h3>
+              <strong>READ →</strong>
+            </div>
+          </Link>
+
+          <Link to="/about" className="home-note-card">
+            <img
+              src="https://images.unsplash.com/photo-1441986300917-64674bd600d8?auto=format&fit=crop&w=900&q=85"
+              alt="About ShopSphere"
+            />
+            <div className="home-note-overlay" />
+            <div className="home-note-copy">
+              <span>03 / ABOUT</span>
+              <h3>{language === "Hindi" ? "हमारे पीछे की सोच।" : "The thinking behind it."}</h3>
+              <strong>DISCOVER →</strong>
+            </div>
+          </Link>
+        </div>
+      </section>
+
     </main>
   );
 }
