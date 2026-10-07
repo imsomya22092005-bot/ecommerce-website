@@ -1,27 +1,32 @@
 import { Link } from "react-router-dom";
 import { useEffect, useState } from "react";
-import {
-  House,
-  Shirt,
-  Footprints,
-  Sparkles,
-  ShoppingBag,
-  Watch,
-  Heart,
-  Info,
-} from "lucide-react";
 import { useLanguage } from "../LanguageContext";
 import API_URL from "../api";
 
-const categoryIcons = {
-  Men: <Shirt size={20} strokeWidth={1.7} />,
-  Women: <Sparkles size={20} strokeWidth={1.7} />,
-  Footwear: <Footprints size={20} strokeWidth={1.7} />,
-  Accessories: <Watch size={20} strokeWidth={1.7} />,
+const categoryVisuals = {
+  Home:
+    "https://images.unsplash.com/photo-1490481651871-ab68de25d43d?auto=format&fit=crop&w=180&q=80",
+  Men:
+    "https://images.unsplash.com/photo-1617137968427-85924c800a22?auto=format&fit=crop&w=180&q=80",
+  Women:
+    "https://images.unsplash.com/photo-1483985988355-763728e1935b?auto=format&fit=crop&w=180&q=80",
+  Footwear:
+    "https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&w=180&q=80",
+  Accessories:
+    "https://images.unsplash.com/photo-1523779917675-b6ed3a42a561?auto=format&fit=crop&w=180&q=80",
+  "New Arrivals":
+    "https://images.unsplash.com/photo-1445205170230-053b83016050?auto=format&fit=crop&w=180&q=80",
+  "Best Sellers":
+    "https://images.unsplash.com/photo-1490481651871-ab68de25d43d?auto=format&fit=crop&w=180&q=80",
+  Collections:
+    "https://images.unsplash.com/photo-1525507119028-ed4c629a60a3?auto=format&fit=crop&w=180&q=80",
+  "About Us":
+    "https://images.unsplash.com/photo-1441986300917-64674bd600d8?auto=format&fit=crop&w=180&q=80",
 };
 
 const categoryTranslations = {
   Hindi: {
+    Home: "होम",
     Men: "मेन्स",
     Women: "विमेन्स",
     Accessories: "एक्सेसरीज़",
@@ -36,6 +41,18 @@ const categoryTranslations = {
   },
   English: {},
 };
+
+function CategoryIcon({ name }) {
+  const image =
+    categoryVisuals[name] ||
+    "https://images.unsplash.com/photo-1441986300917-64674bd600d8?auto=format&fit=crop&w=180&q=80";
+
+  return (
+    <span className="category-icon category-image-icon">
+      <img src={image} alt="" loading="lazy" />
+    </span>
+  );
+}
 
 function CategoryBar() {
   const { language } = useLanguage();
@@ -77,10 +94,8 @@ function CategoryBar() {
 
   return (
     <div className="shop-categorybar">
-      <Link to="/" className="shop-category">
-        <span className="category-icon">
-          <House size={20} strokeWidth={1.7} />
-        </span>
+      <Link to="/home" className="shop-category">
+        <CategoryIcon name="Home" />
         <small>{language === "Hindi" ? "होम" : "Home"}</small>
       </Link>
 
@@ -90,40 +105,30 @@ function CategoryBar() {
           to={"/products?category=" + encodeURIComponent(category)}
           className="shop-category"
         >
-          <span className="category-icon">
-            {categoryIcons[category] || (
-              <ShoppingBag size={20} strokeWidth={1.7} />
-            )}
-          </span>
-          <small>{categoryTranslations[language]?.[category] || category}</small>
+          <CategoryIcon name={category} />
+          <small>
+            {categoryTranslations[language]?.[category] || category}
+          </small>
         </Link>
       ))}
 
       <Link to="/new-arrivals" className="shop-category">
-        <span className="category-icon">
-          <Sparkles size={20} strokeWidth={1.7} />
-        </span>
+        <CategoryIcon name="New Arrivals" />
         <small>{language === "Hindi" ? "नए प्रोडक्ट्स" : "New Arrivals"}</small>
       </Link>
 
       <Link to="/products?sort=price_desc" className="shop-category">
-        <span className="category-icon">
-          <ShoppingBag size={20} strokeWidth={1.7} />
-        </span>
+        <CategoryIcon name="Best Sellers" />
         <small>{language === "Hindi" ? "बेस्ट सेलर्स" : "Best Sellers"}</small>
       </Link>
 
       <Link to="/products" className="shop-category">
-        <span className="category-icon">
-          <Heart size={20} strokeWidth={1.7} />
-        </span>
+        <CategoryIcon name="Collections" />
         <small>{language === "Hindi" ? "कलेक्शंस" : "Collections"}</small>
       </Link>
 
       <Link to="/about" className="shop-category">
-        <span className="category-icon">
-          <Info size={20} strokeWidth={1.7} />
-        </span>
+        <CategoryIcon name="About Us" />
         <small>{language === "Hindi" ? "हमारे बारे में" : "About Us"}</small>
       </Link>
     </div>
