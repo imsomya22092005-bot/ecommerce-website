@@ -159,7 +159,7 @@ function Landing() {
 
       <section className="landing-editorial">
         <div className="landing-editorial-image">
-          <img src={heroModel} alt="ShopSphere editorial" />
+          <img src="https://images.unsplash.com/photo-1496747611176-843222e1e57c?auto=format&fit=crop&w=1200&q=90" alt="ShopSphere editorial fashion" />
         </div>
         <div className="landing-editorial-copy">
           <p className="section-label">{hindi ? "THE SHOPSPHERE EDIT" : "THE SHOPSPHERE EDIT"}</p>
@@ -197,7 +197,7 @@ function Landing() {
         <div className="landing-discover-grid">
           <Link to="/collections" className="landing-discover-card">
             <img
-              src="https://images.unsplash.com/photo-1525507119028-ed4c629a60a3?auto=format&fit=crop&w=1000&q=85"
+              src="https://images.unsplash.com/photo-1509631179647-0177331693ae?auto=format&fit=crop&w=1000&q=85"
               alt="ShopSphere collections"
             />
             <div>
@@ -209,7 +209,7 @@ function Landing() {
 
           <Link to="/journal" className="landing-discover-card">
             <img
-              src="https://images.unsplash.com/photo-1490481651871-ab68de25d43d?auto=format&fit=crop&w=1000&q=85"
+              src="https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?auto=format&fit=crop&w=1000&q=85"
               alt="ShopSphere journal"
             />
             <div>
