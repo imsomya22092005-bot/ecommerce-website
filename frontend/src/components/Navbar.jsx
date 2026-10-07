@@ -729,7 +729,7 @@ function Navbar() {
         <div className="shop-mobile-menu">
 
           <Link
-            to="/"
+            to="/home"
             onClick={closeMenu}
           >
             {t.home}
