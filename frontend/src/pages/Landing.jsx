@@ -178,6 +178,49 @@ function Landing() {
         </div>
       </section>
 
+
+      <section className="landing-discover">
+        <div className="landing-section-heading">
+          <div>
+            <p className="section-label">{hindi ? "SHOPSPHERE EXPLORE" : "SHOPSPHERE EXPLORE"}</p>
+            <h2>
+              {hindi ? "थोड़ा और" : "Go a little"} <em>{hindi ? "अंदर।" : "deeper."}</em>
+            </h2>
+          </div>
+          <p>
+            {hindi
+              ? "Collections और Journal में ShopSphere की visual world को थोड़ा और explore करें।"
+              : "Explore the visual world of ShopSphere through our Collections and Journal."}
+          </p>
+        </div>
+
+        <div className="landing-discover-grid">
+          <Link to="/collections" className="landing-discover-card">
+            <img
+              src="https://images.unsplash.com/photo-1525507119028-ed4c629a60a3?auto=format&fit=crop&w=1000&q=85"
+              alt="ShopSphere collections"
+            />
+            <div>
+              <span>01 / COLLECTIONS</span>
+              <h3>{hindi ? "क्यूरेटेड कलेक्शंस" : "Curated Collections"}</h3>
+              <strong>EXPLORE →</strong>
+            </div>
+          </Link>
+
+          <Link to="/journal" className="landing-discover-card">
+            <img
+              src="https://images.unsplash.com/photo-1490481651871-ab68de25d43d?auto=format&fit=crop&w=1000&q=85"
+              alt="ShopSphere journal"
+            />
+            <div>
+              <span>02 / JOURNAL</span>
+              <h3>{hindi ? "स्टाइल, आइडियाज़ और एडिट्स" : "Style, ideas & edits"}</h3>
+              <strong>READ →</strong>
+            </div>
+          </Link>
+        </div>
+      </section>
+
       <section className="landing-newsletter">
         <div className="landing-newsletter-copy">
           <p className="section-label">{hindi ? "अपडेट्स पाएं" : "STAY IN THE LOOP"}</p>
