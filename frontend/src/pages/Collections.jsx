@@ -9,25 +9,25 @@ function Collections() {
     {
       title: hindi ? "मेन्स एडिट" : "The Men's Edit",
       text: hindi ? "Clean layers, everyday essentials और modern silhouettes." : "Clean layers, everyday essentials and modern silhouettes.",
-      image: "https://images.unsplash.com/photo-1617137968427-85924c800a22?auto=format&fit=crop&w=1200&q=85",
+      image: "https://images.unsplash.com/photo-1529139574466-a303027c1d8b?auto=format&fit=crop&w=1200&q=85",
       href: "/products?category=Men",
     },
     {
       title: hindi ? "विमेन्स एडिट" : "The Women's Edit",
       text: hindi ? "Soft tailoring, statement pieces और effortless everyday style." : "Soft tailoring, statement pieces and effortless everyday style.",
-      image: "https://images.unsplash.com/photo-1483985988355-763728e1935b?auto=format&fit=crop&w=1200&q=85",
+      image: "https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&w=1200&q=85",
       href: "/products?category=Women",
     },
     {
       title: hindi ? "फुटवियर" : "Step Into It",
       text: hindi ? "Comfort और confidence के लिए चुने हुए pairs." : "Selected pairs built around comfort and confidence.",
-      image: "https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&w=1200&q=85",
+      image: "https://images.unsplash.com/photo-1495555961986-6d4c1ecb7be3?auto=format&fit=crop&w=1200&q=85",
       href: "/products?category=Footwear",
     },
     {
       title: hindi ? "एक्सेसरीज़" : "Finishing Touches",
       text: hindi ? "छोटी details जो पूरे look को अपना बनाती हैं." : "Small details that make the whole look feel yours.",
-      image: "https://images.unsplash.com/photo-1523779917675-b6ed3a42a561?auto=format&fit=crop&w=1200&q=85",
+      image: "https://images.unsplash.com/photo-1511556820780-d912e42b4980?auto=format&fit=crop&w=1200&q=85",
       href: "/products?category=Accessories",
     },
   ];
@@ -51,7 +51,7 @@ function Collections() {
           </Link>
         </div>
         <div className="editorial-hero-art">
-          <img src="https://images.unsplash.com/photo-1525507119028-ed4c629a60a3?auto=format&fit=crop&w=1200&q=90" alt="ShopSphere collection" />
+          <img src="https://images.unsplash.com/photo-1539109136881-3be0616acf4b?auto=format&fit=crop&w=1200&q=90" alt="ShopSphere collection" />
           <span>CURATED / 01</span>
         </div>
       </section>
