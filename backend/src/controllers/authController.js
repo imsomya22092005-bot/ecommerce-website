@@ -1,6 +1,7 @@
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const User = require('../models/userModel');
+const { sendRegistrationEmail, sendLoginEmail } = require('../utils/emailService');
 
 const registerUser = async (req, res) => {
     try {
@@ -28,8 +29,14 @@ const registerUser = async (req, res) => {
             password: hashedPassword
         });
 
+        const registrationEmailSent =
+            await sendRegistrationEmail(user);
+
         res.status(201).json({
-            message: 'User registered successfully',
+            message: registrationEmailSent
+                ? 'User registered successfully'
+                : 'User registered successfully, but the welcome email could not be sent',
+            emailSent: registrationEmailSent,
             user: {
                 id: user._id,
                 username: user.username,
@@ -37,6 +44,7 @@ const registerUser = async (req, res) => {
                 role: user.role
             }
         });
+        
 
     } catch (error) {
         res.status(500).json({
@@ -91,6 +99,10 @@ const loginUser = async (req, res) => {
             }
         );
 
+        sendLoginEmail(user).catch(error => {
+            console.error('Login email failed:', error.message);
+        });
+
         res.status(200).json({
             message: 'Login successful',
             token,
@@ -131,6 +143,8 @@ const getProfile = async (req, res) => {
         });
     }
 };
+
+
 
 module.exports = {
     registerUser,
