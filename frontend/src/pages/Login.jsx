@@ -550,7 +550,7 @@ function Login() {
   const continueShopping =
     () => {
       setShowWelcome(false);
-      navigate("/");
+      navigate("/home");
     };
 
   // =========================
