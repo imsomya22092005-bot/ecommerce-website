@@ -2,6 +2,7 @@ import { Link, useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { useLanguage } from "../LanguageContext";
 import API_URL from "../api";
+import { getDisplayCategory } from "../utils/productCategory";
 import { Heart } from "lucide-react";
 import ReviewSection from "../components/ReviewSection";
 
