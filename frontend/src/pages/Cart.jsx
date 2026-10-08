@@ -584,10 +584,16 @@ function Cart() {
 
                 {/* IMAGE */}
 
-                <img
-                  src={item.image}
-                  alt={item.name}
-                />
+                <Link
+                  to={`/product/${productId}`}
+                  className="cart-item-image-link"
+                  aria-label={`View ${item.name}`}
+                >
+                  <img
+                    src={item.image}
+                    alt={item.name}
+                  />
+                </Link>
 
                 {/* INFO */}
 
@@ -597,9 +603,12 @@ function Cart() {
                     {item.category}
                   </p>
 
-                  <h2>
-                    {item.name}
-                  </h2>
+                  <Link
+                    to={`/product/${productId}`}
+                    className="cart-item-title-link"
+                  >
+                    <h2>{item.name}</h2>
+                  </Link>
 
                   <p className="cart-price">
                     ₹
