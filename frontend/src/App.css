@@ -533,23 +533,29 @@
 }
 
 .product-image-wrapper {
-  display: block;
+  display: flex;
 
   width: 100%;
   aspect-ratio: 1 / 1;
+
+  align-items: center;
+  justify-content: center;
 
   overflow: hidden;
 
   background: #eee7dc;
 
-  padding: 14px;
+  padding: 20px;
 
   box-sizing: border-box;
 }
 
 .product-image {
-  width: 100%;
-  height: 100%;
+  width: 78%;
+  height: 78%;
+
+  max-width: 78%;
+  max-height: 78%;
 
   display: block;
 
@@ -559,7 +565,7 @@
 }
 
 .product-image-wrapper:hover .product-image {
-  transform: scale(1.04);
+  transform: scale(1.03);
 }
 
 .product-info {
