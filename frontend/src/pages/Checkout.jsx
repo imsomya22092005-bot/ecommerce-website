@@ -12,6 +12,11 @@ function Checkout() {
   const [placingOrder, setPlacingOrder] = useState(false);
   const [error, setError] = useState("");
 
+  const [couponCode, setCouponCode] = useState("");
+  const [appliedCoupon, setAppliedCoupon] = useState(null);
+  const [couponLoading, setCouponLoading] = useState(false);
+  const [couponError, setCouponError] = useState("");
+
   const [form, setForm] = useState({
     name: "",
     phone: "",
@@ -217,7 +222,85 @@ function Checkout() {
   // the order total as:
   // product price × quantity
 
-  const total = subtotal;
+  const discountAmount = Number(appliedCoupon?.discountAmount) || 0;
+
+  const total = Math.max(0, subtotal - discountAmount);
+
+  // =========================
+  // APPLY COUPON
+  // =========================
+
+  const handleApplyCoupon = async () => {
+    const code = couponCode.trim().toUpperCase();
+
+    if (!code) {
+      setCouponError(
+        language === "Hindi"
+          ? "कृपया कूपन कोड दर्ज करें।"
+          : "Please enter a coupon code."
+      );
+      return;
+    }
+
+    try {
+      setCouponLoading(true);
+      setCouponError("");
+
+      const response = await fetch(
+        API_URL + "/api/coupons/validate",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: "Bearer " + token,
+          },
+          body: JSON.stringify({ code }),
+        }
+      );
+
+      const data = await response.json();
+
+      if (!response.ok || !data?.success) {
+        throw new Error(
+          data?.message ||
+            (language === "Hindi"
+              ? "कूपन लागू नहीं हो पाया।"
+              : "Could not apply coupon.")
+        );
+      }
+
+      const pricing = data?.pricing || {};
+      const discount = Number(
+        pricing.discountAmount ?? pricing.discount ?? 0
+      );
+
+      setAppliedCoupon({
+        code: data?.coupon?.code || code,
+        discountAmount: discount,
+        type: data?.coupon?.type || "percentage",
+        value: Number(data?.coupon?.value) || 0,
+      });
+
+      setCouponCode("");
+    } catch (err) {
+      console.error("Coupon validation error:", err);
+      setAppliedCoupon(null);
+      setCouponError(
+        err.message ||
+          (language === "Hindi"
+            ? "कूपन लागू नहीं हो पाया।"
+            : "Could not apply coupon.")
+      );
+    } finally {
+      setCouponLoading(false);
+    }
+  };
+
+  const removeCoupon = () => {
+    setAppliedCoupon(null);
+    setCouponError("");
+    setCouponCode("");
+  };
 
   // =========================
   // PLACE ORDER
@@ -277,18 +360,21 @@ function Checkout() {
                   `Bearer ${token}`,
               },
               body: JSON.stringify({
-                fullName:
-                  form.name.trim(),
-                address:
-                  form.address.trim(),
-                city:
-                  form.city.trim(),
-                state:
-                  form.state.trim(),
-                pincode:
-                  form.pincode.trim(),
-                phone:
-                  form.phone.trim(),
+                couponCode: appliedCoupon?.code || "",
+                shippingAddress: {
+                  fullName: form.name.trim(),
+                  address: form.address.trim(),
+                  city: form.city.trim(),
+                  state: form.state.trim(),
+                  pincode: form.pincode.trim(),
+                  phone: form.phone.trim(),
+                },
+                fullName: form.name.trim(),
+                address: form.address.trim(),
+                city: form.city.trim(),
+                state: form.state.trim(),
+                pincode: form.pincode.trim(),
+                phone: form.phone.trim(),
               }),
             }
           );
@@ -357,6 +443,9 @@ function Checkout() {
         window.dispatchEvent(
           new Event("cartUpdated")
         );
+
+        setAppliedCoupon(null);
+        setCouponCode("");
 
         navigate(
           "/order-success"
@@ -834,6 +923,77 @@ function Checkout() {
             </div>
           ))}
 
+          <div className="coupon-section">
+
+            <p className="coupon-label">
+              {language === "Hindi"
+                ? "कूपन कोड"
+                : "COUPON CODE"}
+            </p>
+
+            {!appliedCoupon ? (
+              <>
+                <div className="coupon-input-row">
+                  <input
+                    type="text"
+                    value={couponCode}
+                    onChange={(e) => {
+                      setCouponCode(e.target.value.toUpperCase());
+                      setCouponError("");
+                    }}
+                    placeholder={
+                      language === "Hindi"
+                        ? "कूपन कोड दर्ज करें"
+                        : "Enter coupon code"
+                    }
+                    disabled={couponLoading}
+                    maxLength={30}
+                  />
+
+                  <button
+                    type="button"
+                    onClick={handleApplyCoupon}
+                    disabled={couponLoading}
+                  >
+                    {couponLoading
+                      ? "..."
+                      : language === "Hindi"
+                      ? "लागू करें"
+                      : "APPLY"}
+                  </button>
+                </div>
+
+                {couponError && (
+                  <p className="coupon-error">
+                    {couponError}
+                  </p>
+                )}
+
+                <p className="coupon-hint">
+                  {language === "Hindi"
+                    ? "उदाहरण: WELCOME20"
+                    : "Try a valid code such as WELCOME20"}
+                </p>
+              </>
+            ) : (
+              <div className="applied-coupon">
+                <div>
+                  <span>✓</span>
+                  <strong>{appliedCoupon.code}</strong>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={removeCoupon}
+                  aria-label="Remove coupon"
+                >
+                  ×
+                </button>
+              </div>
+            )}
+
+          </div>
+
           <div className="summary-line"></div>
 
           {/* SUBTOTAL */}
@@ -854,6 +1014,19 @@ function Checkout() {
             </span>
 
           </div>
+
+          {appliedCoupon && discountAmount > 0 && (
+            <div className="summary-row coupon-discount">
+              <span>
+                {language === "Hindi"
+                  ? `छूट (${appliedCoupon.code})`
+                  : `Discount (${appliedCoupon.code})`}
+              </span>
+              <span>
+                -₹{discountAmount.toLocaleString("en-IN")}
+              </span>
+            </div>
+          )}
 
           {/* TOTAL */}
 
