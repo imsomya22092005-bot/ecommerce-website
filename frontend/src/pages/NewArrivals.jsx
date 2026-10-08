@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { useLanguage } from "../LanguageContext";
 import API_URL from "../api";
+import { getDisplayCategory } from "../utils/productCategory";
 
 function NewArrivals() {
   const { language } = useLanguage();
