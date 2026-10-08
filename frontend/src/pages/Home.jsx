@@ -125,6 +125,9 @@ function Home() {
           accessoriesText:
             "अपने लुक को पूरा करें",
 
+          collections: "कलेक्शन्स",
+          collectionsText: "आपके लिए चुने गए कलेक्शन",
+
           newLabel: "नवीनतम कलेक्शन",
           newTitle: "नए प्रोडक्ट्स",
           newView: "सभी नए प्रोडक्ट्स →",
@@ -201,6 +204,9 @@ function Home() {
           accessories: "ACCESSORIES",
           accessoriesText:
             "Complete your look",
+
+          collections: "COLLECTIONS",
+          collectionsText: "Curated picks for you",
 
           newLabel: "LATEST COLLECTION",
           newTitle: "New Arrivals",
@@ -560,6 +566,31 @@ function Home() {
               </Link>
             );
           })}
+
+          {/* COLLECTIONS - STATIC CARD */}
+
+          <Link
+            to="/products"
+            className="category-card category-collections"
+          >
+            <img
+              src="https://images.unsplash.com/photo-1525507119028-ed4c629a60a3?auto=format&fit=crop&w=900&q=85"
+              alt="ShopSphere collections"
+            />
+
+            <div className="category-overlay"></div>
+
+            <div className="category-card-content">
+              <span className="category-number">04</span>
+
+              <div>
+                <h3>{t.collections}</h3>
+                <p>{t.collectionsText}</p>
+              </div>
+
+              <span className="category-arrow">↗</span>
+            </div>
+          </Link>
 
         </div>
 
