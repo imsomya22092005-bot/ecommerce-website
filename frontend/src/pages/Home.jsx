@@ -1,4 +1,5 @@
 import API_URL from "../api";
+import { getDisplayCategory } from "../utils/productCategory";
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { useLanguage } from "../LanguageContext";
@@ -655,6 +656,9 @@ function Home() {
                   product._id ||
                   product.id;
 
+                const displayCategory =
+                  getDisplayCategory(product);
+
                 return (
                   <Link
                     key={productId}
@@ -706,7 +710,7 @@ function Home() {
                       <div>
 
                         <p>
-                          {product.category}
+                          {displayCategory}
                         </p>
 
                         <h3>
