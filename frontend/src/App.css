@@ -536,11 +536,15 @@
   display: block;
 
   width: 100%;
-  aspect-ratio: 0.82;
+  aspect-ratio: 1 / 1;
 
   overflow: hidden;
 
-  background: #e8ded0;
+  background: #eee7dc;
+
+  padding: 14px;
+
+  box-sizing: border-box;
 }
 
 .product-image {
@@ -549,9 +553,9 @@
 
   display: block;
 
-  object-fit: cover;
+  object-fit: contain;
 
-  transition: transform 0.5s ease;
+  transition: transform 0.35s ease;
 }
 
 .product-image-wrapper:hover .product-image {
