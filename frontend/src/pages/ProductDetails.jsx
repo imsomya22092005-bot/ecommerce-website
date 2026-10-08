@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { useLanguage } from "../LanguageContext";
 import API_URL from "../api";
 import { Heart } from "lucide-react";
+import ReviewSection from "../components/ReviewSection";
 
 function ProductDetails() {
   const { id } = useParams();
@@ -801,6 +802,8 @@ function ProductDetails() {
         </div>
 
       </section>
+
+      <ReviewSection productId={productId} language={language} />
 
       {/* =========================
           BOTTOM NAVIGATION
