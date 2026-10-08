@@ -23,6 +23,15 @@ function Profile() {
 
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [deliveryAddress, setDeliveryAddress] = useState(() => {
+    try {
+      return JSON.parse(
+        localStorage.getItem("shopSphereDeliveryAddress") || "null"
+      );
+    } catch {
+      return null;
+    }
+  });
 
   const token = localStorage.getItem("authToken");
 
@@ -84,6 +93,49 @@ function Profile() {
         window.dispatchEvent(
           new Event("userUpdated")
         );
+
+        /* Load the latest saved delivery address from the user's orders. */
+        try {
+          const ordersResponse = await fetch(
+            API_URL + "/api/orders",
+            {
+              method: "GET",
+              headers: {
+                Authorization: "Bearer " + token,
+              },
+            }
+          );
+
+          if (ordersResponse.ok) {
+            const ordersData = await ordersResponse.json();
+            const orders = Array.isArray(ordersData?.orders)
+              ? ordersData.orders
+              : [];
+
+            if (orders.length > 0) {
+              const latestOrder = [...orders].sort(
+                (a, b) =>
+                  new Date(b.createdAt || 0).getTime() -
+                  new Date(a.createdAt || 0).getTime()
+              )[0];
+
+              const address = latestOrder?.shippingAddress;
+
+              if (address) {
+                setDeliveryAddress(address);
+                localStorage.setItem(
+                  "shopSphereDeliveryAddress",
+                  JSON.stringify(address)
+                );
+              }
+            }
+          }
+        } catch (addressError) {
+          console.error(
+            "Delivery address error:",
+            addressError
+          );
+        }
       } catch (error) {
         console.error(
           "Profile error:",
@@ -363,6 +415,79 @@ function Profile() {
 
           </div>
 
+        </div>
+
+        {/* =========================
+            DELIVERY ADDRESS
+        ========================= */}
+
+        <div className="profile-details-card">
+          <div className="profile-card-heading">
+            <div>
+              <p className="profile-mini-label">
+                {language === "Hindi"
+                  ? "डिलीवरी"
+                  : "DELIVERY"}
+              </p>
+
+              <h2>
+                {language === "Hindi"
+                  ? "डिलीवरी एड्रेस"
+                  : "Delivery Address"}
+              </h2>
+            </div>
+
+            <Truck
+              size={22}
+              strokeWidth={1.4}
+            />
+          </div>
+
+          {deliveryAddress ? (
+            <div className="profile-details-grid">
+              <div className="profile-detail-item">
+                <span>
+                  {language === "Hindi" ? "नाम" : "NAME"}
+                </span>
+                <strong>
+                  {deliveryAddress.fullName || username || "—"}
+                </strong>
+              </div>
+
+              <div className="profile-detail-item">
+                <span>
+                  {language === "Hindi" ? "शहर" : "CITY"}
+                </span>
+                <strong>
+                  {deliveryAddress.city || "—"}
+                </strong>
+              </div>
+
+              <div className="profile-detail-item">
+                <span>
+                  {language === "Hindi" ? "पता" : "ADDRESS"}
+                </span>
+                <strong>
+                  {deliveryAddress.address || "—"}
+                </strong>
+              </div>
+
+              <div className="profile-detail-item">
+                <span>
+                  {language === "Hindi" ? "पिनकोड" : "PINCODE"}
+                </span>
+                <strong>
+                  {deliveryAddress.pincode || "—"}
+                </strong>
+              </div>
+            </div>
+          ) : (
+            <p className="profile-hero-text">
+              {language === "Hindi"
+                ? "अभी कोई डिलीवरी एड्रेस उपलब्ध नहीं है। अपना पहला ऑर्डर प्लेस करने के बाद यह यहाँ दिखाई देगा।"
+                : "No delivery address yet. It will appear here after you place your first order."}
+            </p>
+          )}
         </div>
 
         {/* =========================
