@@ -102,6 +102,59 @@ function ProductDetails() {
   }, [id, language]);
 
   // =========================
+  // COMPLETE THE LOOK
+  // =========================
+
+  useEffect(() => {
+    const fetchCompleteLook = async () => {
+      try {
+        setCompleteLookLoading(true);
+        setCompleteLookError("");
+        const response = await fetch(API_URL + "/api/products/" + id + "/complete-look");
+        const data = await response.json();
+        if (!response.ok || !data?.success) throw new Error(data?.message || "Could not load complete look.");
+        setCompleteLook(data);
+      } catch (err) {
+        console.error("Complete the Look error:", err);
+        setCompleteLook(null);
+        setCompleteLookError(err.message || "Could not load complete look.");
+      } finally {
+        setCompleteLookLoading(false);
+      }
+    };
+    if (id) fetchCompleteLook();
+  }, [id]);
+
+  const handleShopCompleteLook = async () => {
+    const token = localStorage.getItem("authToken");
+    if (!token) {
+      alert(language === "Hindi" ? "पहले login करें।" : "Please login before adding the complete look to cart.");
+      return;
+    }
+    setCompleteLookAdding(true);
+    try {
+      for (const item of completeLook?.products || []) {
+        const itemId = item?._id || item?.id;
+        if (!itemId) continue;
+        const response = await fetch(API_URL + "/api/cart/add", {
+          method: "POST",
+          headers: { "Content-Type": "application/json", Authorization: "Bearer " + token },
+          body: JSON.stringify({ productId: itemId, quantity: 1 }),
+        });
+        const data = await response.json();
+        if (!response.ok) throw new Error(data?.message || "Could not add the complete look.");
+      }
+      window.dispatchEvent(new Event("cartUpdated"));
+      setToastMessage(language === "Hindi" ? "Complete the Look cart में add हो गया ✨" : "Complete the Look added to cart ✨");
+    } catch (err) {
+      setActionError(err.message || "Could not add the complete look to cart.");
+    } finally {
+      setCompleteLookAdding(false);
+      setTimeout(() => setToastMessage(""), 2500);
+    }
+  };
+
+  // =========================
   // WISHLIST
   // =========================
 
@@ -810,6 +863,51 @@ function ProductDetails() {
       </section>
 
       <ReviewSection productId={productId} language={language} />
+
+      {!completeLookLoading && !completeLookError && completeLook?.products?.length > 0 && (
+        <section className="complete-look-section">
+          <div className="complete-look-heading">
+            <div>
+              <p className="complete-look-kicker">SHOPSPHERE EDIT</p>
+              <h2>{completeLook.title || "Complete the Look"}</h2>
+            </div>
+            <span>{completeLook.products.length} PIECES</span>
+          </div>
+
+          <div className="complete-look-products">
+            {completeLook.products.map((item) => {
+              const itemId = item?._id || item?.id;
+              const selling = Number(item?.discountPrice ?? item?.price) || 0;
+              const original = Number(item?.price) || 0;
+              return (
+                <Link key={itemId || item?.name} to={itemId ? "/product/" + itemId : "/products"} className="complete-look-card">
+                  <div className="complete-look-image-wrap">
+                    {item?.image ? <img src={item.image} alt={item?.name || "Product"} /> : <span>Image unavailable</span>}
+                  </div>
+                  <div className="complete-look-card-info">
+                    <h3>{item?.name || "Product"}</h3>
+                    <div className="complete-look-price">
+                      <strong>₹{selling.toLocaleString("en-IN")}</strong>
+                      {original > selling && <del>₹{original.toLocaleString("en-IN")}</del>}
+                    </div>
+                  </div>
+                </Link>
+              );
+            })}
+          </div>
+
+          <div className="complete-look-summary">
+            <div>
+              <span>COMPLETE LOOK</span>
+              <strong>₹{Number(completeLook?.pricing?.totalAmount || 0).toLocaleString("en-IN")}</strong>
+              <small>SAVE ₹{Number(completeLook?.pricing?.totalSavings || 0).toLocaleString("en-IN")}</small>
+            </div>
+            <button type="button" className="complete-look-btn" onClick={handleShopCompleteLook} disabled={completeLookAdding}>
+              {completeLookAdding ? "ADDING..." : "SHOP THE COMPLETE LOOK"}
+            </button>
+          </div>
+        </section>
+      )}
 
       {/* =========================
           BOTTOM NAVIGATION
