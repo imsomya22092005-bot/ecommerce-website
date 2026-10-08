@@ -375,18 +375,16 @@ function Checkout() {
                   `Bearer ${token}`,
               },
               body: JSON.stringify({
-                fullName:
-                  form.name.trim(),
-                address:
-                  form.address.trim(),
-                city:
-                  form.city.trim(),
-                state:
-                  form.state.trim(),
-                pincode:
-                  form.pincode.trim(),
-                phone:
-                  form.phone.trim(),
+                couponCode:
+                  couponCode.trim().toUpperCase() || undefined,
+                shippingAddress: {
+                  fullName: form.name.trim(),
+                  address: form.address.trim(),
+                  city: form.city.trim(),
+                  state: form.state.trim(),
+                  pincode: form.pincode.trim(),
+                  phone: form.phone.trim(),
+                },
               }),
             }
           );
