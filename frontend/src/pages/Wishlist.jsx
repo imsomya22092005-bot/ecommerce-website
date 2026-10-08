@@ -18,6 +18,7 @@ function Wishlist() {
   const [loading, setLoading] = useState(true);
   const [actionId, setActionId] = useState("");
   const [error, setError] = useState("");
+  const [toastMessage, setToastMessage] = useState("");
 
   const token = localStorage.getItem("authToken");
 
@@ -215,11 +216,15 @@ function Wishlist() {
         new Event("cartUpdated")
       );
 
-      alert(
+      setToastMessage(
         language === "Hindi"
-          ? "Product cart में जोड़ दिया गया।"
-          : "Product added to cart."
+          ? "प्रोडक्ट कार्ट में जोड़ दिया गया ✨"
+          : "Product added to cart ✨"
       );
+
+      setTimeout(() => {
+        setToastMessage("");
+      }, 2500);
     } catch (err) {
       console.error("Wishlist cart error:", err);
       setError(err.message);
@@ -492,6 +497,13 @@ function Wishlist() {
 
         </section>
       )}
+      {toastMessage && (
+        <div className="cart-toast" role="status">
+          <span className="cart-toast-icon">✓</span>
+          <span>{toastMessage}</span>
+        </div>
+      )}
+
     </main>
   );
 }
