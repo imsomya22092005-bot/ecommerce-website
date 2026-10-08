@@ -37,6 +37,11 @@ function ProductDetails() {
   const [selectedSize, setSelectedSize] = useState("");
   const [selectedColor, setSelectedColor] = useState("");
 
+  const [completeLook, setCompleteLook] = useState(null);
+  const [completeLookLoading, setCompleteLookLoading] = useState(true);
+  const [completeLookError, setCompleteLookError] = useState("");
+  const [completeLookAdding, setCompleteLookAdding] = useState(false);
+
   // =========================
   // FETCH PRODUCT
   // =========================
