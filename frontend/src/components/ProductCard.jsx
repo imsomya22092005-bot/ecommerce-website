@@ -1,10 +1,12 @@
 import { Link, useNavigate } from "react-router-dom";
+import { useState } from "react";
 import { useLanguage } from "../LanguageContext";
 import API_URL from "../api";
 
 function ProductCard({ product }) {
   const { language } = useLanguage();
   const navigate = useNavigate();
+  const [toastMessage, setToastMessage] = useState("");
 
   const productId = product._id || product.id;
 
@@ -47,19 +49,27 @@ function ProductCard({ product }) {
 
       window.dispatchEvent(new Event("cartUpdated"));
 
-      alert(
+      setToastMessage(
         language === "Hindi"
-          ? "प्रोडक्ट कार्ट में जोड़ दिया गया।"
-          : "Product added to cart."
+          ? "प्रोडक्ट कार्ट में जोड़ दिया गया ✨"
+          : "Product added to cart ✨"
       );
+
+      setTimeout(() => {
+        setToastMessage("");
+      }, 2500);
     } catch (error) {
       console.error("Add to cart error:", error);
 
-      alert(
+      setToastMessage(
         language === "Hindi"
           ? error.message || "प्रोडक्ट कार्ट में नहीं जोड़ा जा सका।"
           : error.message || "Could not add product to cart."
       );
+
+      setTimeout(() => {
+        setToastMessage("");
+      }, 3000);
     }
   };
 
@@ -125,6 +135,13 @@ function ProductCard({ product }) {
             : "ADD TO CART"}
         </button>
       </div>
+
+      {toastMessage && (
+        <div className="cart-toast" role="status">
+          <span className="cart-toast-icon">✓</span>
+          <span>{toastMessage}</span>
+        </div>
+      )}
     </article>
   );
 }
