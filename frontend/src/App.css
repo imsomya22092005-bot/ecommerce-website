@@ -5434,6 +5434,58 @@
   }
 }
 /* =========================================
+   CLICKABLE CART / ORDER SUMMARY PRODUCTS
+========================================= */
+
+.cart-item-image-link {
+  display: block;
+  text-decoration: none;
+  color: inherit;
+}
+
+.cart-item-image-link img {
+  transition: transform 0.25s ease;
+}
+
+.cart-item-image-link:hover img {
+  transform: scale(1.02);
+}
+
+.cart-item-title-link {
+  color: inherit;
+  text-decoration: none;
+}
+
+.cart-item-title-link:hover h2 {
+  color: #8a6245;
+}
+
+.checkout-product-link {
+  display: block;
+  flex: 0 0 auto;
+  color: inherit;
+  text-decoration: none;
+}
+
+.checkout-product-link img {
+  display: block;
+  transition: transform 0.25s ease;
+}
+
+.checkout-product-link:hover img {
+  transform: scale(1.03);
+}
+
+.checkout-product-name {
+  color: inherit;
+  text-decoration: none;
+}
+
+.checkout-product-name:hover strong {
+  color: #8a6245;
+}
+
+/* =========================================
    PRODUCT CARD - ADD TO CART
 ========================================= */
 
