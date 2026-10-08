@@ -265,10 +265,7 @@ function Products() {
             ...new Set(
               productList
                 .map((product) =>
-                  String(
-                    product.category ||
-                      ""
-                  ).trim()
+                  getDisplayCategory(product)
                 )
                 .filter(
                   (item) =>
