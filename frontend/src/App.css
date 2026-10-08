@@ -13442,3 +13442,37 @@ color: #211e1b !important;
   .shop-category{min-width:92px}
   .shop-category small{font-size:11px}
 }
+
+/* =========================================================
+   COUPON / DISCOUNT
+========================================================= */
+.coupon-box{
+  margin:18px 0;
+  padding:14px;
+  border:1px solid #d8cbbb;
+  background:#fbf7f1;
+}
+
+.coupon-box label{
+  display:block;
+  margin-bottom:9px;
+  color:#5f554d;
+  font-size:9px;
+  font-weight:700;
+  letter-spacing:1.2px;
+}
+
+.coupon-success{
+  margin-top:9px;
+  color:#6d8667;
+  font-size:11px;
+}
+
+.checkout-coupon-box{
+  margin-top:24px;
+  margin-bottom:24px;
+}
+
+.coupon-discount span:last-child{
+  color:#6d8667 !important;
+}
