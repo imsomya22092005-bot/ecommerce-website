@@ -778,36 +778,47 @@ function Checkout() {
               key={item._id}
             >
 
-              {item.image ? (
-                <img
-                  src={item.image}
-                  alt={item.name}
-                />
-              ) : (
-                <div
-                  style={{
-                    width: "60px",
-                    height: "70px",
-                    display: "flex",
-                    alignItems:
-                      "center",
-                    justifyContent:
-                      "center",
-                    background:
-                      "#eee5da",
-                    color:
-                      "#8a6245",
-                  }}
-                >
-                  🛍️
-                </div>
-              )}
+              <Link
+                to={`/product/${item._id || item.id}`}
+                className="checkout-product-link"
+                aria-label={`View ${item.name}`}
+              >
+                {item.image ? (
+                  <img
+                    src={item.image}
+                    alt={item.name}
+                  />
+                ) : (
+                  <div
+                    style={{
+                      width: "60px",
+                      height: "70px",
+                      display: "flex",
+                      alignItems:
+                        "center",
+                      justifyContent:
+                        "center",
+                      background:
+                        "#eee5da",
+                      color:
+                        "#8a6245",
+                    }}
+                  >
+                    🛍️
+                  </div>
+                )}
+              </Link>
 
               <div>
 
-                <strong>
-                  {item.name}
-                </strong>
+                <Link
+                  to={`/product/${item._id || item.id}`}
+                  className="checkout-product-name"
+                >
+                  <strong>
+                    {item.name}
+                  </strong>
+                </Link>
 
                 <span>
                   {item.quantity} × ₹
