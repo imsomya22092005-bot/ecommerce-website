@@ -56,13 +56,6 @@ const productSchema = new mongoose.Schema({
         type: String
     }],
 
-    relatedProducts: [
-        {
-            type: mongoose.Schema.Types.ObjectId,
-            ref: 'Product'
-        }
-    ],
-
     sizes: [{
         type: String
     }],
@@ -108,6 +101,12 @@ const productSchema = new mongoose.Schema({
         min: 0,
         default: 0
     },
+    relatedProducts: [
+        {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'Product'
+        }
+    ],
 
     isActive: {
         type: Boolean,
