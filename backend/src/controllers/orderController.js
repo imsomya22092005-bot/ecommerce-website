@@ -19,6 +19,7 @@ const createOrder = async (req, res) => {
         )
             .trim()
             .toUpperCase();
+
         const {
             fullName,
             address,
@@ -66,7 +67,7 @@ const createOrder = async (req, res) => {
             if (!product) {
                 return res.status(404).json({
                     success: false,
-                    message: 'One of the products no longer exists'
+                    message: 'One of the products in your cart is no longer available. Please remove it and try again.'
                 });
             }
 
@@ -104,15 +105,72 @@ const createOrder = async (req, res) => {
             });
         }
 
-
         const subtotalAmount = Number(
             totalAmount.toFixed(2)
         );
 
         let discountAmount = 0;
+        let appliedCouponCode = null;
         let appliedCoupon = null;
 
-        if (couponCode) {
+        if (couponCode === 'WELCOME20') {
+            const previousOrder = await Order.findOne({
+                user: userId,
+                status: {
+                    $ne: 'cancelled'
+                }
+            });
+
+            if (previousOrder) {
+                return res.status(400).json({
+                    success: false,
+                    message: 'WELCOME20 is available only on your first purchase'
+                });
+            }
+
+            const welcomeExpiry = new Date(
+                '2026-12-31T23:59:59.999+05:30'
+            );
+
+            const now = new Date();
+
+            if (now > welcomeExpiry) {
+                return res.status(400).json({
+                    success: false,
+                    message: 'WELCOME20 has expired'
+                });
+            }
+
+            if (subtotalAmount < 1000) {
+                return res.status(400).json({
+                    success: false,
+                    message: 'Minimum order amount is ₹1000 for WELCOME20'
+                });
+            }
+
+            discountAmount = subtotalAmount * 0.20;
+
+            discountAmount = Math.min(
+                discountAmount,
+                500
+            );
+
+            discountAmount = Math.min(
+                discountAmount,
+                subtotalAmount
+            );
+
+
+            discountAmount = Number(
+                discountAmount.toFixed(2)
+            );
+
+
+            appliedCouponCode = 'WELCOME20';
+        }
+
+        else if (couponCode) {
+
             const coupon = await Coupon.findOne({
                 code: couponCode,
                 isActive: true
@@ -179,7 +237,9 @@ const createOrder = async (req, res) => {
                 ) {
                     discountAmount = coupon.maxDiscount;
                 }
+
             } else {
+
                 discountAmount = coupon.value;
             }
 
@@ -192,21 +252,26 @@ const createOrder = async (req, res) => {
                 discountAmount.toFixed(2)
             );
 
-            totalAmount = Number(
-                (subtotalAmount - discountAmount).toFixed(2)
-            );
 
             appliedCoupon = coupon;
+            appliedCouponCode = coupon.code;
         }
+
+        totalAmount = Number(
+            (subtotalAmount - discountAmount).toFixed(2)
+        );
 
         const order = await Order.create({
             user: userId,
+
             items: orderItems,
+
             subtotalAmount,
+
             discountAmount,
-            couponCode: appliedCoupon
-                ? appliedCoupon.code
-                : null,
+
+            couponCode: appliedCouponCode,
+
             totalAmount,
 
             shippingAddress: {
@@ -223,7 +288,9 @@ const createOrder = async (req, res) => {
 
         for (const item of cart.items) {
 
-            const product = await Product.findById(item.product);
+            const product = await Product.findById(
+                item.product
+            );
 
             if (!product) {
                 continue;
@@ -240,7 +307,8 @@ const createOrder = async (req, res) => {
             }
 
             product.stock = product.variants.reduce(
-                (total, variant) => total + variant.stock,
+                (total, variant) =>
+                    total + variant.stock,
                 0
             );
 
@@ -257,34 +325,39 @@ const createOrder = async (req, res) => {
         let emailSent = false;
 
         if (user) {
-            emailSent = await sendOrderConfirmationEmail(user, order);
+            emailSent = await sendOrderConfirmationEmail(
+                user,
+                order
+            );
         }
 
         if (appliedCoupon) {
             await Coupon.findByIdAndUpdate(
                 appliedCoupon._id,
                 {
-                    $inc: {
-                        usageCount: 1
-                    },
-                    $push: {
-                        usedBy: userId
-                    }
+                    $inc: {usageCount: 1},
+                    $push: { usedBy: userId}
                 }
             );
         }
 
         res.status(201).json({
             success: true,
+
             message: emailSent
                 ? 'Order placed successfully'
                 : 'Order placed successfully, but the confirmation email could not be sent',
+
             emailSent,
             order
         });
 
     } catch (error) {
-        console.error('Create order error:', error);
+
+        console.error(
+            'Create order error:',
+            error
+        );
 
         res.status(500).json({
             success: false,
@@ -294,8 +367,10 @@ const createOrder = async (req, res) => {
     }
 };
 
+
 const getMyOrders = async (req, res) => {
     try {
+
         const orders = await Order.find({
             user: req.user.userId
         })
@@ -307,6 +382,7 @@ const getMyOrders = async (req, res) => {
         });
 
     } catch (error) {
+
         res.status(500).json({
             message: 'Server error',
             error: error.message
@@ -317,6 +393,7 @@ const getMyOrders = async (req, res) => {
 
 const getOrderById = async (req, res) => {
     try {
+
         if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
             return res.status(404).json({
                 message: 'Order not found'
@@ -337,6 +414,7 @@ const getOrderById = async (req, res) => {
         res.status(200).json(order);
 
     } catch (error) {
+
         res.status(500).json({
             message: 'Server error',
             error: error.message
@@ -347,6 +425,7 @@ const getOrderById = async (req, res) => {
 
 const cancelOrder = async (req, res) => {
     try {
+
         const order = await Order.findOne({
             _id: req.params.id,
             user: req.user.userId
@@ -374,7 +453,10 @@ const cancelOrder = async (req, res) => {
         }
 
         for (const item of order.items) {
-            const product = await Product.findById(item.product);
+
+            const product = await Product.findById(
+                item.product
+            );
 
             if (!product) {
                 continue;
@@ -391,7 +473,8 @@ const cancelOrder = async (req, res) => {
             }
 
             product.stock = product.variants.reduce(
-                (total, variant) => total + variant.stock,
+                (total, variant) =>
+                    total + variant.stock,
                 0
             );
 
@@ -402,11 +485,14 @@ const cancelOrder = async (req, res) => {
 
         await order.save();
 
-        const user = await User.findById(req.user.userId);
+        const user = await User.findById(
+            req.user.userId
+        );
 
         let emailSent = false;
 
         if (user) {
+
             emailSent = await sendOrderStatusEmail(
                 user,
                 order,
@@ -414,19 +500,27 @@ const cancelOrder = async (req, res) => {
             );
         }
 
+
         await order.populate('items.product');
 
         res.status(200).json({
             success: true,
+
             message: emailSent
                 ? 'Order cancelled successfully'
                 : 'Order cancelled successfully, but the cancellation email could not be sent',
+
             emailSent,
+
             order
         });
 
     } catch (error) {
-        console.error('Cancel order error:', error);
+
+        console.error(
+            'Cancel order error:',
+            error
+        );
 
         res.status(500).json({
             success: false,
@@ -439,6 +533,7 @@ const cancelOrder = async (req, res) => {
 
 const updateOrderStatus = async (req, res) => {
     try {
+
         const { status } = req.body;
 
         const allowedStatuses = [
@@ -455,13 +550,17 @@ const updateOrderStatus = async (req, res) => {
             });
         }
 
+
         if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
             return res.status(404).json({
                 message: 'Order not found'
             });
         }
 
-        const order = await Order.findById(req.params.id);
+
+        const order = await Order.findById(
+            req.params.id
+        );
 
         if (!order) {
             return res.status(404).json({
@@ -469,22 +568,33 @@ const updateOrderStatus = async (req, res) => {
             });
         }
 
+
         if (order.status === 'cancelled') {
             return res.status(400).json({
                 message: 'Cancelled order cannot be updated'
             });
         }
 
+
         order.status = status;
 
         await order.save();
 
-        await order.populate('user', 'username email');
-        await order.populate('items.product');
+
+        await order.populate(
+            'user',
+            'username email'
+        );
+
+        await order.populate(
+            'items.product'
+        );
+
 
         let emailSent = false;
 
         if (order.user) {
+
             emailSent = await sendOrderStatusEmail(
                 order.user,
                 order,
@@ -492,15 +602,20 @@ const updateOrderStatus = async (req, res) => {
             );
         }
 
+
         res.status(200).json({
+
             message: emailSent
                 ? 'Order status updated successfully'
                 : 'Order status updated successfully, but the status email could not be sent',
+
             emailSent,
+
             order
         });
 
     } catch (error) {
+
         res.status(500).json({
             message: 'Server error',
             error: error.message
@@ -508,12 +623,21 @@ const updateOrderStatus = async (req, res) => {
     }
 };
 
+
 const getAllOrders = async (req, res) => {
     try {
+
         const orders = await Order.find()
-            .populate('user', 'username email')
-            .populate('items.product')
-            .sort({ createdAt: -1 });
+            .populate(
+                'user',
+                'username email'
+            )
+            .populate(
+                'items.product'
+            )
+            .sort({
+                createdAt: -1
+            });
 
         res.status(200).json({
             success: true,
@@ -521,7 +645,12 @@ const getAllOrders = async (req, res) => {
         });
 
     } catch (error) {
-        console.error('Get all orders error:', error.message);
+
+        console.error(
+            'Get all orders error:',
+            error.message
+        );
+
         res.status(500).json({
             success: false,
             message: 'Server error while fetching orders',

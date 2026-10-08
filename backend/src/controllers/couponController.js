@@ -3,6 +3,16 @@ const Cart = require('../models/cartModel');
 const Product = require('../models/productModel');
 
 
+const SYSTEM_COUPONS = {
+    WELCOME20: {
+        code: 'WELCOME20',
+        type: 'percentage',
+        value: 20,
+        minOrderAmount: 1000,
+        maxDiscount: 500
+    }
+};
+
 const calculateCartSubtotal = async (userId) => {
     const cart = await Cart.findOne({
         user: userId
@@ -65,10 +75,7 @@ const calculateDiscount = (coupon, subtotal) => {
 const validateCoupon = async (req, res) => {
     try {
         const userId = req.user.userId;
-
-        const code = String(req.body.code || '')
-            .trim()
-            .toUpperCase();
+        const { code } = req.body;
 
         if (!code) {
             return res.status(400).json({
@@ -77,31 +84,79 @@ const validateCoupon = async (req, res) => {
             });
         }
 
+        const couponCode = code.trim().toUpperCase();
+
+        /*
+         * SYSTEM COUPON
+         * WELCOME20 = first purchase offer
+         */
+        if (couponCode === 'WELCOME20') {
+
+            // Check whether this user has already placed an order
+            const previousOrder = await Order.findOne({
+                user: userId,
+                status: { $ne: 'cancelled' }
+            });
+
+            if (previousOrder) {
+                return res.status(400).json({
+                    success: false,
+                    message: 'WELCOME20 is available only on your first purchase'
+                });
+            }
+
+            const subtotal = await calculateCartSubtotal(userId);
+
+            if (subtotal < 1000) {
+                return res.status(400).json({
+                    success: false,
+                    message: 'Minimum order amount of ₹1000 is required for WELCOME20'
+                });
+            }
+
+            const discount = Math.min(
+                subtotal * 0.20,
+                500
+            );
+
+            const totalAmount = subtotal - discount;
+
+            return res.status(200).json({
+                success: true,
+                message: 'WELCOME20 applied successfully',
+                coupon: {
+                    code: 'WELCOME20',
+                    type: 'percentage',
+                    value: 20,
+                    minOrderAmount: 1000,
+                    maxDiscount: 500
+                },
+                pricing: {
+                    subtotal,
+                    discountAmount: discount,
+                    totalAmount
+                }
+            });
+        }
+
         const coupon = await Coupon.findOne({
-            code,
+            code: couponCode,
             isActive: true
         });
 
         if (!coupon) {
             return res.status(404).json({
                 success: false,
-                message: 'Invalid coupon code'
+                message: 'Invalid or inactive coupon'
             });
         }
 
         const now = new Date();
 
-        if (now < coupon.startDate) {
+        if (now < coupon.startDate || now > coupon.expiryDate) {
             return res.status(400).json({
                 success: false,
-                message: 'This coupon is not active yet'
-            });
-        }
-
-        if (now > coupon.expiryDate) {
-            return res.status(400).json({
-                success: false,
-                message: 'This coupon has expired'
+                message: 'Coupon has expired or is not active yet'
             });
         }
 
@@ -111,7 +166,7 @@ const validateCoupon = async (req, res) => {
         ) {
             return res.status(400).json({
                 success: false,
-                message: 'This coupon has reached its usage limit'
+                message: 'Coupon usage limit reached'
             });
         }
 
@@ -126,53 +181,44 @@ const validateCoupon = async (req, res) => {
             });
         }
 
-        const { subtotal } =
-            await calculateCartSubtotal(userId);
-
-        if (subtotal <= 0) {
-            return res.status(400).json({
-                success: false,
-                message: 'Your cart is empty'
-            });
-        }
+        const subtotal = await calculateCartSubtotal(userId);
 
         if (subtotal < coupon.minOrderAmount) {
             return res.status(400).json({
                 success: false,
-                message: `Minimum order amount is ₹${coupon.minOrderAmount}`
+                message: `Minimum order amount of ₹${coupon.minOrderAmount} is required`
             });
         }
 
-        const discount = calculateDiscount(
-            coupon,
-            subtotal
-        );
+        let discount = 0;
 
-        const finalAmount = Number(
-            (subtotal - discount).toFixed(2)
-        );
+        if (coupon.type === 'percentage') {
+            discount = subtotal * (coupon.value / 100);
+        } else {
+            discount = coupon.value;
+        }
 
-        return res.status(200).json({
+        if (coupon.maxDiscount !== null) {
+            discount = Math.min(discount, coupon.maxDiscount);
+        }
+
+        discount = Math.min(discount, subtotal);
+
+        res.status(200).json({
             success: true,
             message: 'Coupon applied successfully',
-
-            coupon: {
-                code: coupon.code,
-                type: coupon.type,
-                value: coupon.value
-            },
-
+            coupon,
             pricing: {
                 subtotal,
-                discount,
-                finalAmount
+                discountAmount: discount,
+                totalAmount: subtotal - discount
             }
         });
 
     } catch (error) {
         console.error('Validate coupon error:', error);
 
-        return res.status(500).json({
+        res.status(500).json({
             success: false,
             message: 'Failed to validate coupon',
             error: error.message
