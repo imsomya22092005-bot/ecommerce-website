@@ -4,7 +4,8 @@ const Cart = require('../models/cartModel');
 const Product = require('../models/productModel');
 const User = require('../models/userModel');
 const { sendOrderConfirmationEmail } = require('../utils/emailService');
-const {sendOrderStatusEmail} = require('../utils/emailService');
+const { sendOrderStatusEmail } = require('../utils/emailService');
+const Coupon = require('../models/couponModel');
 
 
 const createOrder = async (req, res) => {
@@ -13,6 +14,11 @@ const createOrder = async (req, res) => {
 
         const shippingAddress = req.body.shippingAddress || req.body;
 
+        const couponCode = String(
+            req.body.couponCode || ''
+        )
+            .trim()
+            .toUpperCase();
         const {
             fullName,
             address,
@@ -50,7 +56,6 @@ const createOrder = async (req, res) => {
         let totalAmount = 0;
         const orderItems = [];
 
-        // Check every cart item
         for (const cartItem of cart.items) {
 
             const product = await Product.findOne({
@@ -65,7 +70,6 @@ const createOrder = async (req, res) => {
                 });
             }
 
-            // Find exact size + color variant
             const variant = product.variants.find(
                 item =>
                     item.size === cartItem.size &&
@@ -79,7 +83,6 @@ const createOrder = async (req, res) => {
                 });
             }
 
-            // Check variant stock
             if (variant.stock < cartItem.quantity) {
                 return res.status(400).json({
                     success: false,
@@ -87,7 +90,6 @@ const createOrder = async (req, res) => {
                 });
             }
 
-            // Use discounted price if available
             const sellingPrice =
                 product.discountPrice ?? product.price;
 
@@ -102,12 +104,109 @@ const createOrder = async (req, res) => {
             });
         }
 
-        // Create order
+
+        const subtotalAmount = Number(
+            totalAmount.toFixed(2)
+        );
+
+        let discountAmount = 0;
+        let appliedCoupon = null;
+
+        if (couponCode) {
+            const coupon = await Coupon.findOne({
+                code: couponCode,
+                isActive: true
+            });
+
+            if (!coupon) {
+                return res.status(400).json({
+                    success: false,
+                    message: 'Invalid coupon code'
+                });
+            }
+
+            const now = new Date();
+
+            if (now < coupon.startDate) {
+                return res.status(400).json({
+                    success: false,
+                    message: 'This coupon is not active yet'
+                });
+            }
+
+            if (now > coupon.expiryDate) {
+                return res.status(400).json({
+                    success: false,
+                    message: 'This coupon has expired'
+                });
+            }
+
+            if (
+                coupon.usageLimit !== null &&
+                coupon.usageCount >= coupon.usageLimit
+            ) {
+                return res.status(400).json({
+                    success: false,
+                    message: 'This coupon has reached its usage limit'
+                });
+            }
+
+            const userUsageCount = coupon.usedBy.filter(
+                id => id.toString() === userId.toString()
+            ).length;
+
+            if (userUsageCount >= coupon.perUserLimit) {
+                return res.status(400).json({
+                    success: false,
+                    message: 'You have already used this coupon'
+                });
+            }
+
+            if (subtotalAmount < coupon.minOrderAmount) {
+                return res.status(400).json({
+                    success: false,
+                    message: `Minimum order amount is ₹${coupon.minOrderAmount}`
+                });
+            }
+
+            if (coupon.type === 'percentage') {
+                discountAmount =
+                    subtotalAmount * (coupon.value / 100);
+
+                if (
+                    coupon.maxDiscount !== null &&
+                    discountAmount > coupon.maxDiscount
+                ) {
+                    discountAmount = coupon.maxDiscount;
+                }
+            } else {
+                discountAmount = coupon.value;
+            }
+
+            discountAmount = Math.min(
+                discountAmount,
+                subtotalAmount
+            );
+
+            discountAmount = Number(
+                discountAmount.toFixed(2)
+            );
+
+            totalAmount = Number(
+                (subtotalAmount - discountAmount).toFixed(2)
+            );
+
+            appliedCoupon = coupon;
+        }
+
         const order = await Order.create({
             user: userId,
-
             items: orderItems,
-
+            subtotalAmount,
+            discountAmount,
+            couponCode: appliedCoupon
+                ? appliedCoupon.code
+                : null,
             totalAmount,
 
             shippingAddress: {
@@ -122,7 +221,6 @@ const createOrder = async (req, res) => {
             status: 'confirmed'
         });
 
-        // Decrease stock for the exact variants
         for (const item of cart.items) {
 
             const product = await Product.findById(item.product);
@@ -141,7 +239,6 @@ const createOrder = async (req, res) => {
                 variant.stock -= item.quantity;
             }
 
-            // Keep old stock field synchronized
             product.stock = product.variants.reduce(
                 (total, variant) => total + variant.stock,
                 0
@@ -150,7 +247,6 @@ const createOrder = async (req, res) => {
             await product.save();
         }
 
-        // Clear cart
         cart.items = [];
         await cart.save();
 
@@ -162,6 +258,20 @@ const createOrder = async (req, res) => {
 
         if (user) {
             emailSent = await sendOrderConfirmationEmail(user, order);
+        }
+
+        if (appliedCoupon) {
+            await Coupon.findByIdAndUpdate(
+                appliedCoupon._id,
+                {
+                    $inc: {
+                        usageCount: 1
+                    },
+                    $push: {
+                        usedBy: userId
+                    }
+                }
+            );
         }
 
         res.status(201).json({

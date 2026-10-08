@@ -13,6 +13,7 @@ const wishlistRoutes = require('./routes/wishlistRoutes');
 const googleAuthRoutes = require('./routes/googleAuthRoutes');
 const newsletterRoutes = require('./routes/newsletterRoutes');
 const reviewRoutes = require('./routes/reviewRoutes');
+const couponRoutes = require('./routes/couponRoutes');
 
 app.use(express.json());
 
@@ -26,6 +27,7 @@ app.use('/api/wishlist', wishlistRoutes);
 app.use('/api/auth/google', googleAuthRoutes);
 app.use('/api/newsletter', newsletterRoutes);
 app.use('/api/reviews', reviewRoutes);
+app.use('/api/coupons', couponRoutes);
 
 app.get('/', (req, res) => {
     res.json({
