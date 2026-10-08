@@ -2,6 +2,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { useLanguage } from "../LanguageContext";
 import API_URL from "../api";
+import { getDisplayCategory } from "../utils/productCategory";
 
 function ProductCard({ product }) {
   const { language } = useLanguage();
@@ -9,6 +10,7 @@ function ProductCard({ product }) {
   const [toastMessage, setToastMessage] = useState("");
 
   const productId = product._id || product.id;
+  const displayCategory = getDisplayCategory(product);
 
   const handleAddToCart = async () => {
     const token = localStorage.getItem("authToken");
@@ -89,14 +91,14 @@ function ProductCard({ product }) {
       <div className="product-info">
         <p className="product-category">
           {language === "Hindi"
-            ? product.category === "Fashion"
+            ? displayCategory === "Fashion"
               ? "फैशन"
-              : product.category === "Accessories"
+              : displayCategory === "Accessories"
               ? "एक्सेसरीज़"
-              : product.category === "Footwear"
+              : displayCategory === "Footwear"
               ? "फुटवियर"
-              : product.category
-            : product.category}
+              : displayCategory
+            : displayCategory}
         </p>
 
         <Link
