@@ -288,7 +288,7 @@ function Home() {
           ...new Set(
             sortedProducts
               .map((product) =>
-                String(product.category || "").trim()
+                getDisplayCategory(product)
               )
               .filter(Boolean)
           ),
