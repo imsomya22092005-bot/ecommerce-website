@@ -4,6 +4,7 @@ import { Link, useSearchParams } from "react-router-dom";
 import { useLanguage } from "../LanguageContext";
 import ProductCard from "../components/ProductCard";
 import API_URL from "../api";
+import { getDisplayCategory } from "../utils/productCategory";
 
 const PRODUCTS_PER_PAGE = 8;
 
@@ -599,9 +600,16 @@ function Products() {
             );
           }
 
+          // Bags can be incorrectly stored as Clothing
+          // in older backend product records. For Accessories,
+          // fetch the full collection and classify on the frontend.
+          const isAccessories =
+            category === "Accessories";
+
           if (
             category &&
-            category !== "All"
+            category !== "All" &&
+            !isAccessories
           ) {
             params.set(
               "category",
@@ -611,7 +619,8 @@ function Products() {
 
           if (
             sort &&
-            sort !== "default"
+            sort !== "default" &&
+            !isAccessories
           ) {
             params.set(
               "sort",
@@ -621,14 +630,16 @@ function Products() {
 
           params.set(
             "page",
-            String(currentPage)
+            isAccessories
+              ? "1"
+              : String(currentPage)
           );
 
           params.set(
             "limit",
-            String(
-              PRODUCTS_PER_PAGE
-            )
+            isAccessories
+              ? "1000"
+              : String(PRODUCTS_PER_PAGE)
           );
 
           const response =
@@ -646,22 +657,111 @@ function Products() {
             );
           }
 
-          const productList =
+          let productList =
             Array.isArray(data)
               ? data
               : data.products || [];
 
-          setProducts(productList);
+          if (isAccessories) {
+            productList = productList.filter(
+              (product) =>
+                getDisplayCategory(product) ===
+                "Accessories"
+            );
 
-          setPagination(
-            data.pagination || {
-              currentPage,
-              totalPages: 1,
-              totalProducts: productList.length,
-              limit: PRODUCTS_PER_PAGE,
+            if (search.trim()) {
+              const searchValue =
+                search.trim().toLowerCase();
+
+              productList = productList.filter(
+                (product) =>
+                  String(product.name || "")
+                    .toLowerCase()
+                    .includes(searchValue)
+              );
             }
-          );
 
+            if (sort === "price_asc") {
+              productList.sort(
+                (a, b) =>
+                  Number(a.price || 0) -
+                  Number(b.price || 0)
+              );
+            }
+
+            if (sort === "price_desc") {
+              productList.sort(
+                (a, b) =>
+                  Number(b.price || 0) -
+                  Number(a.price || 0)
+              );
+            }
+
+            if (sort === "name_asc") {
+              productList.sort(
+                (a, b) =>
+                  String(a.name || "").localeCompare(
+                    String(b.name || "")
+                  )
+              );
+            }
+
+            if (sort === "name_desc") {
+              productList.sort(
+                (a, b) =>
+                  String(b.name || "").localeCompare(
+                    String(a.name || "")
+                  )
+              );
+            }
+
+            const totalProducts =
+              productList.length;
+
+            const totalPages =
+              Math.max(
+                1,
+                Math.ceil(
+                  totalProducts /
+                    PRODUCTS_PER_PAGE
+                )
+              );
+
+            const safePage =
+              Math.min(
+                currentPage,
+                totalPages
+              );
+
+            const startIndex =
+              (safePage - 1) *
+              PRODUCTS_PER_PAGE;
+
+            productList =
+              productList.slice(
+                startIndex,
+                startIndex +
+                  PRODUCTS_PER_PAGE
+              );
+
+            setPagination({
+              currentPage: safePage,
+              totalPages,
+              totalProducts,
+              limit: PRODUCTS_PER_PAGE,
+            });
+          } else {
+            setPagination(
+              data.pagination || {
+                currentPage,
+                totalPages: 1,
+                totalProducts: productList.length,
+                limit: PRODUCTS_PER_PAGE,
+              }
+            );
+          }
+
+          setProducts(productList);
           setLoading(false);
         } catch (err) {
           console.error(
