@@ -12,14 +12,6 @@ function Checkout() {
   const [placingOrder, setPlacingOrder] = useState(false);
   const [error, setError] = useState("");
 
-  const [couponCode, setCouponCode] = useState(
-    () => localStorage.getItem("shopSphereCouponCode") || ""
-  );
-  const [coupon, setCoupon] = useState(null);
-  const [couponLoading, setCouponLoading] = useState(false);
-  const [couponMessage, setCouponMessage] = useState("");
-  const [couponError, setCouponError] = useState("");
-
   const [form, setForm] = useState({
     name: "",
     phone: "",
@@ -191,96 +183,6 @@ function Checkout() {
   }, [token, language]);
 
   // =========================
-  // COUPON
-  // =========================
-
-  const validateCoupon = async (code = couponCode) => {
-    const cleanCode = String(code || "").trim().toUpperCase();
-
-    if (!token || !cleanCode) {
-      setCoupon(null);
-      setCouponError(
-        language === "Hindi"
-          ? "कृपया coupon code दर्ज करें।"
-          : "Please enter a coupon code."
-      );
-      return;
-    }
-
-    try {
-      setCouponLoading(true);
-      setCouponError("");
-      setCouponMessage("");
-
-      const response = await fetch(
-        API_URL + "/api/coupons/validate",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: "Bearer " + token,
-          },
-          body: JSON.stringify({ code: cleanCode }),
-        }
-      );
-
-      const data = await response.json();
-
-      if (!response.ok || !data?.success) {
-        throw new Error(
-          data?.message ||
-            (language === "Hindi"
-              ? "Coupon लागू नहीं हो सका।"
-              : "Coupon could not be applied.")
-        );
-      }
-
-      setCoupon({
-        ...(data.coupon || {}),
-        pricing: data.pricing || {},
-      });
-
-      setCouponCode(cleanCode);
-      localStorage.setItem("shopSphereCouponCode", cleanCode);
-
-      setCouponMessage(
-        data.message ||
-          (language === "Hindi"
-            ? "Coupon सफलतापूर्वक लागू हुआ।"
-            : "Coupon applied successfully.")
-      );
-    } catch (err) {
-      console.error("Coupon validation error:", err);
-      setCoupon(null);
-      setCouponError(
-        err.message ||
-          (language === "Hindi"
-            ? "Coupon लागू नहीं हो सका।"
-            : "Coupon could not be applied.")
-      );
-    } finally {
-      setCouponLoading(false);
-    }
-  };
-
-  const removeCoupon = () => {
-    setCouponCode("");
-    setCoupon(null);
-    setCouponMessage("");
-    setCouponError("");
-    localStorage.removeItem("shopSphereCouponCode");
-  };
-
-  // Validate a saved coupon after the current cart is loaded.
-  useEffect(() => {
-    const savedCode = localStorage.getItem("shopSphereCouponCode");
-
-    if (savedCode && cart.length > 0) {
-      validateCoupon(savedCode);
-    }
-  }, [cart.length]);
-
-  // =========================
   // FORM CHANGE
   // =========================
 
@@ -375,16 +277,18 @@ function Checkout() {
                   `Bearer ${token}`,
               },
               body: JSON.stringify({
-                couponCode:
-                  couponCode.trim().toUpperCase() || undefined,
-                shippingAddress: {
-                  fullName: form.name.trim(),
-                  address: form.address.trim(),
-                  city: form.city.trim(),
-                  state: form.state.trim(),
-                  pincode: form.pincode.trim(),
-                  phone: form.phone.trim(),
-                },
+                fullName:
+                  form.name.trim(),
+                address:
+                  form.address.trim(),
+                city:
+                  form.city.trim(),
+                state:
+                  form.state.trim(),
+                pincode:
+                  form.pincode.trim(),
+                phone:
+                  form.phone.trim(),
               }),
             }
           );
@@ -806,68 +710,6 @@ function Checkout() {
               ORDER INFORMATION
           ========================= */}
 
-          {/* =========================
-              COUPON
-          ========================= */}
-
-          <div className="coupon-box checkout-coupon-box">
-            <label>
-              {language === "Hindi"
-                ? "कूपन / डिस्काउंट कोड"
-                : "COUPON / DISCOUNT CODE"}
-            </label>
-
-            {!coupon ? (
-              <div className="coupon-input-row">
-                <input
-                  value={couponCode}
-                  onChange={(e) => {
-                    setCouponCode(e.target.value.toUpperCase());
-                    setCouponError("");
-                    setCouponMessage("");
-                  }}
-                  placeholder={
-                    language === "Hindi"
-                      ? "जैसे WELCOME20"
-                      : "e.g. WELCOME20"
-                  }
-                  disabled={couponLoading}
-                />
-
-                <button
-                  type="button"
-                  onClick={() => validateCoupon()}
-                  disabled={couponLoading}
-                >
-                  {couponLoading
-                    ? "..."
-                    : language === "Hindi"
-                    ? "लागू करें"
-                    : "APPLY"}
-                </button>
-              </div>
-            ) : (
-              <div className="applied-coupon">
-                <div>
-                  <span>✓</span>
-                  <strong>{coupon.code}</strong>
-                </div>
-
-                <button type="button" onClick={removeCoupon} aria-label="Remove coupon">
-                  ×
-                </button>
-              </div>
-            )}
-
-            {couponMessage && (
-              <p className="coupon-success">{couponMessage}</p>
-            )}
-
-            {couponError && (
-              <p className="coupon-error">{couponError}</p>
-            )}
-          </div>
-
           <h2 className="payment-title">
             {language === "Hindi"
               ? "ऑर्डर जानकारी"
@@ -1013,31 +855,23 @@ function Checkout() {
 
           </div>
 
-          {/* DISCOUNT */}
-
-          {coupon && (
-            <div className="summary-row coupon-discount">
-              <span>
-                {language === "Hindi" ? "कूपन डिस्काउंट" : "Coupon Discount"}
-              </span>
-              <span>
-                - ₹{Number(coupon.pricing?.discount ?? coupon.pricing?.discountAmount ?? 0).toLocaleString("en-IN")}
-              </span>
-            </div>
-          )}
-
-          {/* FINAL AMOUNT */}
+          {/* TOTAL */}
 
           <div className="summary-total">
+
             <span>
-              {language === "Hindi" ? "कुल" : "Final Amount"}
+              {language === "Hindi"
+                ? "कुल"
+                : "Total"}
             </span>
+
             <strong>
               ₹
-              {Number(
-                coupon?.pricing?.finalAmount ?? subtotal
-              ).toLocaleString("en-IN")}
+              {total.toLocaleString(
+                "en-IN"
+              )}
             </strong>
+
           </div>
 
         </aside>
