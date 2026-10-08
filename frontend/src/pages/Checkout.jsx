@@ -329,6 +329,23 @@ function Checkout() {
           )
         );
 
+        /* Save the latest delivery address for the navbar/profile UI. */
+        localStorage.setItem(
+          "shopSphereDeliveryAddress",
+          JSON.stringify({
+            fullName: form.name.trim(),
+            address: form.address.trim(),
+            city: form.city.trim(),
+            state: form.state.trim(),
+            pincode: form.pincode.trim(),
+            phone: form.phone.trim(),
+          })
+        );
+
+        window.dispatchEvent(
+          new Event("deliveryUpdated")
+        );
+
         // Backend automatically:
         // 1. creates order
         // 2. calculates total
