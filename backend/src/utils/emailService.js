@@ -24,9 +24,9 @@ const sendLoginEmail = async (user) => {
     });
 };
 
-const sendOrderConfirmationEmail = async (order) => {
+const sendOrderConfirmationEmail = async (user, order) => {
     return sendEmail({
-        to: order.user.email,
+        to: user.email,
         subject: `Order Confirmed - ${order._id}`,
         html: `
             <h2>Order Confirmed!</h2>
@@ -38,15 +38,15 @@ const sendOrderConfirmationEmail = async (order) => {
     });
 };
 
-const sendOrderStatusEmail = async (order) => {
+const sendOrderStatusEmail = async (user, order, status) => {
     return sendEmail({
-        to: order.user.email,
+        to: user.email,
         subject: `Order Status Updated - ${order._id}`,
         html: `
             <h2>Order Status Updated</h2>
             <p>Your order status has been updated.</p>
             <p><strong>Order ID:</strong> ${order._id}</p>
-            <p><strong>Status:</strong> ${order.status}</p>
+            <p><strong>Status:</strong> ${status}</p>
         `
     });
 };
