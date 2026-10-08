@@ -100,6 +100,21 @@ function ProductCard({ product }) {
           ₹{product.price}
         </p>
 
+        <p
+          style={{
+            margin: "6px 0 12px",
+            fontSize: "11px",
+            color: "#8a6245",
+            letterSpacing: "0.5px",
+          }}
+        >
+          ★ {Number(product.rating || 0).toFixed(1)}
+          {" "}
+          <span style={{ color: "#777" }}>
+            ({Number(product.reviewCount || 0)} reviews)
+          </span>
+        </p>
+
         <button
           type="button"
           className="product-add-btn"
