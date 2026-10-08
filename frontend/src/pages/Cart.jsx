@@ -932,7 +932,7 @@ function Cart() {
                   {language === "Hindi" ? "कूपन डिस्काउंट" : "Coupon Discount"}
                 </span>
                 <span>
-                  - ₹{Number(coupon.pricing?.discountAmount || 0).toLocaleString("en-IN")}
+                  - ₹{Number(coupon.pricing?.discount ?? coupon.pricing?.discountAmount ?? 0).toLocaleString("en-IN")}
                 </span>
               </div>
 
