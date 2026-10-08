@@ -163,6 +163,17 @@ function Navbar() {
   const [moreOpen, setMoreOpen] =
     useState(false);
 
+  const [deliveryAddress, setDeliveryAddress] =
+    useState(() => {
+      try {
+        return JSON.parse(
+          localStorage.getItem("shopSphereDeliveryAddress") || "null"
+        );
+      } catch {
+        return null;
+      }
+    });
+
   /* =======================================================
      LOAD CART COUNT
   ======================================================= */
@@ -299,6 +310,95 @@ function Navbar() {
   }, []);
 
   /* =======================================================
+     DELIVERY LOCATION
+  ======================================================= */
+
+  const loadDeliveryAddress = async () => {
+    if (!userName) {
+      setDeliveryAddress(null);
+      return;
+    }
+
+    try {
+      const saved = localStorage.getItem(
+        "shopSphereDeliveryAddress"
+      );
+
+      if (saved) {
+        setDeliveryAddress(JSON.parse(saved));
+      }
+    } catch {
+      setDeliveryAddress(null);
+    }
+
+    const token = localStorage.getItem("authToken");
+
+    if (!token) return;
+
+    try {
+      const response = await fetch(
+        API_URL + "/api/orders",
+        {
+          method: "GET",
+          headers: {
+            Authorization: "Bearer " + token,
+          },
+        }
+      );
+
+      if (!response.ok) return;
+
+      const data = await response.json();
+      const orders = Array.isArray(data?.orders)
+        ? data.orders
+        : [];
+
+      if (!orders.length) return;
+
+      const latestOrder = [...orders].sort(
+        (a, b) =>
+          new Date(b.createdAt || 0).getTime() -
+          new Date(a.createdAt || 0).getTime()
+      )[0];
+
+      const address = latestOrder?.shippingAddress;
+
+      if (address) {
+        setDeliveryAddress(address);
+        localStorage.setItem(
+          "shopSphereDeliveryAddress",
+          JSON.stringify(address)
+        );
+      }
+    } catch (error) {
+      console.error(
+        "Delivery address loading error:",
+        error
+      );
+    }
+  };
+
+  useEffect(() => {
+    loadDeliveryAddress();
+
+    const updateDelivery = () => {
+      loadDeliveryAddress();
+    };
+
+    window.addEventListener(
+      "deliveryUpdated",
+      updateDelivery
+    );
+
+    return () => {
+      window.removeEventListener(
+        "deliveryUpdated",
+        updateDelivery
+      );
+    };
+  }, [userName]);
+
+  /* =======================================================
      SEARCH
   ======================================================= */
 
@@ -342,6 +442,10 @@ function Navbar() {
 
     localStorage.removeItem(
       "userRole"
+    );
+
+    localStorage.removeItem(
+      "shopSphereDeliveryAddress"
     );
 
     setUserName(null);
@@ -474,6 +578,56 @@ function Navbar() {
         >
           SHOPSPHERE
         </Link>
+
+        {userName && deliveryAddress && (
+          <div
+            className="shop-delivery-location"
+            title={
+              deliveryAddress.address
+                ? deliveryAddress.address
+                : "Delivery address"
+            }
+            style={{
+              flexShrink: 0,
+              display: "flex",
+              flexDirection: "column",
+              justifyContent: "center",
+              minWidth: "135px",
+              maxWidth: "190px",
+              lineHeight: 1.15,
+              marginLeft: "-12px",
+              marginRight: "-10px",
+            }}
+          >
+            <span
+              style={{
+                fontSize: "10px",
+                color: "#77716c",
+                whiteSpace: "nowrap",
+              }}
+            >
+              {language === "Hindi"
+                ? "डिलीवर करें: " + userName
+                : "Deliver to " + userName}
+            </span>
+
+            <strong
+              style={{
+                marginTop: "3px",
+                fontSize: "11px",
+                color: "#211e1b",
+                whiteSpace: "nowrap",
+                overflow: "hidden",
+                textOverflow: "ellipsis",
+              }}
+            >
+              {deliveryAddress.city || "—"}
+              {deliveryAddress.pincode
+                ? " " + deliveryAddress.pincode
+                : ""}
+            </strong>
+          </div>
+        )}
 
         {/* SEARCH */}
 
