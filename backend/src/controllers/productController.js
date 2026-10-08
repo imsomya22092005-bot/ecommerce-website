@@ -49,7 +49,7 @@ const getProducts = async (req, res) => {
 
 
         // BUILD FILTER
-        
+
 
         const query = {
             isActive: true
@@ -192,7 +192,7 @@ const getProducts = async (req, res) => {
         }
 
 
-       
+
         // GET PRODUCTS
 
         const products = await Product.find(query)
@@ -208,7 +208,7 @@ const getProducts = async (req, res) => {
         );
 
 
-       
+
         // RESPONSE
 
         res.status(200).json({
@@ -245,6 +245,11 @@ const getProductById = async (req, res) => {
         const product = await Product.findOne({
             _id: req.params.id,
             isActive: true
+        }).populate({
+            path: 'relatedProducts',
+            match: {
+                isActive: true
+            }
         });
 
         if (!product) {
@@ -269,8 +274,7 @@ const getProductById = async (req, res) => {
     }
 };
 
-
-// UPDATE PRODUCT
+// product update
 
 const updateProduct = async (req, res) => {
     try {
@@ -347,11 +351,77 @@ const deleteProduct = async (req, res) => {
     }
 };
 
+const getCompleteLook = async (req, res) => {
+    try {
+        const product = await Product.findOne({
+            _id: req.params.id,
+            isActive: true
+        }).populate({
+            path: 'relatedProducts',
+            match: {
+                isActive: true
+            }
+        });
+
+        if (!product) {
+            return res.status(404).json({
+                success: false,
+                message: 'Product not found'
+            });
+        }
+
+        const products = [
+            product,
+            ...(product.relatedProducts || [])
+        ];
+
+        const totalAmount = products.reduce((total, item) => {
+            const sellingPrice =
+                item.discountPrice ?? item.price;
+
+            return total + sellingPrice;
+        }, 0);
+
+        const originalAmount = products.reduce((total, item) => {
+            return total + item.price;
+        }, 0);
+
+        const totalSavings = originalAmount - totalAmount;
+
+        res.status(200).json({
+            success: true,
+
+            title: 'Complete the Look',
+
+            products,
+
+            pricing: {
+                originalAmount,
+                totalAmount,
+                totalSavings
+            }
+        });
+
+    } catch (error) {
+        console.error(
+            'Get complete look error:',
+            error
+        );
+
+        res.status(500).json({
+            success: false,
+            message: 'Failed to load complete look',
+            error: error.message
+        });
+    }
+};
+
 
 module.exports = {
     createProduct,
     getProducts,
     getProductById,
     updateProduct,
-    deleteProduct
+    deleteProduct,
+    getCompleteLook
 };

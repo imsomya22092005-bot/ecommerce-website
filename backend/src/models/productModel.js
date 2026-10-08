@@ -47,28 +47,30 @@ const productSchema = new mongoose.Schema({
         min: 0
     },
 
-    // Kept for backward compatibility with the existing frontend
     image: {
         type: String,
         default: ''
     },
 
-    // New fashion product images
     images: [{
         type: String
     }],
 
-    // Available sizes
+    relatedProducts: [
+        {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'Product'
+        }
+    ],
+
     sizes: [{
         type: String
     }],
 
-    // Available colors
     colors: [{
         type: String
     }],
 
-    // Size + color specific stock
     variants: [{
         size: {
             type: String,
@@ -88,7 +90,6 @@ const productSchema = new mongoose.Schema({
         }
     }],
 
-    // Kept temporarily for old cart/order compatibility
     stock: {
         type: Number,
         min: 0,
