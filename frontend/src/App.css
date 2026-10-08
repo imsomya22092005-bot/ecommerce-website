@@ -1757,6 +1757,20 @@
 }
 
 /* =========================
+   AMAZON-STYLE DELIVERY LOCATION
+========================= */
+
+.shop-delivery-location {
+  transition: opacity 0.2s ease;
+}
+
+@media (max-width: 1100px) {
+  .shop-delivery-location {
+    display: none !important;
+  }
+}
+
+/* =========================
    HOME SECTION SPACING FIX
 ========================= */
 
