@@ -98,51 +98,205 @@
 }
 
 /* =========================================
-   SEASONAL EDITORIAL — LANDING PAGE
+   DISTINCTIVE SEASONAL EDITORIAL
 ========================================= */
 .landing-seasonal {
-  padding: 96px clamp(22px, 7vw, 110px) 105px;
+  position: relative;
+  overflow: hidden;
+  padding: 86px clamp(22px, 7vw, 110px) 36px;
   background: #f6f1e9;
   color: #211d1a;
 }
-.landing-seasonal-heading { max-width: 850px; margin: 0 auto 42px; text-align: center; }
-.landing-seasonal-heading h2 {
-  margin: 12px 0 18px; font-family: "Playfair Display", Georgia, serif;
-  font-size: clamp(48px, 7vw, 92px); line-height: .98; font-weight: 500; letter-spacing: -.055em;
+.seasonal-title-wrap {
+  position: relative;
+  max-width: 1000px;
+  margin: 0 auto 54px;
+  text-align: center;
 }
-.landing-seasonal-heading h2 em { color: #c96f59; font-weight: 500; }
-.landing-seasonal-heading > p:last-child { max-width: 570px; margin: 0 auto; color: #74675d; font-size: 15px; line-height: 1.8; }
-.landing-seasonal-banner {
-  position: relative; display: flex; min-height: 390px; overflow: hidden; align-items: flex-end;
-  color: #fffaf4; text-decoration: none; background: #7b6252;
+.seasonal-title-wrap .section-label {
+  margin-bottom: 10px;
+  color: #b86b56;
+  letter-spacing: .22em;
 }
-.landing-seasonal-banner > img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; transition: transform .6s ease; }
-.landing-seasonal-banner:hover > img { transform: scale(1.035); }
-.landing-seasonal-overlay { position: absolute; inset: 0; background: linear-gradient(90deg, rgba(25,20,17,.78), rgba(25,20,17,.22) 75%); }
-.landing-seasonal-copy { position: relative; z-index: 1; max-width: 720px; padding: clamp(28px, 5vw, 64px); }
-.landing-seasonal-copy > span, .landing-occasion-card > span { font-size: 10px; letter-spacing: .17em; font-weight: 700; }
-.landing-seasonal-copy h3 { margin: 18px 0 10px; font: 500 clamp(36px, 5.5vw, 66px)/1.04 "Playfair Display", Georgia, serif; letter-spacing: -.035em; }
-.landing-seasonal-copy p { margin: 0 0 24px; color: rgba(255,250,244,.85); }
-.landing-seasonal-copy strong, .landing-occasion-card strong { font-size: 10px; letter-spacing: .12em; }
-.landing-occasion-row { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 22px; margin-top: 24px; }
-.landing-occasion-card { display: block; color: #211d1a; text-decoration: none; background: #eee6db; padding-bottom: 24px; }
-.landing-occasion-card img { display: block; width: 100%; height: 245px; object-fit: cover; margin-bottom: 21px; transition: filter .4s ease; }
-.landing-occasion-card > span, .landing-occasion-card h3, .landing-occasion-card strong { margin-left: 22px; margin-right: 22px; }
-.landing-occasion-card > span { color: #9d5f4d; }
-.landing-occasion-card h3 { margin-top: 11px; margin-bottom: 16px; font: 500 clamp(22px, 2.3vw, 30px)/1.2 "Playfair Display", Georgia, serif; }
-.landing-occasion-card strong { display: inline-block; color: #9d5f4d; }
-.landing-occasion-card:hover img { filter: saturate(1.06); }
+.seasonal-title-wrap h2 {
+  margin: 0;
+  font-family: "Playfair Display", Georgia, serif;
+  font-size: clamp(54px, 9.4vw, 132px);
+  font-weight: 500;
+  letter-spacing: -.075em;
+  line-height: .9;
+}
+.seasonal-title-wrap h2 em {
+  color: #c96f59;
+  font-weight: 500;
+}
+.seasonal-subtitle {
+  margin: 23px 0 0;
+  color: #76695f;
+  font-size: 14px;
+  letter-spacing: .04em;
+}
+.seasonal-flower {
+  position: absolute;
+  right: 6%;
+  top: -28px;
+  color: #d07b63;
+  font-size: 38px;
+  transform: rotate(-14deg);
+}
+.seasonal-editorial-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.1fr) minmax(320px, .9fr);
+  gap: 22px;
+  max-width: 1450px;
+  margin: 0 auto;
+}
+.seasonal-photo {
+  position: relative;
+  display: block;
+  min-width: 0;
+  overflow: hidden;
+  color: #fffaf4;
+  text-decoration: none;
+  background: #d9cfc1;
+}
+.seasonal-photo img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform .65s cubic-bezier(.2,.7,.2,1);
+}
+.seasonal-photo:hover img { transform: scale(1.045); }
+.seasonal-photo-main { min-height: 590px; }
+.seasonal-photo-main::after,
+.seasonal-photo-small::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(0deg, rgba(25,20,17,.68), transparent 54%);
+}
+.seasonal-photo-index {
+  position: absolute;
+  z-index: 1;
+  top: 22px;
+  left: 24px;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: .17em;
+}
+.seasonal-photo-caption {
+  position: absolute;
+  z-index: 1;
+  right: 25px;
+  bottom: 28px;
+  left: 25px;
+}
+.seasonal-photo-caption h3 {
+  margin: 0 0 13px;
+  font: 500 clamp(28px, 3.5vw, 47px)/1.05 "Playfair Display", Georgia, serif;
+  letter-spacing: -.035em;
+}
+.seasonal-photo-caption strong {
+  font-size: 9px;
+  letter-spacing: .16em;
+}
+.seasonal-editorial-side {
+  display: grid;
+  grid-template-rows: .85fr 1.15fr;
+  gap: 22px;
+  min-height: 590px;
+}
+.seasonal-manifesto {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+  padding: clamp(25px, 4vw, 48px);
+  overflow: hidden;
+  background: #e9ded0;
+  color: #211d1a;
+}
+.seasonal-manifesto::after {
+  content: "S";
+  position: absolute;
+  right: -7px;
+  bottom: -94px;
+  color: rgba(201,111,89,.12);
+  font: 400 280px/.9 "Playfair Display", Georgia, serif;
+  pointer-events: none;
+}
+.seasonal-manifesto-mark {
+  display: grid;
+  place-items: center;
+  width: 42px;
+  height: 42px;
+  margin-bottom: 20px;
+  border: 1px solid #c96f59;
+  border-radius: 50%;
+  color: #b75f49;
+  font-family: "Playfair Display", Georgia, serif;
+  font-size: 21px;
+}
+.seasonal-manifesto > p {
+  margin: 0 0 11px;
+  color: #b75f49;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: .17em;
+  text-transform: uppercase;
+}
+.seasonal-manifesto h3 {
+  position: relative;
+  z-index: 1;
+  max-width: 420px;
+  margin: 0 0 23px;
+  font: 500 clamp(27px, 3vw, 40px)/1.12 "Playfair Display", Georgia, serif;
+  letter-spacing: -.035em;
+}
+.seasonal-manifesto a {
+  position: relative;
+  z-index: 1;
+  color: #211d1a;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: .15em;
+  text-decoration: none;
+}
+.seasonal-photo-small { min-height: 300px; }
+.seasonal-footer-line {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  max-width: 1450px;
+  margin: 24px auto 0;
+  padding: 17px 0 0;
+  border-top: 1px solid #d8cbbd;
+  color: #8b796b;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: .15em;
+}
+.seasonal-footer-star { color: #c96f59; font-size: 19px; }
+.seasonal-footer-line a { color: #211d1a; text-decoration: none; }
 @media (max-width: 760px) {
-  .landing-seasonal { padding: 65px 20px 72px; }
-  .landing-seasonal-heading { text-align: left; margin-bottom: 28px; }
-  .landing-seasonal-heading h2 { font-size: clamp(46px, 12vw, 66px); }
-  .landing-seasonal-banner { min-height: 360px; }
-  .landing-seasonal-overlay { background: linear-gradient(0deg, rgba(25,20,17,.8), rgba(25,20,17,.08)); }
-  .landing-seasonal-copy { padding: 25px; }
-  .landing-occasion-row { grid-template-columns: 1fr; gap: 16px; }
-  .landing-occasion-card { display: grid; grid-template-columns: 120px 1fr; padding: 0 14px 15px 0; column-gap: 16px; align-items: start; }
-  .landing-occasion-card img { grid-row: span 3; width: 120px; height: 140px; margin: 0; }
-  .landing-occasion-card > span, .landing-occasion-card h3, .landing-occasion-card strong { margin-left: 0; margin-right: 0; }
-  .landing-occasion-card > span { padding-top: 12px; }
-  .landing-occasion-card h3 { font-size: 21px; margin-top: 8px; margin-bottom: 10px; }
+  .landing-seasonal { padding: 62px 18px 27px; }
+  .seasonal-title-wrap { margin-bottom: 30px; text-align: left; }
+  .seasonal-title-wrap h2 { font-size: clamp(53px, 13vw, 84px); }
+  .seasonal-flower { right: 5px; top: -28px; font-size: 27px; }
+  .seasonal-subtitle { max-width: 270px; font-size: 12px; line-height: 1.6; }
+  .seasonal-editorial-grid { grid-template-columns: 1fr; gap: 14px; }
+  .seasonal-photo-main { min-height: 440px; }
+  .seasonal-editorial-side { grid-template-rows: auto 330px; min-height: 0; gap: 14px; }
+  .seasonal-manifesto { min-height: 285px; padding: 27px; }
+  .seasonal-manifesto h3 { font-size: 32px; }
+  .seasonal-photo-index { top: 17px; left: 17px; }
+  .seasonal-photo-caption { right: 18px; bottom: 21px; left: 18px; }
+  .seasonal-footer-line { flex-wrap: wrap; gap: 10px 14px; font-size: 8px; }
+  .seasonal-footer-line > span:first-child { width: calc(100% - 35px); }
+  .seasonal-footer-line > span:nth-child(2) { display: none; }
+  .seasonal-footer-line a { width: 100%; padding-top: 5px; }
 }
