@@ -125,25 +125,57 @@ function ProductDetails() {
     if (id) fetchCompleteLook();
   }, [id]);
 
+  const getCompleteLookItems = () => {
+    if (!completeLook) return [];
+    const main = completeLook.mainProduct || completeLook.main || null;
+    const recommendations =
+      completeLook.complementaryProducts ||
+      completeLook.recommendedProducts ||
+      completeLook.products ||
+      [];
+    const items = main ? [main, ...recommendations] : recommendations;
+    const seen = new Set();
+    return items.filter((item) => {
+      const key = String(item?._id || item?.id || item?.name || "");
+      if (!key || seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    });
+  };
+
   const handleShopCompleteLook = async () => {
     const token = localStorage.getItem("authToken");
     if (!token) {
       alert(language === "Hindi" ? "पहले login करें।" : "Please login before adding the complete look to cart.");
       return;
     }
+
     setCompleteLookAdding(true);
+    setActionError("");
     try {
-      for (const item of completeLook?.products || []) {
+      const items = getCompleteLookItems();
+      for (const item of items) {
         const itemId = item?._id || item?.id;
         if (!itemId) continue;
+
+        const firstVariant = Array.isArray(item.variants) ? item.variants[0] : null;
+        const size = firstVariant?.size || item.sizes?.[0] || item.size || "";
+        const color = firstVariant?.color || item.colors?.[0] || item.color || "";
+
         const response = await fetch(API_URL + "/api/cart/add", {
           method: "POST",
-          headers: { "Content-Type": "application/json", Authorization: "Bearer " + token },
-          body: JSON.stringify({ productId: itemId, quantity: 1 }),
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: "Bearer " + token,
+          },
+          body: JSON.stringify({ productId: itemId, size, color, quantity: 1 }),
         });
         const data = await response.json();
-        if (!response.ok) throw new Error(data?.message || "Could not add the complete look.");
+        if (!response.ok) {
+          throw new Error(data?.message || ("Could not add " + (item.name || "a product") + " to cart."));
+        }
       }
+
       window.dispatchEvent(new Event("cartUpdated"));
       setToastMessage(language === "Hindi" ? "Complete the Look cart में add हो गया ✨" : "Complete the Look added to cart ✨");
     } catch (err) {
@@ -864,18 +896,18 @@ function ProductDetails() {
 
       <ReviewSection productId={productId} language={language} />
 
-      {!completeLookLoading && !completeLookError && completeLook?.products?.length > 0 && (
+      {!completeLookLoading && !completeLookError && getCompleteLookItems().length > 0 && (
         <section className="complete-look-section">
           <div className="complete-look-heading">
             <div>
               <p className="complete-look-kicker">SHOPSPHERE EDIT</p>
               <h2>{completeLook.title || "Complete the Look"}</h2>
             </div>
-            <span>{completeLook.products.length} PIECES</span>
+            <span>{getCompleteLookItems().length} PIECES</span>
           </div>
 
           <div className="complete-look-products">
-            {completeLook.products.map((item) => {
+            {getCompleteLookItems().map((item) => {
               const itemId = item?._id || item?.id;
               const selling = Number(item?.discountPrice ?? item?.price) || 0;
               const original = Number(item?.price) || 0;
