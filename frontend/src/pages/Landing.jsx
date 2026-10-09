@@ -262,6 +262,47 @@ function Landing() {
         </div>
       </section>
 
+      {/* SEASONAL EDITORIAL — after STAY IN THE LOOP */}
+      <section className="landing-seasonal">
+        <div className="landing-seasonal-heading">
+          <p className="section-label">{hindi ? "SEASONAL EDIT" : "THE SEASONAL EDIT"}</p>
+          <h2>{hindi ? "हर दिन को" : "Seasonal"} <em>{hindi ? "खास बनाएं।" : "staples."}</em></h2>
+          <p>{hindi
+            ? "आपकी रोज़मर्रा की ज़िंदगी के लिए चुने गए timeless styles और thoughtful essentials।"
+            : "Timeless styles and thoughtful essentials, selected to move effortlessly with your everyday."}</p>
+        </div>
+        <Link to="/home" className="landing-seasonal-banner">
+          <img src="https://images.unsplash.com/photo-1483985988355-763728e1935b?auto=format&fit=crop&w=1800&q=90" alt="ShopSphere seasonal fashion collection" />
+          <div className="landing-seasonal-overlay" />
+          <div className="landing-seasonal-copy">
+            <span>SHOPSPHERE / 2026</span>
+            <h3>{hindi ? "अपना मौसम, अपना स्टाइल।" : "A season of your own."}</h3>
+            <p>{hindi ? "नए favourites खोजें" : "Discover pieces to keep reaching for."}</p>
+            <strong>{hindi ? "कलेक्शन एक्सप्लोर करें ↗" : "EXPLORE THE COLLECTION ↗"}</strong>
+          </div>
+        </Link>
+        <div className="landing-occasion-row">
+          <Link to="/products?category=Accessories" className="landing-occasion-card">
+            <img src="https://images.unsplash.com/photo-1584917865442-de89df76afd3?auto=format&fit=crop&w=900&q=85" alt="Accessories edit" />
+            <span>01 / ACCESSORIES</span>
+            <h3>{hindi ? "छोटी डिटेल्स, बड़ा फर्क।" : "The finishing touches."}</h3>
+            <strong>DISCOVER ↗</strong>
+          </Link>
+          <Link to="/products?category=Footwear" className="landing-occasion-card">
+            <img src="https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&w=900&q=85" alt="Footwear edit" />
+            <span>02 / FOOTWEAR</span>
+            <h3>{hindi ? "आराम से आगे बढ़ें।" : "Step into your style."}</h3>
+            <strong>DISCOVER ↗</strong>
+          </Link>
+          <Link to="/products?category=Men" className="landing-occasion-card">
+            <img src="https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&w=900&q=85" alt="Men's style edit" />
+            <span>03 / STYLE</span>
+            <h3>{hindi ? "अपना signature look खोजें।" : "Find your signature look."}</h3>
+            <strong>DISCOVER ↗</strong>
+          </Link>
+        </div>
+      </section>
+
       <section className="landing-final">
         <p className="section-label">SHOPSPHERE</p>
         <h2>
