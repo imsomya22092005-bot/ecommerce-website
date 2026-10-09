@@ -96,3 +96,53 @@
   .landing-final{padding:80px 20px 95px}
   .landing-final h2{font-size:46px}
 }
+
+/* =========================================
+   SEASONAL EDITORIAL — LANDING PAGE
+========================================= */
+.landing-seasonal {
+  padding: 96px clamp(22px, 7vw, 110px) 105px;
+  background: #f6f1e9;
+  color: #211d1a;
+}
+.landing-seasonal-heading { max-width: 850px; margin: 0 auto 42px; text-align: center; }
+.landing-seasonal-heading h2 {
+  margin: 12px 0 18px; font-family: "Playfair Display", Georgia, serif;
+  font-size: clamp(48px, 7vw, 92px); line-height: .98; font-weight: 500; letter-spacing: -.055em;
+}
+.landing-seasonal-heading h2 em { color: #c96f59; font-weight: 500; }
+.landing-seasonal-heading > p:last-child { max-width: 570px; margin: 0 auto; color: #74675d; font-size: 15px; line-height: 1.8; }
+.landing-seasonal-banner {
+  position: relative; display: flex; min-height: 390px; overflow: hidden; align-items: flex-end;
+  color: #fffaf4; text-decoration: none; background: #7b6252;
+}
+.landing-seasonal-banner > img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; transition: transform .6s ease; }
+.landing-seasonal-banner:hover > img { transform: scale(1.035); }
+.landing-seasonal-overlay { position: absolute; inset: 0; background: linear-gradient(90deg, rgba(25,20,17,.78), rgba(25,20,17,.22) 75%); }
+.landing-seasonal-copy { position: relative; z-index: 1; max-width: 720px; padding: clamp(28px, 5vw, 64px); }
+.landing-seasonal-copy > span, .landing-occasion-card > span { font-size: 10px; letter-spacing: .17em; font-weight: 700; }
+.landing-seasonal-copy h3 { margin: 18px 0 10px; font: 500 clamp(36px, 5.5vw, 66px)/1.04 "Playfair Display", Georgia, serif; letter-spacing: -.035em; }
+.landing-seasonal-copy p { margin: 0 0 24px; color: rgba(255,250,244,.85); }
+.landing-seasonal-copy strong, .landing-occasion-card strong { font-size: 10px; letter-spacing: .12em; }
+.landing-occasion-row { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 22px; margin-top: 24px; }
+.landing-occasion-card { display: block; color: #211d1a; text-decoration: none; background: #eee6db; padding-bottom: 24px; }
+.landing-occasion-card img { display: block; width: 100%; height: 245px; object-fit: cover; margin-bottom: 21px; transition: filter .4s ease; }
+.landing-occasion-card > span, .landing-occasion-card h3, .landing-occasion-card strong { margin-left: 22px; margin-right: 22px; }
+.landing-occasion-card > span { color: #9d5f4d; }
+.landing-occasion-card h3 { margin-top: 11px; margin-bottom: 16px; font: 500 clamp(22px, 2.3vw, 30px)/1.2 "Playfair Display", Georgia, serif; }
+.landing-occasion-card strong { display: inline-block; color: #9d5f4d; }
+.landing-occasion-card:hover img { filter: saturate(1.06); }
+@media (max-width: 760px) {
+  .landing-seasonal { padding: 65px 20px 72px; }
+  .landing-seasonal-heading { text-align: left; margin-bottom: 28px; }
+  .landing-seasonal-heading h2 { font-size: clamp(46px, 12vw, 66px); }
+  .landing-seasonal-banner { min-height: 360px; }
+  .landing-seasonal-overlay { background: linear-gradient(0deg, rgba(25,20,17,.8), rgba(25,20,17,.08)); }
+  .landing-seasonal-copy { padding: 25px; }
+  .landing-occasion-row { grid-template-columns: 1fr; gap: 16px; }
+  .landing-occasion-card { display: grid; grid-template-columns: 120px 1fr; padding: 0 14px 15px 0; column-gap: 16px; align-items: start; }
+  .landing-occasion-card img { grid-row: span 3; width: 120px; height: 140px; margin: 0; }
+  .landing-occasion-card > span, .landing-occasion-card h3, .landing-occasion-card strong { margin-left: 0; margin-right: 0; }
+  .landing-occasion-card > span { padding-top: 12px; }
+  .landing-occasion-card h3 { font-size: 21px; margin-top: 8px; margin-bottom: 10px; }
+}
