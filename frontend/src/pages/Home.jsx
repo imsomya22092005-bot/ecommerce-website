@@ -841,7 +841,7 @@ function Home() {
         className="style-edit-card style-edit-one"
       >
         <img
-                src="https://images.unsplash.com/photo-1529139574466-a303027c1d8b?auto=format&fit=crop&w=1200&q=85"
+                src="https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&w=1200&q=85"
           alt="Men collection"
         />
         <div className="style-edit-overlay"></div>
