@@ -224,7 +224,10 @@ function Checkout() {
 
   const discountAmount = Number(appliedCoupon?.discountAmount) || 0;
 
-  const total = Math.max(0, subtotal - discountAmount);
+  // Prefer the backend's validated final amount when available.
+  const total = appliedCoupon?.totalAmount != null
+    ? Number(appliedCoupon.totalAmount)
+    : Math.max(0, subtotal - discountAmount);
 
   // =========================
   // APPLY COUPON
@@ -260,7 +263,7 @@ function Checkout() {
 
       const data = await response.json();
 
-      if (!response.ok || !data?.success) {
+      if (!response.ok || data?.success === false) {
         throw new Error(
           data?.message ||
             (language === "Hindi"
@@ -271,14 +274,21 @@ function Checkout() {
 
       const pricing = data?.pricing || {};
       const discount = Number(
-        pricing.discountAmount ?? pricing.discount ?? 0
+        data?.discountAmount ??
+        pricing.discountAmount ??
+        pricing.discount ??
+        0
       );
+      const finalAmount = data?.totalAmount ?? pricing.totalAmount ?? pricing.finalAmount;
+      const originalAmount = data?.subtotalAmount ?? pricing.subtotalAmount ?? pricing.subtotal;
 
       setAppliedCoupon({
-        code: data?.coupon?.code || code,
+        code: data?.coupon?.code || data?.couponCode || code,
         discountAmount: discount,
+        totalAmount: finalAmount != null ? Number(finalAmount) : undefined,
+        subtotalAmount: originalAmount != null ? Number(originalAmount) : undefined,
         type: data?.coupon?.type || "percentage",
-        value: Number(data?.coupon?.value) || 0,
+        value: Number(data?.coupon?.value) || 20,
       });
 
       setCouponCode("");
