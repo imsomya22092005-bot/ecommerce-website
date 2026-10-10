@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { useLanguage } from "../LanguageContext";
 import API_URL from "../api";
+import translateCategory from "../utils/translateCategory";
 
 const categoryVisuals = {
   Home:
@@ -22,24 +23,6 @@ const categoryVisuals = {
     "https://images.unsplash.com/photo-1483985988355-763728e1935b?auto=format&fit=crop&w=180&q=80",
   "About Us":
     "https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?auto=format&fit=crop&w=180&q=80",
-};
-
-const categoryTranslations = {
-  Hindi: {
-    Home: "होम",
-    Men: "मेन्स",
-    Women: "विमेन्स",
-    Accessories: "एक्सेसरीज़",
-    Footwear: "फुटवियर",
-    Fashion: "फैशन",
-    Electronics: "इलेक्ट्रॉनिक्स",
-    Smartphones: "स्मार्टफोन",
-    Laptops: "लैपटॉप",
-    Audio: "ऑडियो",
-    Beauty: "ब्यूटी",
-    Home: "होम",
-  },
-  English: {},
 };
 
 function CategoryIcon({ name }) {
@@ -107,7 +90,7 @@ function CategoryBar() {
         >
           <CategoryIcon name={category} />
           <small>
-            {categoryTranslations[language]?.[category] || category}
+            {translateCategory(category, language)}
           </small>
         </Link>
       ))}
