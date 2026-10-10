@@ -3,6 +3,7 @@ import { useState } from "react";
 import { useLanguage } from "../LanguageContext";
 import API_URL from "../api";
 import { getDisplayCategory } from "../utils/productCategory";
+import translateCategory from "../utils/translateCategory";
 
 function ProductCard({ product }) {
   const { language } = useLanguage();
@@ -10,7 +11,7 @@ function ProductCard({ product }) {
   const [toastMessage, setToastMessage] = useState("");
 
   const productId = product._id || product.id;
-  const displayCategory = getDisplayCategory(product);
+  const displayCategory = translateCategory(getDisplayCategory(product), language);
 
   const handleAddToCart = async () => {
     const token = localStorage.getItem("authToken");
@@ -123,7 +124,7 @@ function ProductCard({ product }) {
           ★ {Number(product.rating || 0).toFixed(1)}
           {" "}
           <span style={{ color: "#777" }}>
-            ({Number(product.reviewCount || 0)} reviews)
+            ({Number(product.reviewCount || 0)} {language === "Hindi" ? "रिव्यू" : "reviews"})
           </span>
         </p>
 
