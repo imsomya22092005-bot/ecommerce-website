@@ -10,6 +10,8 @@ import {
   Heart,
   Menu,
   X,
+  Sun,
+  Moon,
 } from "lucide-react";
 
 import {
@@ -18,6 +20,7 @@ import {
 } from "react";
 
 import { useLanguage } from "../LanguageContext";
+import { useTheme } from "../ThemeContext";
 import API_URL from "../api";
 import CategoryBar from "./CategoryBar";
 
@@ -129,6 +132,8 @@ function Navbar() {
 
   const t =
     translations[language];
+
+  const { theme, toggleTheme } = useTheme();
 
   const navigate =
     useNavigate();
@@ -543,21 +548,30 @@ function Navbar() {
           </span>
 
           <select
+            className="language-select"
+            aria-label={language === "Hindi" ? "भाषा चुनें" : "Choose language"}
             value={language}
-            onChange={(e) =>
-              setLanguage(
-                e.target.value
-              )
-            }
+            onChange={(e) => setLanguage(e.target.value)}
           >
-            <option value="English">
-              English
-            </option>
-
-            <option value="Hindi">
-              हिंदी
-            </option>
+            <option value="English">English</option>
+            <option value="Hindi">हिंदी</option>
           </select>
+
+          <button
+            type="button"
+            className={"theme-switch " + (theme === "dark" ? "is-dark" : "")}
+            onClick={toggleTheme}
+            role="switch"
+            aria-checked={theme === "dark"}
+            aria-label={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
+            title={theme === "dark" ? "Light mode" : "Dark mode"}
+          >
+            <span className="theme-switch-thumb">
+              {theme === "dark"
+                ? <Moon size={14} strokeWidth={2} />
+                : <Sun size={14} strokeWidth={2} />}
+            </span>
+          </button>
 
         </div>
 
