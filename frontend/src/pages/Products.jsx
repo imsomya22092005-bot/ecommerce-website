@@ -5,6 +5,7 @@ import { useLanguage } from "../LanguageContext";
 import ProductCard from "../components/ProductCard";
 import API_URL from "../api";
 import { getDisplayCategory } from "../utils/productCategory";
+import translateCategory from "../utils/translateCategory";
 
 const PRODUCTS_PER_PAGE = 8;
 
@@ -1009,6 +1010,9 @@ function Products() {
       ? "अपनी स्टाइल खोजें"
       : "Discover Your Style");
 
+  // Keep original category values for filtering; translate only display text.
+  const displayPageTitle = translateCategory(pageTitle, language);
+
   /* =========================================================
      UI
   ========================================================= */
@@ -1029,14 +1033,14 @@ function Products() {
         </p>
 
         <h1>
-          {pageTitle}
+          {displayPageTitle}
         </h1>
 
         <p>
           {groupTitle
             ? language === "Hindi"
-              ? `${pageTitle} के सभी प्रोडक्ट्स देखें।`
-              : `Explore all products in ${pageTitle}.`
+              ? `${displayPageTitle} के सभी प्रोडक्ट्स देखें।`
+              : `Explore all products in ${displayPageTitle}.`
             : language === "Hindi"
             ? "हमारे खास चुने गए प्रोडक्ट्स का कलेक्शन देखें।"
             : "Explore our carefully selected collection of products."}
@@ -1083,7 +1087,7 @@ function Products() {
                 key={item}
                 value={item}
               >
-                {item}
+                {translateCategory(item, language)}
               </option>
             )
           )}
@@ -1178,7 +1182,7 @@ function Products() {
                 letterSpacing: "0.7px",
               }}
             >
-              {groupTitle.toUpperCase()}
+              {translateCategory(groupTitle, language).toUpperCase()}
             </span>
           )}
         </div>
