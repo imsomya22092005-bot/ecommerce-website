@@ -1,5 +1,6 @@
 import API_URL from "../api";
 import { getDisplayCategory } from "../utils/productCategory";
+import translateCategory from "../utils/translateCategory";
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { useLanguage } from "../LanguageContext";
@@ -657,7 +658,7 @@ function Home() {
                   product.id;
 
                 const displayCategory =
-                  getDisplayCategory(product);
+                  translateCategory(getDisplayCategory(product), language);
 
                 return (
                   <Link
@@ -824,7 +825,7 @@ function Home() {
 
       <p className="style-edit-intro">
         {language === "Hindi"
-          ? "आज आप कैसा महसूस कर रहे हैं? उसी के हिसाब से अपना अगला favourite खोजें।"
+          ? "आज आप कैसा महसूस कर रहे हैं? उसी के हिसाब से अपनी अगली पसंद खोजें।"
           : "What are you feeling today? Discover your next favourite by mood, taste and lifestyle."}
       </p>
 
@@ -875,7 +876,7 @@ function Home() {
             <h3>{language === "Hindi" ? "महिलाओं का स्टाइल" : "Women"}</h3>
             <p>
               {language === "Hindi"
-                ? "हर दिन के लिए खूबसूरत और modern styles।"
+                ? "हर दिन के लिए खूबसूरत और आधुनिक स्टाइल।"
                 : "Beautiful modern styles for every day."}
             </p>
           </div>
@@ -899,7 +900,7 @@ function Home() {
             <h3>{language === "Hindi" ? "फुटवियर" : "Footwear"}</h3>
             <p>
               {language === "Hindi"
-                ? "स्टाइल और comfort का perfect mix।"
+                ? "स्टाइल और आराम का बेहतरीन मेल।"
                 : "The perfect mix of style and comfort."}
             </p>
           </div>
@@ -923,7 +924,7 @@ function Home() {
             <h3>{language === "Hindi" ? "नए प्रोडक्ट्स" : "New Arrivals"}</h3>
             <p>
               {language === "Hindi"
-                ? "सबसे नए products और fresh picks।"
+                ? "सबसे नए प्रोडक्ट्स और खास पसंद।"
                 : "Fresh styles and the latest picks."}
             </p>
           </div>
@@ -947,7 +948,7 @@ function Home() {
             <h3>{language === "Hindi" ? "बेस्ट सेलर्स" : "Best Sellers"}</h3>
             <p>
               {language === "Hindi"
-                ? "सबसे पसंद किए जाने वाले picks।"
+                ? "सबसे ज़्यादा पसंद किए जाने वाले प्रोडक्ट्स।"
                 : "Popular picks worth discovering."}
             </p>
           </div>
@@ -971,7 +972,7 @@ function Home() {
             <h3>{language === "Hindi" ? "कलेक्शंस" : "Collections"}</h3>
             <p>
               {language === "Hindi"
-                ? "ShopSphere की पूरी collection explore करें।"
+                ? "ShopSphere का पूरा कलेक्शन देखें।"
                 : "Explore the complete ShopSphere collection."}
             </p>
           </div>
@@ -993,11 +994,11 @@ function Home() {
         <div className="home-notes-heading">
           <div>
             <p className="section-label">
-              {language === "Hindi" ? "SHOPSPHERE NOTES" : "SHOPSPHERE NOTES"}
+              {language === "Hindi" ? "SHOPSPHERE की बातें" : "SHOPSPHERE NOTES"}
             </p>
             <h2>
               {language === "Hindi"
-                ? "Shopping के बीच"
+                ? "खरीदारी से थोड़ा आगे"
                 : "A little more"}
               <em>
                 {language === "Hindi" ? " थोड़ा और।" : " than shopping."}
@@ -1019,9 +1020,9 @@ function Home() {
             />
             <div className="home-note-overlay" />
             <div className="home-note-copy">
-              <span>01 / COLLECTIONS</span>
+              <span>{language === "Hindi" ? "01 / कलेक्शन्स" : "01 / COLLECTIONS"}</span>
               <h3>{language === "Hindi" ? "अपना अगला edit चुनें।" : "Choose your next edit."}</h3>
-              <strong>EXPLORE →</strong>
+              <strong>{language === "Hindi" ? "देखें →" : "EXPLORE →"}</strong>
             </div>
           </Link>
 
@@ -1032,9 +1033,9 @@ function Home() {
             />
             <div className="home-note-overlay" />
             <div className="home-note-copy">
-              <span>02 / JOURNAL</span>
-              <h3>{language === "Hindi" ? "थोड़ा inspiration." : "A little inspiration."}</h3>
-              <strong>READ →</strong>
+              <span>{language === "Hindi" ? "02 / जर्नल" : "02 / JOURNAL"}</span>
+              <h3>{language === "Hindi" ? "थोड़ी प्रेरणा।" : "A little inspiration."}</h3>
+              <strong>{language === "Hindi" ? "पढ़ें →" : "READ →"}</strong>
             </div>
           </Link>
 
@@ -1045,9 +1046,9 @@ function Home() {
             />
             <div className="home-note-overlay" />
             <div className="home-note-copy">
-              <span>03 / ABOUT</span>
+              <span>{language === "Hindi" ? "03 / हमारे बारे में" : "03 / ABOUT"}</span>
               <h3>{language === "Hindi" ? "हमारे पीछे की सोच।" : "The thinking behind it."}</h3>
-              <strong>DISCOVER →</strong>
+              <strong>{language === "Hindi" ? "जानें →" : "DISCOVER →"}</strong>
             </div>
           </Link>
         </div>
