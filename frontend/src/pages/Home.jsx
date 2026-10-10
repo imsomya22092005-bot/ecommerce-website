@@ -994,7 +994,7 @@ function Home() {
         <div className="home-notes-heading">
           <div>
             <p className="section-label">
-              {language === "Hindi" ? "SHOPSPHERE की बातें" : "SHOPSPHERE NOTES"}
+              {language === "Hindi" ? "SHOPSPHERE की कहानियाँ" : "SHOPSPHERE NOTES"}
             </p>
             <h2>
               {language === "Hindi"
@@ -1007,7 +1007,7 @@ function Home() {
           </div>
           <p>
             {language === "Hindi"
-              ? "Style inspiration, curated collections और ShopSphere की छोटी stories — सब एक जगह।"
+              ? "स्टाइल के सुझाव, खास कलेक्शन और ShopSphere की छोटी-छोटी कहानियाँ — सब एक जगह।"
               : "Style inspiration, curated collections and small ShopSphere stories, all in one place."}
           </p>
         </div>
@@ -1021,7 +1021,7 @@ function Home() {
             <div className="home-note-overlay" />
             <div className="home-note-copy">
               <span>{language === "Hindi" ? "01 / कलेक्शन्स" : "01 / COLLECTIONS"}</span>
-              <h3>{language === "Hindi" ? "अपना अगला edit चुनें।" : "Choose your next edit."}</h3>
+              <h3>{language === "Hindi" ? "अपनी अगली पसंद चुनें।" : "Choose your next edit."}</h3>
               <strong>{language === "Hindi" ? "देखें →" : "EXPLORE →"}</strong>
             </div>
           </Link>
