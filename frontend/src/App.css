@@ -14460,3 +14460,38 @@ body.dark-theme .checkout-page .place-order-btn:hover {
   background: #e9bd87 !important;
   color: #21170f !important;
 }
+
+
+/* NAVBAR DELIVERY ADDRESS — readable in dark mode and easy to change. */
+body.dark-theme .shop-navbar .shop-delivery-location,
+body.dark-theme .shop-navbar .shop-delivery-location label {
+  color: #f5eee5 !important;
+}
+
+body.dark-theme .shop-navbar .shop-delivery-location {
+  background: #211f1b !important;
+  border-color: #443a30 !important;
+}
+
+body.dark-theme .shop-navbar .shop-delivery-select {
+  color: #f5eee5 !important;
+  background-color: #29251f !important;
+  border: 1px solid #5a4a39 !important;
+  border-radius: 6px;
+  color-scheme: dark;
+}
+
+body.dark-theme .shop-navbar .shop-delivery-select option {
+  color: #f5eee5 !important;
+  background: #211f1b !important;
+}
+
+body.dark-theme .shop-navbar .shop-delivery-select:focus-visible {
+  outline: 2px solid #d9ad75 !important;
+  outline-offset: 2px;
+}
+
+/* Preserve legibility of the delivery label in light mode as well. */
+.shop-navbar .shop-delivery-label {
+  color: inherit;
+}
