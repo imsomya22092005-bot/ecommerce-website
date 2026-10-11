@@ -14224,3 +14224,89 @@ body.dark-theme .more-dropdown button:hover {
   background: #493a2c !important;
   color: #fffaf3 !important;
 }
+
+
+/* Targeted dark surfaces requested: nav categories, home sections, cart quantity, empty orders. */
+body.dark-theme .shop-categorybar {
+  background: #201e1b !important;
+  border-color: #40382f !important;
+}
+body.dark-theme .shop-categorybar .shop-category {
+  background: #29251f !important;
+  color: #f5eee5 !important;
+  border: 1px solid #443a30 !important;
+  border-radius: 9px !important;
+}
+body.dark-theme .shop-categorybar .shop-category small,
+body.dark-theme .shop-categorybar .shop-category svg {
+  color: #f5eee5 !important;
+  stroke: #f5eee5 !important;
+}
+body.dark-theme .shop-categorybar .shop-category:hover,
+body.dark-theme .shop-categorybar .shop-category:focus-visible {
+  background: #493a2c !important;
+  color: #fffaf3 !important;
+}
+body.dark-theme .quality-section,
+body.dark-theme .quality-products,
+body.dark-theme .features-section,
+body.dark-theme .features-strip,
+body.dark-theme .feature,
+body.dark-theme .feature > div,
+body.dark-theme .categories-section,
+body.dark-theme .categories-section .section-heading,
+body.dark-theme .categories-section .category-card,
+body.dark-theme .categories-section .category-card-content,
+body.dark-theme .new-arrivals-section,
+body.dark-theme .new-arrivals-section .section-heading,
+body.dark-theme .new-arrivals-section .product-card,
+body.dark-theme .new-arrivals-section .product-info {
+  background-color: #171614 !important;
+  color: #f5eee5 !important;
+  border-color: #40382f !important;
+}
+body.dark-theme .feature strong,
+body.dark-theme .feature p,
+body.dark-theme .section-heading h2,
+body.dark-theme .section-heading .section-label,
+body.dark-theme .category-card-content h3,
+body.dark-theme .category-card-content p,
+body.dark-theme .new-arrivals-section h2,
+body.dark-theme .new-arrivals-section .section-label,
+body.dark-theme .new-arrivals-section .text-link {
+  color: #f5eee5 !important;
+}
+body.dark-theme .category-card-content {
+  background: linear-gradient(180deg, transparent 0%, rgba(18,17,15,.88) 100%) !important;
+}
+body.dark-theme .quantity-controls {
+  background: #29251f !important;
+  border: 1px solid #5a4a39 !important;
+  border-radius: 999px !important;
+}
+body.dark-theme .quantity-controls button {
+  background: #393027 !important;
+  color: #fff3e4 !important;
+  border-color: #6e563e !important;
+}
+body.dark-theme .quantity-controls span {
+  background: transparent !important;
+  color: #fff7ee !important;
+}
+body.dark-theme .orders-empty {
+  background: #211f1b !important;
+  color: #f5eee5 !important;
+  border: 1px solid #443a30 !important;
+  border-radius: 16px !important;
+}
+body.dark-theme .orders-empty h2,
+body.dark-theme .orders-empty p {
+  color: #f5eee5 !important;
+}
+body.dark-theme .orders-empty p {
+  color: #c8bcae !important;
+}
+body.dark-theme .orders-empty .orders-empty-icon {
+  background: #30271f !important;
+  color: #f5eee5 !important;
+}
