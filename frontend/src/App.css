@@ -14391,3 +14391,72 @@ body.dark-theme .profile-page .profile-quick-card:hover {
 body.dark-theme .profile-page .profile-quick-card:hover :is(span,h3,svg) {
   color: #fff7ee !important;
 }
+
+
+/* CHECKOUT PAGE — keep every form surface dark when dark mode is active. */
+body.dark-theme .checkout-page .checkout-form,
+body.dark-theme .checkout-page .checkout-summary,
+body.dark-theme .checkout-page .checkout-fields,
+body.dark-theme .checkout-page .form-group,
+body.dark-theme .checkout-page .payment-option,
+body.dark-theme .checkout-page .checkout-product,
+body.dark-theme .checkout-page .checkout-product > div {
+  background: #211f1b !important;
+  background-color: #211f1b !important;
+  color: #f5eee5 !important;
+  border-color: #443a30 !important;
+}
+
+body.dark-theme .checkout-page .checkout-form h2,
+body.dark-theme .checkout-page .checkout-summary h2,
+body.dark-theme .checkout-page .form-group label,
+body.dark-theme .checkout-page .payment-option strong,
+body.dark-theme .checkout-page .checkout-product strong,
+body.dark-theme .checkout-page .checkout-product span {
+  color: #f5eee5 !important;
+}
+
+body.dark-theme .checkout-page input,
+body.dark-theme .checkout-page select,
+body.dark-theme .checkout-page textarea,
+body.dark-theme .checkout-page .form-group input,
+body.dark-theme .checkout-page .form-group textarea {
+  background: #29251f !important;
+  background-color: #29251f !important;
+  color: #fff7ee !important;
+  border: 1px solid #5a4a39 !important;
+  box-shadow: none !important;
+}
+
+body.dark-theme .checkout-page input::placeholder,
+body.dark-theme .checkout-page textarea::placeholder {
+  color: #c8b9a8 !important;
+  opacity: 1;
+}
+
+body.dark-theme .checkout-page .payment-option span,
+body.dark-theme .checkout-page .summary-row,
+body.dark-theme .checkout-page .checkout-summary p {
+  color: #c8b9a8 !important;
+}
+
+body.dark-theme .checkout-page .summary-row span:last-child,
+body.dark-theme .checkout-page .summary-total,
+body.dark-theme .checkout-page .summary-total strong {
+  color: #f5eee5 !important;
+}
+
+body.dark-theme .checkout-page .summary-line {
+  background: #443a30 !important;
+}
+
+body.dark-theme .checkout-page .place-order-btn {
+  background: #d9ad75 !important;
+  color: #21170f !important;
+  border-color: #d9ad75 !important;
+}
+
+body.dark-theme .checkout-page .place-order-btn:hover {
+  background: #e9bd87 !important;
+  color: #21170f !important;
+}
