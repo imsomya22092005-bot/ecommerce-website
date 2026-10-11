@@ -14310,3 +14310,84 @@ body.dark-theme .orders-empty .orders-empty-icon {
   background: #30271f !important;
   color: #f5eee5 !important;
 }
+
+
+/* PROFILE PAGE — remove leftover white cards in dark mode */
+body.dark-theme .profile-page,
+body.dark-theme .profile-page .profile-hero,
+body.dark-theme .profile-page .profile-main,
+body.dark-theme .profile-page .profile-user-card,
+body.dark-theme .profile-page .profile-details-card,
+body.dark-theme .profile-page .profile-quick-section,
+body.dark-theme .profile-page .profile-quick-card,
+body.dark-theme .profile-page .profile-logout-section,
+body.dark-theme .profile-page .profile-detail-item,
+body.dark-theme .profile-page .profile-card-heading,
+body.dark-theme .profile-page .profile-user-heading,
+body.dark-theme .profile-page .profile-login-state,
+body.dark-theme .profile-page .profile-loading {
+  background: #211f1b !important;
+  background-color: #211f1b !important;
+  color: #f5eee5 !important;
+  border-color: #443a30 !important;
+  box-shadow: 0 10px 30px rgba(0,0,0,.18);
+}
+
+body.dark-theme .profile-page .profile-hero {
+  background: linear-gradient(135deg, #29231d, #171614) !important;
+}
+
+body.dark-theme .profile-page .profile-user-card,
+body.dark-theme .profile-page .profile-details-card,
+body.dark-theme .profile-page .profile-quick-section,
+body.dark-theme .profile-page .profile-quick-card,
+body.dark-theme .profile-page .profile-logout-section {
+  border: 1px solid #443a30 !important;
+  border-radius: 16px;
+}
+
+body.dark-theme .profile-page :is(h1,h2,h3,h4,p,span,strong,label,small,div,a) {
+  color: #f5eee5;
+}
+
+body.dark-theme .profile-page .profile-mini-label,
+body.dark-theme .profile-page .profile-detail-item > span,
+body.dark-theme .profile-page .profile-quick-card > span,
+body.dark-theme .profile-page .profile-user-role,
+body.dark-theme .profile-page .profile-logout-section > div > p:last-child,
+body.dark-theme .profile-page .profile-hero-text {
+  color: #c8bcae !important;
+}
+
+body.dark-theme .profile-page .profile-avatar-large,
+body.dark-theme .profile-page .profile-quick-icon,
+body.dark-theme .profile-page .profile-login-icon {
+  background: #393027 !important;
+  color: #f5eee5 !important;
+  border-color: #6e563e !important;
+}
+
+body.dark-theme .profile-page .profile-card-heading > svg,
+body.dark-theme .profile-page .profile-quick-card > svg {
+  color: #e9bd87 !important;
+}
+
+body.dark-theme .profile-page .profile-status {
+  color: #9ee0ae !important;
+}
+
+body.dark-theme .profile-page .profile-primary-btn,
+body.dark-theme .profile-page .profile-logout-btn {
+  background: #d9ad75 !important;
+  color: #21170f !important;
+  border-color: #d9ad75 !important;
+}
+
+body.dark-theme .profile-page .profile-quick-card:hover {
+  background: #30271f !important;
+  border-color: #8a7055 !important;
+}
+
+body.dark-theme .profile-page .profile-quick-card:hover :is(span,h3,svg) {
+  color: #fff7ee !important;
+}
