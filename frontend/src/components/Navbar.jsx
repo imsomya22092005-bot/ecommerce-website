@@ -179,6 +179,19 @@ function Navbar() {
       }
     });
 
+  const [deliveryAddresses, setDeliveryAddresses] = useState(() => {
+    try {
+      const saved = JSON.parse(localStorage.getItem("shopSphereDeliveryAddresses") || "[]");
+      const current = JSON.parse(localStorage.getItem("shopSphereDeliveryAddress") || "null");
+      return current && Array.isArray(saved) && !saved.some((item) =>
+        item.address === current.address && item.pincode === current.pincode &&
+        item.city === current.city && item.fullName === current.fullName
+      ) ? [current, ...saved] : (Array.isArray(saved) ? saved : (current ? [current] : []));
+    } catch {
+      return [];
+    }
+  });
+
   /* =======================================================
      LOAD CART COUNT
   ======================================================= */
@@ -358,22 +371,50 @@ function Navbar() {
         ? data.orders
         : [];
 
-      if (!orders.length) return;
+      const uniqueAddresses = [];
+      const seenAddresses = new Set();
 
-      const latestOrder = [...orders].sort(
-        (a, b) =>
+      [...orders]
+        .sort((a, b) =>
           new Date(b.createdAt || 0).getTime() -
           new Date(a.createdAt || 0).getTime()
-      )[0];
+        )
+        .forEach((order) => {
+          const address = order?.shippingAddress;
+          if (!address) return;
+          const key = [
+            address.fullName, address.address, address.city,
+            address.state, address.pincode, address.phone
+          ].map((part) => String(part || "").trim().toLowerCase()).join("|");
+          if (!key.replace(/\|/g, "" ) || seenAddresses.has(key)) return;
+          seenAddresses.add(key);
+          uniqueAddresses.push(address);
+        });
 
-      const address = latestOrder?.shippingAddress;
+      const savedCurrent = (() => {
+        try {
+          return JSON.parse(localStorage.getItem("shopSphereDeliveryAddress") || "null");
+        } catch {
+          return null;
+        }
+      })();
 
-      if (address) {
-        setDeliveryAddress(address);
-        localStorage.setItem(
-          "shopSphereDeliveryAddress",
-          JSON.stringify(address)
-        );
+      if (savedCurrent) {
+        const key = [
+          savedCurrent.fullName, savedCurrent.address, savedCurrent.city,
+          savedCurrent.state, savedCurrent.pincode, savedCurrent.phone
+        ].map((part) => String(part || "").trim().toLowerCase()).join("|");
+        if (!seenAddresses.has(key)) uniqueAddresses.unshift(savedCurrent);
+      }
+
+      setDeliveryAddresses(uniqueAddresses);
+      localStorage.setItem("shopSphereDeliveryAddresses", JSON.stringify(uniqueAddresses));
+
+      if (uniqueAddresses.length && !savedCurrent) {
+        setDeliveryAddress(uniqueAddresses[0]);
+        localStorage.setItem("shopSphereDeliveryAddress", JSON.stringify(uniqueAddresses[0]));
+      } else if (savedCurrent) {
+        setDeliveryAddress(savedCurrent);
       }
     } catch (error) {
       console.error(
@@ -594,52 +635,38 @@ function Navbar() {
         </Link>
 
         {userName && deliveryAddress && (
-          <div
-            className="shop-delivery-location"
-            title={
-              deliveryAddress.address
-                ? deliveryAddress.address
-                : "Delivery address"
-            }
-            style={{
-              flexShrink: 0,
-              display: "flex",
-              flexDirection: "column",
-              justifyContent: "center",
-              minWidth: "135px",
-              maxWidth: "190px",
-              lineHeight: 1.15,
-              marginLeft: "-12px",
-              marginRight: "-10px",
-            }}
-          >
-            <span
-              style={{
-                fontSize: "10px",
-                color: "#77716c",
-                whiteSpace: "nowrap",
+          <div className="shop-delivery-location">
+            <label className="shop-delivery-label" htmlFor="shop-delivery-address">
+              {language === "Hindi" ? "डिलीवर करें: " + userName : "Deliver to " + userName}
+            </label>
+            <select
+              id="shop-delivery-address"
+              className="shop-delivery-select"
+              value={deliveryAddresses.findIndex((address) =>
+                address.address === deliveryAddress.address &&
+                address.pincode === deliveryAddress.pincode &&
+                address.city === deliveryAddress.city &&
+                address.fullName === deliveryAddress.fullName
+              )}
+              title={deliveryAddress.address || "Delivery address"}
+              aria-label={language === "Hindi" ? "डिलीवरी पता बदलें" : "Change delivery address"}
+              onChange={(event) => {
+                const selected = deliveryAddresses[Number(event.target.value)];
+                if (!selected) return;
+                setDeliveryAddress(selected);
+                localStorage.setItem("shopSphereDeliveryAddress", JSON.stringify(selected));
+                window.dispatchEvent(new Event("deliveryUpdated"));
               }}
             >
-              {language === "Hindi"
-                ? "डिलीवर करें: " + userName
-                : "Deliver to " + userName}
-            </span>
-
-            <strong
-              style={{
-                marginTop: "3px",
-                fontSize: "11px",
-                color: "#211e1b",
-                whiteSpace: "nowrap",
-                overflow: "hidden",
-                textOverflow: "ellipsis",
-              }}
-            >
-              {deliveryAddress.city || "—"}
-              {deliveryAddress.pincode
-                ? " " + deliveryAddress.pincode
-                : ""}
-            </strong>
+              {deliveryAddresses.map((address, index) => (
+                <option value={index} key={[
+                  address.address, address.city, address.pincode, index
+                ].join("-")}>
+                  {(address.city || "Address") + (address.pincode ? " " + address.pincode : "")}
+                  {address.address ? " · " + address.address : ""}
+                </option>
+              ))}
+            </select>
           </div>
         )}
 
