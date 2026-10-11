@@ -13980,3 +13980,247 @@ body.dark-theme .theme-switch {
     transition-duration: .01ms !important;
   }
 }
+
+
+/* =========================================
+   DARK MODE READABILITY PATCH — all routes
+   ========================================= */
+body.dark-theme .help-page,
+body.dark-theme .help-hero,
+body.dark-theme .help-content,
+body.dark-theme .help-title,
+body.dark-theme .faq-list,
+body.dark-theme .faq-item,
+body.dark-theme .faq-question,
+body.dark-theme .faq-answer,
+body.dark-theme .help-contact-box {
+  background: #1b1916 !important;
+  color: #f5eee5 !important;
+  border-color: #443a30 !important;
+}
+body.dark-theme .faq-item {
+  border: 1px solid #443a30 !important;
+  border-radius: 12px;
+  overflow: hidden;
+}
+body.dark-theme .faq-question,
+body.dark-theme .faq-question *,
+body.dark-theme .faq-answer,
+body.dark-theme .faq-answer *,
+body.dark-theme .help-page h1,
+body.dark-theme .help-page h2,
+body.dark-theme .help-page h3,
+body.dark-theme .help-page p,
+body.dark-theme .help-page span,
+body.dark-theme .help-page button {
+  color: #f5eee5 !important;
+}
+body.dark-theme .faq-question:hover,
+body.dark-theme .faq-question[aria-expanded="true"] {
+  background: #30271f !important;
+}
+body.dark-theme .help-contact-box a,
+body.dark-theme .help-page a {
+  color: #e9bd87 !important;
+}
+
+/* Cart, checkout and account surfaces must not remain white. */
+body.dark-theme .cart-page,
+body.dark-theme .empty-cart,
+body.dark-theme .cart-layout,
+body.dark-theme .cart-items,
+body.dark-theme .cart-item,
+body.dark-theme .cart-item-info,
+body.dark-theme .cart-summary,
+body.dark-theme .summary-row,
+body.dark-theme .summary-total,
+body.dark-theme .cart-page section,
+body.dark-theme .cart-page aside,
+body.dark-theme .checkout-page,
+body.dark-theme .checkout-container,
+body.dark-theme .checkout-card,
+body.dark-theme .checkout-summary,
+body.dark-theme .order-summary,
+body.dark-theme .auth-page,
+body.dark-theme .auth-container,
+body.dark-theme .auth-intro,
+body.dark-theme .auth-card,
+body.dark-theme .auth-tabs,
+body.dark-theme .form-group,
+body.dark-theme .welcome-popup,
+body.dark-theme .profile-page,
+body.dark-theme .profile-card,
+body.dark-theme .orders-page,
+body.dark-theme .order-card,
+body.dark-theme .wishlist-page,
+body.dark-theme .wishlist-card {
+  background: #1b1916 !important;
+  color: #f5eee5 !important;
+  border-color: #443a30 !important;
+}
+body.dark-theme .cart-page :is(h1,h2,h3,h4,p,span,label,strong,small,div),
+body.dark-theme .empty-cart :is(h1,h2,h3,h4,p,span,label,strong,small),
+body.dark-theme .auth-page :is(h1,h2,h3,h4,p,span,label,strong,small),
+body.dark-theme .checkout-page :is(h1,h2,h3,h4,p,span,label,strong,small),
+body.dark-theme .orders-page :is(h1,h2,h3,h4,p,span,label,strong,small),
+body.dark-theme .wishlist-page :is(h1,h2,h3,h4,p,span,label,strong,small) {
+  color: #f5eee5;
+}
+body.dark-theme .cart-item-title-link,
+body.dark-theme .auth-switch a,
+body.dark-theme .cart-page a,
+body.dark-theme .checkout-page a,
+body.dark-theme .orders-page a {
+  color: #e9bd87 !important;
+}
+body.dark-theme .cart-page input,
+body.dark-theme .cart-page select,
+body.dark-theme .auth-page input,
+body.dark-theme .auth-page select,
+body.dark-theme .auth-page textarea,
+body.dark-theme .checkout-page input,
+body.dark-theme .checkout-page select,
+body.dark-theme .checkout-page textarea {
+  background: #29251f !important;
+  color: #fff7ee !important;
+  border-color: #5a4a39 !important;
+}
+body.dark-theme .cart-page button:not(.checkout-btn):not(.remove-item),
+body.dark-theme .auth-tabs button {
+  color: #f5eee5;
+}
+body.dark-theme .cart-page .checkout-btn,
+body.dark-theme .auth-page .auth-submit,
+body.dark-theme .welcome-popup .welcome-button {
+  background: #d9ad75 !important;
+  color: #21170f !important;
+  border-color: #d9ad75 !important;
+}
+
+/* Track order includes inline light-mode styles, so override its actual classes. */
+body.dark-theme .track-page,
+body.dark-theme .track-content,
+body.dark-theme .track-form-card,
+body.dark-theme .tracking-result,
+body.dark-theme .track-order-meta,
+body.dark-theme .track-order-meta-card,
+body.dark-theme .shipment-history,
+body.dark-theme .shipment-history-header,
+body.dark-theme .shipment-item,
+body.dark-theme .shipment-info,
+body.dark-theme .track-cancelled {
+  background: #1b1916 !important;
+  color: #f5eee5 !important;
+  border-color: #443a30 !important;
+}
+body.dark-theme .track-page :is(h1,h2,h3,h4,p,span,label,strong,small,div),
+body.dark-theme .track-order-meta-card span,
+body.dark-theme .track-order-meta-card strong,
+body.dark-theme .shipment-info *,
+body.dark-theme .shipment-history-header * {
+  color: #f5eee5 !important;
+}
+body.dark-theme .track-page input,
+body.dark-theme .track-page select {
+  background: #29251f !important;
+  color: #fff7ee !important;
+  border-color: #5a4a39 !important;
+}
+body.dark-theme .track-page .track-order-meta-card span,
+body.dark-theme .track-page .track-muted,
+body.dark-theme .track-page .shipment-location {
+  color: #c8b9a8 !important;
+}
+body.dark-theme .track-page .orders-shop-btn {
+  background: #d9ad75 !important;
+  color: #21170f !important;
+}
+
+/* Landing-page buttons, editorial text, and orbit logo need contrast too. */
+body.dark-theme .landing-page,
+body.dark-theme .landing-intro,
+body.dark-theme .landing-why,
+body.dark-theme .landing-editorial,
+body.dark-theme .landing-discover,
+body.dark-theme .landing-final,
+body.dark-theme .landing-seasonal,
+body.dark-theme .seasonal-manifesto {
+  background: #171614 !important;
+  color: #f5eee5 !important;
+}
+body.dark-theme .landing-page :is(h1,h2,h3,h4,p,span,small,strong,em),
+body.dark-theme .landing-editorial-copy,
+body.dark-theme .landing-section-heading,
+body.dark-theme .landing-why-card,
+body.dark-theme .landing-why-card p,
+body.dark-theme .landing-editorial-copy > p:not(.section-label),
+body.dark-theme .landing-final-login,
+body.dark-theme .seasonal-footer-line,
+body.dark-theme .seasonal-footer-line a {
+  color: #f5eee5 !important;
+}
+body.dark-theme .landing-why-card,
+body.dark-theme .landing-discover-card,
+body.dark-theme .landing-seasonal .seasonal-manifesto {
+  background-color: #211f1b !important;
+  border-color: #443a30 !important;
+}
+body.dark-theme .landing-newsletter {
+  background: #211e1a !important;
+  color: #f8f1e8 !important;
+}
+body.dark-theme .landing-newsletter :is(h1,h2,h3,p,span,small,label) {
+  color: #f8f1e8;
+}
+body.dark-theme .landing-newsletter .landing-newsletter-copy > p:not(.section-label),
+body.dark-theme .landing-newsletter-copy small {
+  color: #d1c3b3 !important;
+}
+body.dark-theme .landing-newsletter-form {
+  border-color: #76614a !important;
+}
+body.dark-theme .landing-newsletter-form input,
+body.dark-theme .landing-newsletter-form button {
+  color: #fff7ee !important;
+}
+body.dark-theme .landing-newsletter-form input::placeholder {
+  color: #c7b8a7 !important;
+}
+body.dark-theme .landing-newsletter-core {
+  background: #332a21 !important;
+  color: #fff7ee !important;
+  border-color: #d4a24c !important;
+}
+body.dark-theme .landing-newsletter-core *,
+body.dark-theme .landing-newsletter-mark > b {
+  color: #fff7ee !important;
+}
+body.dark-theme .landing-newsletter-core small {
+  color: #d1c3b3 !important;
+}
+body.dark-theme .landing-orbit {
+  border-color: rgba(233,189,135,.68) !important;
+}
+body.dark-theme .landing-final-login,
+body.dark-theme .landing-text-link {
+  color: #e9bd87 !important;
+}
+body.dark-theme .landing-btn-secondary {
+  color: #fff7ee !important;
+  background: #29251f !important;
+  border-color: #8a7055 !important;
+}
+body.dark-theme .landing-final .section-label {
+  color: #e9bd87 !important;
+}
+
+/* Keep icons and all text inside dropdown/menu surfaces readable. */
+body.dark-theme .more-dropdown *,
+body.dark-theme .shop-actions .more-dropdown * {
+  color: #f8f0e6 !important;
+}
+body.dark-theme .more-dropdown a:hover,
+body.dark-theme .more-dropdown button:hover {
+  background: #493a2c !important;
+  color: #fffaf3 !important;
+}
