@@ -192,6 +192,8 @@ function Navbar() {
     }
   });
 
+  const [deliveryDropdownOpen, setDeliveryDropdownOpen] = useState(false);
+
   /* =======================================================
      LOAD CART COUNT
   ======================================================= */
@@ -636,37 +638,58 @@ function Navbar() {
 
         {userName && deliveryAddress && (
           <div className="shop-delivery-location">
-            <label className="shop-delivery-label" htmlFor="shop-delivery-address">
-              {language === "Hindi" ? "डिलीवर करें: " + userName : "Deliver to " + userName}
-            </label>
-            <select
-              id="shop-delivery-address"
-              className="shop-delivery-select"
-              value={deliveryAddresses.findIndex((address) =>
-                address.address === deliveryAddress.address &&
-                address.pincode === deliveryAddress.pincode &&
-                address.city === deliveryAddress.city &&
-                address.fullName === deliveryAddress.fullName
-              )}
-              title={deliveryAddress.address || "Delivery address"}
+            <button
+              type="button"
+              className="shop-delivery-trigger"
+              aria-expanded={deliveryDropdownOpen}
+              aria-haspopup="listbox"
               aria-label={language === "Hindi" ? "डिलीवरी पता बदलें" : "Change delivery address"}
-              onChange={(event) => {
-                const selected = deliveryAddresses[Number(event.target.value)];
-                if (!selected) return;
-                setDeliveryAddress(selected);
-                localStorage.setItem("shopSphereDeliveryAddress", JSON.stringify(selected));
-                window.dispatchEvent(new Event("deliveryUpdated"));
-              }}
+              title={deliveryAddress.address || "Delivery address"}
+              onClick={() => setDeliveryDropdownOpen((open) => !open)}
             >
-              {deliveryAddresses.map((address, index) => (
-                <option value={index} key={[
-                  address.address, address.city, address.pincode, index
-                ].join("-")}>
-                  {(address.city || "Address") + (address.pincode ? " " + address.pincode : "")}
-                  {address.address ? " · " + address.address : ""}
-                </option>
-              ))}
-            </select>
+              <span className="shop-delivery-label">
+                {language === "Hindi" ? "डिलीवर करें: " + userName : "Deliver to " + userName}
+              </span>
+              <span className="shop-delivery-current">
+                {(deliveryAddress.city || "Address") +
+                  (deliveryAddress.pincode ? " " + deliveryAddress.pincode : "")}
+              </span>
+              <span className="shop-delivery-chevron" aria-hidden="true">▾</span>
+            </button>
+
+            {deliveryDropdownOpen && (
+              <div className="shop-delivery-dropdown" role="listbox" aria-label={language === "Hindi" ? "सेव किए गए पते" : "Saved delivery addresses"}>
+                {deliveryAddresses.map((address, index) => {
+                  const isSelected =
+                    address.address === deliveryAddress.address &&
+                    address.pincode === deliveryAddress.pincode &&
+                    address.city === deliveryAddress.city &&
+                    address.fullName === deliveryAddress.fullName;
+
+                  return (
+                    <button
+                      type="button"
+                      role="option"
+                      aria-selected={isSelected}
+                      className={"shop-delivery-option" + (isSelected ? " is-selected" : "")}
+                      key={[address.address, address.city, address.pincode, index].join("-")}
+                      onClick={() => {
+                        setDeliveryAddress(address);
+                        localStorage.setItem("shopSphereDeliveryAddress", JSON.stringify(address));
+                        setDeliveryDropdownOpen(false);
+                        window.dispatchEvent(new Event("deliveryUpdated"));
+                      }}
+                    >
+                      <strong>
+                        {(address.city || "Address") +
+                          (address.pincode ? " " + address.pincode : "")}
+                      </strong>
+                      <span>{address.address || address.fullName || ""}</span>
+                    </button>
+                  );
+                })}
+              </div>
+            )}
           </div>
         )}
 
