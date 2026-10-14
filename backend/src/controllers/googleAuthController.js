@@ -5,8 +5,7 @@ const User = require('../models/userModel');
 const { sendLoginEmail } = require('../utils/emailService');
 
 const GOOGLE_CLIENT_ID =
-    process.env.GOOGLE_CLIENT_ID ||
-    '744043508753-234rcf5jmkfcfc4aijvuoee1dq9mda0r.apps.googleusercontent.com';
+    process.env.GOOGLE_CLIENT_ID;
 
 const googleClient = new OAuth2Client(
     GOOGLE_CLIENT_ID
